@@ -4,8 +4,8 @@ import { ApiConfig } from '@/services/core/types';
 // import { ApiConfig } from '../../services/core/types';
 
 
-const baseUrl: string = 'http://192.168.1.107:5000';
-// const baseUrl: string = 'http://localhost:7000'
+
+const baseUrl: string = 'http://localhost:5000'
 
 // Helper function to get the token from AsyncStorage
 const getToken = async (): Promise<string> => {
