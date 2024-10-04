@@ -104,31 +104,27 @@ const placeholderColor = theme === 'dark' ? '#fff' : '#000';
 
 
 const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+  const currentDate = selectedDate || new Date(); 
+  
   if (event.type === 'set') {
-    const currentDate = selectedDate || new Date(); 
-    setShowDatePicker(false);
-    setSelectedDate(currentDate);
-    setDob(currentDate.toLocaleDateString());
-    if (Platform.OS ==="android") {
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
       toggleDatePicker();
+      setSelectedDate(currentDate);
+      setDob(currentDate.toLocaleDateString());
+    } else {
+      setSelectedDate(currentDate);
       setDob(currentDate.toLocaleDateString());
     }
   } else {
-    toggleDatePicker()
+    toggleDatePicker();
     setShowDatePicker(false);
   }
 };
 
-
 const toggleDatePicker = () => {
   setShowDatePicker(!showDatePicker);
 }
-
-// const confirmIOSDate = () => {
-//   setSelectedDate(new Date());
-//   setDob(new Date().toLocaleDateString());
-//   toggleDatePicker()
-// }
 
 
 const confirmIOSDate = () => {
