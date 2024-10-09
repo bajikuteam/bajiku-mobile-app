@@ -68,8 +68,7 @@ const LoginScreen = () => {
         setFormError(errorData.message);
   
         // Show alert with the server's error message
-        alert(errorData.message || 'An error occurred during login.');
-        console.log('Login error:', errorData.message); 
+        alert(errorData.message || 'An error occurred during login.')
       }
     } catch (err: unknown) {
       // Check if the error is an instance of Error
@@ -82,7 +81,6 @@ const LoginScreen = () => {
       setLoading(false);
     }
   };
-  
   
   
 
