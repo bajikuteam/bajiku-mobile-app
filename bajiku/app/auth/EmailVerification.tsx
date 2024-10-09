@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native'; 
+import { useNavigation} from '@react-navigation/native'; 
 import ImageTextContainer from '@/components/ImageTextContainer';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import { router } from 'expo-router';
 import { verifyEmail } from '@/services/api/request';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '@/utils/useContext/ThemeContext';
 
 const EmailVerification: React.FC = () => {
   const inputsRef = useRef<(TextInput | null)[]>([]);
@@ -15,6 +16,18 @@ const EmailVerification: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState<number>(120);
   const [canResend, setCanResend] = useState(false);
+  const { theme } = useTheme(); 
+  const textColor = theme === 'dark' ? '#fff' : '#000';
+
+
+  const navigation = useNavigation();
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false, 
+    });
+  }, [navigation]);
+
 
 
   useEffect(() => {
@@ -47,7 +60,7 @@ const EmailVerification: React.FC = () => {
   
       const response = await verifyEmail(token, otpString);
       AsyncStorage.setItem('userId', response.userId);
-      router.push('/SetPassword');
+      router.push('/auth/SetPassword');
     } catch (err) {
       setError('Invalid OTP. Please try again.');
     } finally {
@@ -65,12 +78,9 @@ const EmailVerification: React.FC = () => {
 
   const handleInputChange = (value: string, index: number) => {
     if (value === '') {
-      // Handle backspace
       const newOtp = [...otp];
       newOtp[index] = '';
       setOtp(newOtp);
-
-      // Move focus to the previous input
       if (index > 0) {
         inputsRef.current[index - 1]?.focus();
       }
@@ -82,8 +92,6 @@ const EmailVerification: React.FC = () => {
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-
-    // Move focus to the next input if the current value is valid
     if (value && index < 5) {
       inputsRef.current[index + 1]?.focus();
     }
@@ -113,6 +121,7 @@ const EmailVerification: React.FC = () => {
             style={[
               styles.input,
               error && !digit ? styles.inputError : null,
+              { color: textColor }
             ]}
             value={digit}
             onChangeText={(value) => handleInputChange(value, index)}

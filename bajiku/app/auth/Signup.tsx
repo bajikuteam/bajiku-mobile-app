@@ -12,12 +12,13 @@ import {
   SafeAreaView,
   Pressable,
   TextInput,
+  Alert,
 } from 'react-native';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import SocialButton from '@/components/SocialButton';
 import { useTheme } from '@/utils/useContext/ThemeContext';
-import { Link, router } from 'expo-router';
+import { Link, router, useNavigation } from 'expo-router';
 import { registerUser } from '@/services/api/request';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
@@ -25,11 +26,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const { height } = Dimensions.get('window');
 
-interface SignUpModalProps {
-  visible: boolean;
-  onClose: () => void;
-}
-const SignUpModal: React.FC<SignUpModalProps> = () => {
+
+const SignUpScreen = () => {
   const { theme } = useTheme(); 
   const [email, setEmail] = useState('');
   const [dob, setDob] = useState('');
@@ -38,11 +36,19 @@ const SignUpModal: React.FC<SignUpModalProps> = () => {
   const textColor = theme === 'dark' ? '#fff' : '#000';
   const [emailError, setEmailError] = useState<string | null>(null);
   const [dateOfBirthError, setDateOfBirthError] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const navigation = useNavigation();
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false, 
+    });
+  }, [navigation]);
+
+  
 
   // Validate email for both presence and correct format
   const validateEmail = () => {
@@ -63,42 +69,67 @@ const SignUpModal: React.FC<SignUpModalProps> = () => {
     }
   };
 
-  
- 
+
+
 const handleRegister = async () => {
   validateEmail();
-    validateDateOfBirth();
-  
-    if (emailError || dateOfBirthError || !email || !dob) {
-      return;
-    }  
+  validateDateOfBirth();
+
+  if (emailError || dateOfBirthError || !email || !dob) {
+    return;
+  }
 
   setLoading(true);
   setError('');
 
   try {
-    const response = await registerUser(email, dob); 
-
-    console.log('API Response:', response); 
+    const response = await registerUser(email, dob);
 
     if (response.token) {
       await AsyncStorage.setItem('token', response.token);
-      setTimeout(() => {
-        router.push('/EmailVerification');
-      }, 2000);
+      setEmail('');
+      setDob('');
+      setSelectedDate(new Date());
+      setEmailError(null);
+      setDateOfBirthError(null);
+
+  
+        router.push('/auth/EmailVerification');
+   
     } else {
       setError('Registration failed');
+      Alert.alert('Error', 'Registration failed');
     }
   } catch (err) {
-    if (err instanceof Error) {
-      setError(err.message);
+    if (isAxiosError(err)) {
+      // Axios error handling
+      if (err.response && err.response.status === 409 && err.response.data?.message) {
+        Alert.alert('Error', err.response.data.message); 
+      } else {
+        Alert.alert('Error', 'An unexpected error occurred');
+      }
+    } else if (isErrorWithMessage(err)) {
+      Alert.alert('Error', err.message); 
     } else {
-      setError('An unknown error occurred');
+      Alert.alert('Error', 'An unknown error occurred');
     }
   } finally {
     setLoading(false);
   }
 };
+
+// Type guard to check if the error is an Axios error
+function isAxiosError(error: unknown): error is { response?: { status: number; data?: { message?: string } } } {
+  return typeof error === 'object' && error !== null && 'response' in error;
+}
+
+// Type guard to check if the error has a message
+function isErrorWithMessage(error: unknown): error is { message: string } {
+  return typeof error === 'object' && error !== null && 'message' in error;
+}
+
+
+// error.response.data.message
 
 const placeholderColor = theme === 'dark' ? '#fff' : '#000';
 
@@ -169,7 +200,7 @@ const confirmIOSDate = () => {
                               placeholderTextColor={placeholderColor } 
                               name={''}           
                                />
-                                {emailError && <Text className="text-red-500 absolute  text-[12px]">{emailError}</Text>}
+                                {emailError && <Text className="text-red-500   text-[12px]">{emailError}</Text>}
 
               {showDatePicker && (
               <DateTimePicker
@@ -268,7 +299,7 @@ const confirmIOSDate = () => {
 
 
                  <View className='flex items-center text-center justify-center mt-8' >
-               <Link href={"/Login"}>  <Text style={[{ textAlign: 'center', fontSize: 14 }, { color: textColor }]}>
+               <Link href={"/auth/Login"}>  <Text style={[{ textAlign: 'center', fontSize: 14 }, { color: textColor }]}>
                 Already have an account? 
                   <Text 
                     className="text-red-500 underline" 
@@ -313,7 +344,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    height: height * 0.75,
+    height: height * 0.9,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
@@ -417,4 +448,4 @@ marginTop: -10,
 
 });
 
-export default SignUpModal;
+export default SignUpScreen;

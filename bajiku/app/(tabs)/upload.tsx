@@ -1,6 +1,4 @@
-import MediaPlayer from '@/components/MediaPlayer';
-import PostWithCaption from '@/components/PostWithCaption';
-import Sidebar from '@/components/Sidebar';
+
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
  
@@ -42,7 +40,7 @@ const postsData = [
 const UploadScreen = () => {
     return (
         <ScrollView contentContainerStyle={styles.container}>
-         
+         {/* <ImageUpload/> */}
             {/* <View style={  styles.sidebar}>   <Sidebar/></View> */}
       {/* {postsData.map((post, index) => (
         <PostWithCaption
@@ -64,15 +62,15 @@ const styles = StyleSheet.create({
     container: {
       flexGrow: 1,
     //   padding: 16,
-      backgroundColor: 'black', // or any background color you prefer
+      backgroundColor: 'black',
     },
     sidebar: {
         position: 'absolute',
         left: 0,
         top: 0,
-        zIndex: 10,  // Ensure the sidebar stays on top
+        zIndex: 10, 
         height: '100%',
-        width: '100%', // or any width you prefer
+        width: '100%', 
   
     },
   });

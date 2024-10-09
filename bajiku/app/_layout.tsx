@@ -1,20 +1,20 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { ThemeProvider, useTheme } from '@/utils/useContext/ThemeContext';
 import { UserProvider } from '@/utils/useContext/UserContext';
+import Loading from '@/components/Loading'; 
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   return (
     <ThemeProvider>
-       <UserProvider>
-       <RootLayout />
-       </UserProvider>
-    
+      <UserProvider>
+        <RootLayout />
+      </UserProvider>
     </ThemeProvider>
   );
 }
@@ -25,14 +25,29 @@ function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    if (loaded) {
+    const timer = setTimeout(() => {
+      setLoading(false);
+      SplashScreen.hideAsync();
+    }, 5000); 
+
+    return () => clearTimeout(timer); 
+  }, []);
+
+  useEffect(() => {
+    if (loaded && !loading) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [loaded, loading]);
+
+  if (loading) {
+    return <Loading />; 
+  }
 
   if (!loaded) {
-    return null;
+    return null; 
   }
 
   const headerStyle = {
@@ -43,58 +58,32 @@ function RootLayout() {
 
   return (
     <NavigationThemeProvider value={theme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+      <Stack >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen 
           name="Login" 
-          options={{
-            headerTitle: 'Login', 
-            headerBackVisible: false,
-            headerShown: true,
-            headerBackTitle: '', 
-            headerStyle: headerStyle,
-            headerTintColor: headerTintColor,
-          }} 
+          options={{ headerShown: false }} 
         />
         <Stack.Screen 
           name="Signup" 
-          options={{
-            headerShown: true,
-            headerBackVisible: false,
-            headerBackTitle: '', 
-            headerStyle: headerStyle,
-            headerTintColor: headerTintColor,
-          }} 
+          options={{ headerShown: false }} 
+           
         />
         <Stack.Screen 
           name="EmailVerification" 
-          options={{
-            headerTitle: 'Verify Your Email', 
-            headerBackTitle: '', 
-            headerStyle: headerStyle,
-            headerTintColor: headerTintColor,
-          }} 
+          
+          options={{ headerShown: false }} 
         />
         <Stack.Screen 
           name="ForgetPassword" 
-          options={{
-            headerTitle: 'Forget Password', 
-            headerBackVisible: false,
-            headerShown: true,
-            headerBackTitle: '', 
-            headerStyle: headerStyle,
-            headerTintColor: headerTintColor,
-          }} 
+          options={{ headerShown: false }} 
         />
         <Stack.Screen 
           name="SetPassword" 
-          options={{
-            headerTitle: 'Set Password', 
-            headerBackVisible: false,
-            headerBackTitle: '', 
-            headerStyle: headerStyle,
-            headerTintColor: headerTintColor,
-          }} 
+/>
+        <Stack.Screen 
+          name="SetProfile"
+          options={{ headerShown: false }} 
         />
       </Stack>
     </NavigationThemeProvider>

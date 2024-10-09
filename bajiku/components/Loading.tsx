@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   bouncingText: {
-    color: 'white',
+    color: '#D84773',
     fontSize: 40,
   },
 });

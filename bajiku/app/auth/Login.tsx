@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TouchableWithoutFeedback,
-  Modal,
   StyleSheet,
   Dimensions,
   TouchableOpacity,
@@ -11,39 +9,46 @@ import {
   Platform,
   ScrollView,
   SafeAreaView,
-  Alert,
 } from 'react-native';
 import Button from '@/components/Button';
-import Input from '@/components/Input';
 import SocialButton from '@/components/SocialButton';
 import { useTheme } from '@/utils/useContext/ThemeContext';
-import { Link, router } from 'expo-router';
+import { Link, router, useNavigation } from 'expo-router';
 import { loginUser } from '@/services/api/request';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '@/utils/useContext/UserContext';
-
+import { Ionicons } from '@expo/vector-icons'; 
+import { Input } from 'react-native-elements';
 const { height } = Dimensions.get('window');
 
-interface LoginModalProps {
-  visible: boolean;
-  onClose: () => void;
-}
 
-const LoginModal: React.FC<LoginModalProps> = ({ visible, onClose }) => {
-  const [rememberMe, setRememberMe] = useState(false);
+
+const LoginScreen = () => {
   const { theme } = useTheme(); 
   const textColor = theme === 'dark' ? '#fff' : '#000';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
   const { handleLogin } = useUser();
+  const [showPassword, setShowPassword] = useState(false);
+  const navigation = useNavigation();
 
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false, 
+    });
+  }, [navigation]);
+
+  
   
   const submitLogin = async () => {
     setLoading(true);
-    setError(''); // Clear previous error message
+    setError(''); 
+    setFormError(null);
+    
     try {
       const response = await loginUser(email, password);
       
@@ -54,30 +59,34 @@ const LoginModal: React.FC<LoginModalProps> = ({ visible, onClose }) => {
   
         await AsyncStorage.setItem('id', id);  
         await AsyncStorage.setItem('token', token);
-  
-        // Navigate to the tabs
         router.push('/(tabs)/');
   
         const userData = responseData.user;
         await handleLogin(userData);
       } else {
-        // Show alert with server's error message
-        const errorMessage = error || 'Login failed, please check your credentials.';
-        alert(errorMessage);
-        console.log(errorMessage);
+        const errorData = responseData;
+        setFormError(errorData.message);
+  
+        // Show alert with the server's error message
+        alert(errorData.message || 'An error occurred during login.');
+        console.log('Login error:', errorData.message); 
       }
-    } catch (err) {
-      // Show alert for generic error
-      alert('An error occurred. Please try again.');
-      // console.error('Error during login:', err);
+    } catch (err: unknown) {
+      // Check if the error is an instance of Error
+      if (err instanceof Error) {
+        alert(err.message || 'An unexpected error occurred. Please try again later.');
+      } else {
+        alert('An unexpected error occurred. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }
   };
   
   
+  
 
-
+const labelColor = '#FBBC05'
   return (
   
        
@@ -97,38 +106,58 @@ const LoginModal: React.FC<LoginModalProps> = ({ visible, onClose }) => {
               <Text style={styles.modalTitle} className='text-[#FBBC05]'>
                 Sign in to get started
               </Text>
-              {/* {successMessage ? <Text className='text-center text-green-500'>{successMessage}</Text> : null} */}
-
               <View className='flex-1 items-center'>
-              <Input
+                             <Input
                               label="Email"
-                              style={[styles.input, { color: textColor }]}
+                              style={[ { color: textColor }]}
+                              containerStyle={styles.inputContainer} 
+                              inputContainerStyle={styles.input}
+                              inputStyle={{ color: textColor, fontSize: 12 }} 
                               placeholder="Enter Email Address"
                               value={email}
+                              labelStyle={{ color: labelColor }}
                               onChangeText={(text) => {
                                 setEmail(text);
                                 setError(''); 
                                 // setEmailError('')
                               }}
-                              // placeholderTextColor={placeholderColor } 
-                              name={''}           
+                                   
                                />
-                                 <Input
-                             
-                             style={[styles.input, { color: textColor, zIndex: 1 }]} 
+
+                            
+                              <Input                           
+                              secureTextEntry={!showPassword}
+                              style={[ { color: textColor }]}
+                              containerStyle={styles.inputContainer} 
+                              inputContainerStyle={styles.input}
+                              inputStyle={{ color: textColor, fontSize: 12 }} 
+                              labelStyle={{ color: labelColor }}
                                   placeholder="Passworder"
                                 label='Password'
                               value={password}
                               onChangeText={(text) => {
                                 setPassword(text);
                                 setError(''); 
-                                // setEmailError('')
+                            
                               }}
-
-                              name={password}           
+                                  className='relative'   
                                />
+                            <TouchableOpacity
+                              style={styles.eyeButton}
+                              onPress={() => setShowPassword(!showPassword)} 
+                              className='-mt-2'
+                            >
+                              {showPassword ? (
+                                <Ionicons name="eye" size={20} color="#488fee" />
+                              ) : (
+                                <Ionicons name="eye-off" size={20} color="#488fee" />
+                              )}
+                            </TouchableOpacity>
+                          {/* </View> */}
+                          {formError && <span className="text-red-500 text-sm">{formError}</span>}
 
-<Button
+
+              <Button
               text={loading ? 'Submitting...' : 'Login'}
               variant="primary"
               onClick={submitLogin }
@@ -154,20 +183,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ visible, onClose }) => {
           variant="primary"
            image="https://res.cloudinary.com/dyz7znlj0/image/upload/v1726888560/Social_Icons_fdhtsm.png"
         />
-        {/* <View className='mt-4'></View> */}
-           {/* <SocialButton
-          text="Continue with X"
-          variant="primary"
-           image="https://res.cloudinary.com/dyz7znlj0/image/upload/v1726888553/Social_Icons_1_duxi1c.png"
-        />
-        <View className='mt-4'></View>
-           <SocialButton
-          text="Continue with Apple"
-          variant="primary"
-           image="https://res.cloudinary.com/dyz7znlj0/image/upload/v1726888544/Social_Icons_2_khidul.png"
-        /> */}
                 <View className='flex items-center text-center justify-center mt-8' >
-              <Link href={"/Signup"}> <Text style={[{ textAlign: 'center', fontSize: 14 }, { color: textColor }]}>
+              <Link href={"/auth/Signup"}> <Text style={[{ textAlign: 'center', fontSize: 14 }, { color: textColor }]}>
                   Don’t have an account? 
                   <Text 
                     className="text-red-500 underline" 
@@ -212,7 +229,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    height: height * 0.75,
+    height: height * 0.9,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
@@ -233,6 +250,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 15,
     justifyContent: 'center',
+    height: 38
   },
   checkboxContainer: {
     flexDirection: 'row',
@@ -277,6 +295,19 @@ const styles = StyleSheet.create({
   lightModal: {
     backgroundColor: '#fff', 
   },
+  inputWrapper: {
+    position: 'relative',
+    marginBottom: 10,
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 20,
+    top: "24%",
+    
+  },
+  inputContainer: {
+    borderBottomWidth:0, 
+  },
 });
 
-export default LoginModal;
+export default LoginScreen;

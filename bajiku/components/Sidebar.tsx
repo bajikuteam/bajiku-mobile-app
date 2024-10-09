@@ -99,7 +99,7 @@ const Sidebar: React.FC = () => {
                   // style={styles.profileImage}
                   className='w-[40px] h-[40px] rounded-[10px]' />
               ) : (
-                <FontAwesome name="user" size={60} color={iconColor} />
+                <FontAwesome name="user" size={50} color={iconColor} />
               )}
               <View className='flex-row gap-1 text-[10px]'>
                 <Text className='text-[12px]' style={[{ color: textColor }]}>
@@ -137,19 +137,27 @@ const Sidebar: React.FC = () => {
             {!user ? (
               <>
                 <View className="flex items-center mt-4">
-                  <Link href="/Login" onPress={handleClose}>
+                  <Link href="/auth/Login" onPress={handleClose}>
                     <View className="bg-red-500 w-[180px] h-[38px] rounded-[12px] items-center justify-center text-center text-white">
                       <Text className="text-center text-white pt-1 text-xs">Login</Text>
                     </View>
                   </Link>
                 </View>
                 <View className="flex items-center mt-4">
-                  <Link href="/Signup" onPress={handleClose}>
+                  <Link href="/auth/Signup" onPress={handleClose}>
                     <View className="bg-red-500 w-[180px] h-[38px] rounded-[12px] items-center justify-center text-center text-white">
                       <Text className="text-center text-white pt-1 text-xs">Get Started</Text>
                     </View>
                   </Link>
                 </View>
+
+                {/* <View className="flex items-center mt-4">
+                  <Link href="/auth/SetPassword" onPress={handleClose}>
+                    <View className="bg-red-500 w-[180px] h-[38px] rounded-[12px] items-center justify-center text-center text-white">
+                      <Text className="text-center text-white pt-1 text-xs">Profile</Text>
+                    </View>
+                  </Link>
+                </View> */}
               </>
             ) : (
               <TouchableOpacity onPress={handleLogout } style={styles.logoutButton}>

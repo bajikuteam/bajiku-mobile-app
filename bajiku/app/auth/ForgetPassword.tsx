@@ -7,8 +7,6 @@ import React from 'react';
 import {
     View,
     Text,
-    TouchableWithoutFeedback,
-    Modal,
     StyleSheet,
     Dimensions,
     TouchableOpacity,
@@ -69,24 +67,21 @@ const ForgetPassword = () => {
                 />
 
                
-                  <View  >
-                  <Link href={"/SetPassword"}> <Text >Set Password</Text> </Link>
+                  {/* <View  >
+                  <Link href={"/auth/SetPassword"}> <Text >Set Password</Text> </Link>
                  
                 </View>
 
                 <View  >
-                  <Link href={"/EmailVerification"}> <Text >verify email</Text> </Link>
+                  <Link href={"/auth/EmailVerification"}> <Text >verify email</Text> </Link>
                  
-                </View>
+                </View> */}
               
           
        
                
               </View>
 
-              
-
-              {/* <SignUpModal visible={signUpVisible} onClose={() => setSignUpVisible(false)} /> */}
             </View>
           </ScrollView>
         </SafeAreaView>
