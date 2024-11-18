@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "bajiku",
+    "slug": "bajiku",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/images/welcome.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "bajiku.com"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/welcome.png",
+        "backgroundColor": "#000000"
+      },
+      "package": "bajiku.com",
+      "googleServiceFile": "./google-services.json"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "9c5bbd68-54a1-40a5-b3d0-3756e85ab54c"
+      }
+    },
+    "owner": "eehimuebru"
+  }
+}
