@@ -3,7 +3,7 @@ import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndi
 import axios from 'axios';
 import { useUser } from '@/utils/useContext/UserContext'; 
 import SearchComponent from '@/components/Search';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { RootStackParamList } from '@/services/core/types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -121,12 +121,15 @@ const FollowersScreen = () => {
                     <TouchableOpacity
                         style={styles.messageButton}
                         onPress={() => {
-                            navigation.navigate('message', {
+                            router.push({pathname:'/message', params:{
                                 profileImageUrl: item.profileImageUrl || '', 
                                 username: item.username,
                                 senderId: user.id, 
                                 receiverId: item._id, 
                                 senderName: user.username, 
+                                
+                            }
+                             
                             });
                         }}
                     >
@@ -152,8 +155,7 @@ const FollowersScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" />
-
+            <StatusBar barStyle="light-content" backgroundColor="#075E54" />
             <View style={styles.searchComponent}>
                 <SearchComponent
                     endpoint="https://api.example.com/users"

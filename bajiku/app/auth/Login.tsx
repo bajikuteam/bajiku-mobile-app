@@ -113,7 +113,7 @@ const LoginScreen = () => {
   
         await AsyncStorage.setItem('id', id);  
         await AsyncStorage.setItem('token', token);
-        router.push('/(tabs)/');
+        router.push('/(tabs)');
   
         const userData = responseData.user;
         await handleLogin(userData);

@@ -27,16 +27,16 @@ const CreateGroupComponent: React.FC = () => {
   const navigation = useNavigation()
 
 
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: true, 
-      title: 'Create A New Private Room', 
-      headerStyle: {
-        backgroundColor: '#075E54', 
-      },
-      headerTintColor: '#fff',
-    });
-  }, [navigation]);
+  // React.useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerShown: true, 
+  //     title: 'Create A New Private Room', 
+  //     headerStyle: {
+  //       backgroundColor: '#075E54', 
+  //     },
+  //     headerTintColor: '#fff',
+  //   });
+  // }, [navigation]);
 
   const fetchFollowers = async () => {
     try {

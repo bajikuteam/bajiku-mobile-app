@@ -1,6 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, Animated, StyleSheet, Modal, ScrollView} from 'react-native';
-import { ResizeMode, Video } from 'expo-av';
+// import { ResizeMode, Video } from 'expo-av';
+import { useVideoPlayer, VideoPlayer as Video, VideoView } from 'expo-video';
+
+
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AddComment from './AddComment';
 import { useFocusEffect } from '@react-navigation/native';
@@ -11,6 +14,8 @@ import { useUser } from '@/utils/useContext/UserContext';
 import { formatTime } from '@/services/core/globals';
 import { io } from 'socket.io-client';
 import Loading from './Loading';
+
+import { useEvent } from 'expo';
 const socket = io('https://backend-server-quhu.onrender.com'); 
 // const socket = io('http://192.168.1.107:5000/'); 
 
@@ -63,10 +68,12 @@ export default function PostWithCaption() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isPlaying, setIsPlaying] = useState<boolean[]>([]);
   const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [mediaSources, setMediaSources] = useState<any[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const { user } = useUser();
-  const [loading, setLoading] = useState(true); // Add loading state here
+  const [loading, setLoading] = useState(true); 
 
+  // const videoPlayer = useVideoPlayer(); // Hook to control video playback
 
   
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -120,6 +127,10 @@ export default function PostWithCaption() {
       const response = await fetch('https://backend-server-quhu.onrender.com/content');
       const data = await response.json();
       setVideos(data);
+      const mediaSources: string[] = data.map((video: VideoItem) => video.mediaSrc);
+
+      setMediaSources(mediaSources);  // Assuming you want to store these values in a state
+
       setIsPlaying(new Array(data.length).fill(false));
       const allComments = data.flatMap((video: VideoItem) => video.comments || []);
       setComments(allComments);
@@ -152,7 +163,7 @@ export default function PostWithCaption() {
         const index = Math.floor(event.nativeEvent.contentOffset.y / 566);
         if (index !== activeVideoIndex) {
           if (videoRefs.current[activeVideoIndex]) {
-            videoRefs.current[activeVideoIndex]?.pauseAsync();
+            videoRefs.current[activeVideoIndex]?.pause();
             setIsPlaying(prev => {
               const newState = [...prev];
               newState[activeVideoIndex] = false;
@@ -165,12 +176,65 @@ export default function PostWithCaption() {
     }
   );
 
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Resume video playback based on the active video index when the screen regains focus
+      if (videoRefs.current[activeVideoIndex]) {
+        videoRefs.current[activeVideoIndex]?.play();
+        setIsPlaying(prev => {
+          const newState = [...prev];
+          newState[activeVideoIndex] = true;
+          return newState;
+        });
+      }
+  
+      return () => {
+        // Optionally, you can also pause all videos when the screen is blurred
+        videoRefs.current.forEach((videoRef, idx) => {
+          if (videoRef) {
+            videoRef.pause();
+            setIsPlaying(prev => {
+              const newState = [...prev];
+              newState[idx] = false;
+              return newState;
+            });
+          }
+        });
+      };
+    }, [activeVideoIndex]) // Make sure to trigger this when the activeVideoIndex changes
+  );
+  
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Trigger pulse animation when screen is focused
+      Animated.sequence([
+        Animated.timing(pulseAnimation, {
+          toValue: 1.1, // make the video slightly bigger
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnimation, {
+          toValue: 1, // return to normal size
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      return () => {
+        // Reset animation when screen is unfocused
+        pulseAnimation.setValue(1);
+      };
+    }, [pulseAnimation])
+  );
+
   const handleVideoClick = () => {
     const currentPlaying = isPlaying[activeVideoIndex];
     if (currentPlaying) {
-      videoRefs.current[activeVideoIndex]?.pauseAsync();
+      videoRefs.current[activeVideoIndex]?.pause();
     } else {
-      videoRefs.current[activeVideoIndex]?.playAsync();
+      videoRefs.current[activeVideoIndex]?.play();
     }
     setIsPlaying(prev => {
       const newState = [...prev];
@@ -269,6 +333,8 @@ const openCommentsModal = async (videoItem: VideoItem) => {
       // console.error("Error sending comment:", error);
     }
   };
+
+  
   const sendReplyToComment = async (comment:string, mediaId:string, commentId:string, username:string) => {
     try {
       const payload = {
@@ -427,23 +493,31 @@ const likeComment = async (commentId: string, mediaId:string) => {
   }
 };
 
+const [currentVideoIndex, setCurrentVideoIndex] = useState(0);  // State to track the current video
+
+const switchVideo = (index: number) => {
+  setCurrentVideoIndex(index);  // Update the current video index
+};
+// const videoSource = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4'; 
+const videoSource = mediaSources[currentVideoIndex];  // Use the current video source
+const player = useVideoPlayer(videoSource, (player) => {
+  player.loop = true;
+  player.play();
+});
+
   const renderItem = ({ item, index }: { item: VideoItem; index: number }) => {
     const isPrivate = item.privacy === 'private';
     const isLikedByUser = item.likedBy.includes(user && user.id);
-    
+    // const videoSource = item.mediaSrc; 
+
     return (
+      
       <View style={{ width: '100%', backgroundColor: '#010101', paddingBottom: 20, }}>
         {isVideo(item.mediaSrc) && !isPrivate ? (
           <TouchableOpacity activeOpacity={1} onPress={handleVideoClick}>
             <Animated.View style={{ transform: [{ scale: pulseAnimation }] }}>
-              <Video
-                ref={ref => (videoRefs.current[index] = ref)}
-                style={{ height: 520, width: '100%' }}
-                source={{ uri: item.mediaSrc }}
-                resizeMode={ResizeMode.COVER}
-                shouldPlay={activeVideoIndex === index && isPlaying[index]}
-                isLooping
-              />
+            <VideoView player={player} style={{ height: 520, width: '100%' }} nativeControls={false} />
+             
               {!isPlaying[index] && (
                 <View style={styles.overlay}>
                   <Ionicons name="play-circle" size={60} color="#fff" />
@@ -462,7 +536,7 @@ const likeComment = async (commentId: string, mediaId:string) => {
               <BlurView intensity={100} style={styles.blurView}>
                   <Ionicons name="lock-closed" size={50} color="#fff" />
                 </BlurView>
-                <Text>Click to unlock content</Text>
+                <Text className='text-black'>Click to unlock content</Text>
                 </>
             )}
           </View>
@@ -535,35 +609,6 @@ const likeComment = async (commentId: string, mediaId:string) => {
       </View>
     );
   };
-
-  useFocusEffect(
-    React.useCallback(() => {
-      if (videoRefs.current[activeVideoIndex]) {
-        videoRefs.current[activeVideoIndex]?.playAsync();
-        setIsPlaying(prev => {
-          const newState = [...prev];
-          newState[activeVideoIndex] = true;
-          return newState;
-        });
-      }
-
-
-      
-
-      return () => {
-        videoRefs.current.forEach((videoRef, idx) => {
-          if (videoRef) {
-            videoRef.pauseAsync();
-            setIsPlaying(prev => {
-              const newState = [...prev];
-              newState[idx] = false;
-              return newState;
-            });
-          }
-        });
-      };
-    }, [activeVideoIndex])
-  );
 
 const [replyModalVisible, setReplyModalVisible] = useState(false);
 const [selectedComment, setSelectedComment] = useState<Comment | null>(null);

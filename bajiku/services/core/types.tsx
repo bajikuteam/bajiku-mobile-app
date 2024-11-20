@@ -94,7 +94,23 @@ export interface PostWithCaptionProps {
 // Example type definition in your types.ts file
 export type RootStackParamList = {
   message: {profileImageUrl?:string, username?:string, userName?: string; room?: string; senderId?: string; receiverId?: string; firstName?:string; lastName?:string; senderName?:string ;   lastMessage?: string; // Add this line
-    lastMessageTime?: string;}; // Making room optional
+    lastMessageTime?: string;};
+    PersonGroupChat: {
+      roomId: string;
+      room: string;
+      groupName: string;
+      profileImageUrl: string;
+      username: string;
+      groupImgUrl: string;
+      groupDescription: string;
+      groupCreationTime: string;
+      senderId: string;
+      senderName: string;
+      name: string;
+      description: string;
+      lastMessage: string;
+      lastMessageTime: string;
+    };
 
 };
 
@@ -128,7 +144,8 @@ export type RootStackParamLists = {
 };
 
 export type RootStackParamListsPersonGroupChat = {
-  PersonGroupChat: { roomId: string;
+  PersonGroupChat: 
+  { roomId: string;
     groupName: string;
     groupImgUrl: string;
     groupCreationTime: string;
@@ -166,13 +183,32 @@ export type RootStackParamListsChatList = {
 
 
 export type RootStackParamListComponent = {
+  message: {profileImageUrl?:string, username?:string, userName?: string; room?: string; senderId?: string; receiverId?: string; firstName?:string; lastName?:string; senderName?:string ;   lastMessage?: string; // Add this line
+    lastMessageTime?: string;};
+  PersonGroupChat: 
+  { roomId: string;
+    groupName: string;
+    groupImgUrl: string;
+    groupCreationTime: string;
+    groupDescription: string;
+    room: string;
+    name: string;
+    profileImageUrl:string
+    senderId: string;
+    senderName: string; 
+    username: string
+    description:string;
+    lastMessage?: string;
+    lastMessageTime?: string;
+  } 
   Home: undefined;
   NewChat: undefined;
   CreateGroup: undefined;
   AddPersonGroupChatMember: { roomId: string };
   Followers: undefined;
+  Following:undefined
   Profile: undefined;
-  PostDetail: {id:string, privacy:string, mediaSrc:string, caption:string, authorProfilePicSrc:string,};
+  PostDetail: {id:string, likes:any , privacy:string, mediaSrc:string, caption:string, authorProfilePicSrc:string, comments:any};
 
 
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, StatusBar, Image, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, Image, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -9,9 +9,12 @@ import { useUser } from '@/utils/useContext/UserContext';
 import Button from '@/components/Button';
 import Sidebar from '@/components/Sidebar';
 import { Video as ExpoVideo, ResizeMode } from 'expo-av'; 
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamListComponent } from '@/services/core/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useIsFocused } from '@react-navigation/native';
+import * as NavigationBar from 'expo-navigation-bar';
 
 type NavigationProp = StackNavigationProp<RootStackParamListComponent>;
 
@@ -19,6 +22,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
+    backgroundColor: "#000000"
   },
   sidebarContainer: {
     flex: 1,
@@ -29,15 +33,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     paddingHorizontal: 20,
+    marginTop: 30,
   },
   profileImage: {
     width: 100,
     height: 100,
-    borderRadius: 50,
+    borderRadius: 15,
   },
   text: {
     fontSize: 14,
     textAlign: 'center',
+    color: '#fff',
+  
   },
   button: {
     width: 340,
@@ -50,7 +57,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   postContainer: {
-    width: 100, 
+    width: 100,
     height: 150,
     marginBottom: 10,
     borderRadius: 10,
@@ -60,24 +67,24 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 5,
     padding: 5,
-    position: 'relative', 
+    position: 'relative',
   },
   postImage: {
     width: '100%',
-    height: '100%', 
+    height: '100%',
     borderRadius: 10,
     marginBottom: 8,
   },
   postTitle: {
-    fontSize: 12, 
+    fontSize: 12,
     fontWeight: 'bold',
     marginBottom: 5,
-    textAlign: 'center', 
+    textAlign: 'center',
   },
   postContent: {
-    fontSize: 10, 
+    fontSize: 10,
     color: '#555',
-    textAlign: 'center', 
+    textAlign: 'center',
   },
   postFooter: {
     marginTop: 5,
@@ -95,11 +102,11 @@ const styles = StyleSheet.create({
   },
   videoIcon: {
     position: 'absolute',
-    top: '40%',  
+    top: '40%',
     left: '40%',
     fontSize: 30,
     color: '#fff',
-    zIndex: 1, 
+    zIndex: 1,
   },
   videoContainer: {
     width: '100%',
@@ -109,8 +116,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+  },
 });
 
+
+interface Comment {
+  _id?: string;
+  username: string;
+  comment: string;
+  createdAt: string;
+  authorProfilePicSrc?: string;
+  replies?: Comment[];
+  likes?: number;
+  expanded?: boolean;
+  likedBy?: string[];
+}
 interface Post {
   _id: string;
   title: string;
@@ -119,6 +144,9 @@ interface Post {
   mediaSrc: string;
   caption: string;
   authorProfilePicSrc: string
+  likes?: number | undefined;
+  comments: Comment[] | undefined;
+  likedBy: string[];
 }
 
 const Profile = () => {
@@ -127,26 +155,40 @@ const Profile = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'public' | 'private'>('all');
+  const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false); 
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await axios.get('http://192.168.174.55:5000/content/user/7249575860028571648');
-        const data = response.data;
-
-        if (data && Array.isArray(data)) {
-          setPosts(data);
-          setFilteredPosts(data);
-        } else {
-          console.error('Data is not an array:', data);
-        }
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-      }
-    };
-
     fetchPosts();
   }, []);
+
+
+  const fetchPosts = async () => {
+    setLoading(true);
+    const userId = user.id || await AsyncStorage.getItem('userId');;
+    try {
+      const response = await axios.get(`https://backend-server-quhu.onrender.com/content/user/${userId}`);
+      const data = response.data;
+
+      if (data && Array.isArray(data)) {
+        setPosts(data);
+        setFilteredPosts(data);
+      } else {
+        // console.error('Data is not an array:', data);
+      }
+    } catch (error) {
+      // console.error('Error fetching posts:', error);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false); 
+    }
+  };
+
+
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    fetchPosts();
+  };
 
   const handleCategoryChange = (category: 'all' | 'public' | 'private') => {
     setSelectedCategory(category);
@@ -158,114 +200,132 @@ const Profile = () => {
       setFilteredPosts(filtered);
     }
   };
+
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    if (isFocused) {
+      NavigationBar.setBackgroundColorAsync("#000000");
+      NavigationBar.setButtonStyleAsync("light");
+    }
+  }, [isFocused]);
+
   const navigation = useNavigation<NavigationProp>();
-  // const handlePostClick = (post: Post) => {
-  //   navigation.navigate('PostDetail', {post._id,}); 
-  // };
 
   const renderItem = ({ item }: { item: Post }) => {
     const isVideo = item.mediaSrc.endsWith('.mp4') || item.mediaSrc.endsWith('.mov');
 
     return (
       <TouchableOpacity
-      onPress={() => {
-        navigation.navigate('PostDetail', {
-            id: item._id, 
-            privacy: item.privacy,  
+        onPress={() => {
+          router.push( {pathname:'/PostDetail', params:{
+            id: item._id,
+            privacy: item.privacy,
             mediaSrc: item.mediaSrc,
             caption: item.caption,
-            authorProfilePicSrc:item.authorProfilePicSrc
-
-
-          
-        });
-    }}
-      //  onPress={() => handlePostClick(item)} key={item._id} 
-       >
-      <View key={item._id} style={styles.postContainer} >
-        {isVideo ? (
-          <View style={styles.videoContainer}>
-            <ExpoVideo
-              source={{ uri: item.mediaSrc }}
-              rate={1.0}
-              volume={1.0}
-              isMuted={false}
-              resizeMode={ResizeMode.COVER}
-              shouldPlay={false}
-              style={{ width: '100%', height: '100%' }}
-              
-            />
-            <MaterialCommunityIcons name="play-circle" style={styles.videoIcon} />
-          </View>
-        ) : (
-          <Image source={{ uri: item.mediaSrc }} style={styles.postImage} />
-        )}
-      </View>
+            authorProfilePicSrc: item.authorProfilePicSrc,
+            comments: item.comments as any,
+            likes: item.likes
+          }
+         
+          });
+        }}
+      >
+        <View key={item._id} style={styles.postContainer}>
+          {isVideo ? (
+            <View style={styles.videoContainer}>
+              <ExpoVideo
+                source={{ uri: item.mediaSrc }}
+                rate={1.0}
+                volume={1.0}
+                isMuted={false}
+                resizeMode={ResizeMode.COVER}
+                shouldPlay={false}
+                style={{ width: '100%', height: '100%' }}
+              />
+              <MaterialCommunityIcons name="play-circle" style={styles.videoIcon} />
+            </View>
+          ) : (
+            <Image source={{ uri: item.mediaSrc }} style={styles.postImage} />
+          )}
+        </View>
       </TouchableOpacity>
     );
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#075E54" />
-      <View style={styles.sidebarContainer}>
-        <Sidebar />
-      </View>
-
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
+  
       <View style={styles.profileContainer}>
         <Image source={{ uri: user.profileImageUrl }} style={styles.profileImage} />
         <Text style={styles.text}>{user.firstName} {user.lastName}</Text>
         <Text style={[styles.text, { textTransform: 'lowercase' }]}>@{user.username}</Text>
 
-        <Button text="Edit Profile" variant="secondary" style={styles.button} icon={Icon} iconProps={{ name: 'pencil', size: 14, color: '#000' }} />
+        <Button text="Edit Profile" variant="secondary" style={styles.button} icon={Icon} iconProps={{ name: 'pencil', size: 14, color: '#ffffff' }} />
         
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-          <Button text="Subscribers" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'bell', size: 14, color: '#000' }} />
-          <Button text="Total Earnings" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'credit-card', size: 14, color: '#000' }} />
+        <View style={{ flexDirection: 'row', gap: 10, }}>
+          <Button text="Subscribers" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'bell', size: 14, color: '#ffffff' }} />
+          <Button text="Total Earnings" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'credit-card', size: 14, color: '#ffffff' }} />
         </View>
 
-        <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+        <View style={{ flexDirection: 'row', gap: 10, marginTop: 15, marginBottom:15,  }}>
           <TouchableOpacity onPress={() => handleCategoryChange('all')} style={{ alignItems: 'center' }}>
-            <Feather name="menu" size={20} color="#000" />
-            <Text style={{ fontSize: 10 }}>All Content</Text>
+            <Feather name="menu" size={20} color="#ffffff" />
+            <Text className='text-white text-[10px]'>All Content</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => handleCategoryChange('public')} style={{ alignItems: 'center' }}>
-            <Ionicons name="eye" size={20} color="#000" />
-            <Text style={{ fontSize: 10 }}>Public Content</Text>
+            <Ionicons name="eye" size={20} color="#ffffff" />
+            <Text className='text-white text-[10px]' >Public Content</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => handleCategoryChange('private')} style={{ alignItems: 'center' }}>
-            <Ionicons name="eye-off" size={20} color="#000" />
-            <Text style={{ fontSize: 10 }}>Private Content</Text>
+            <Ionicons name="eye-off" size={20} color="#ffffff" />
+            <Text className='text-white text-[10px]' >Private Content</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={{ alignItems: 'center' }}>
-            <Icon name="user" size={20} color="#000" />
-            <Text style={{ fontSize: 10 }}>Following</Text>
+          <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => navigation.navigate('Following')}> 
+            <Icon name="user" size={20} color="#ffffff" />
+            <Text className='text-white text-[10px]' >Following</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={{ alignItems: 'center' }}>
-            <MaterialCommunityIcons name="account-group" size={20} color="#000" />
-            <Text style={{ fontSize: 10 }}>Followers</Text>
+          <TouchableOpacity style={{ alignItems: 'center' }}  onPress={() => navigation.navigate('Followers')}>
+            <MaterialCommunityIcons name="account-group" size={20} color="#ffffff" />
+            <Text className='text-white text-[10px]' >Followers</Text>
           </TouchableOpacity>
         </View>
 
-        {/* FlatList for posts */}
-        <FlatList
+        {/* Show loading indicator until data is fetched */}
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#075E54" />
+            <Text>Loading posts...</Text>
+          </View>
+        ) : (
+          // FlatList for posts
+          <FlatList
           data={filteredPosts}
           renderItem={renderItem}
           keyExtractor={(item) => item._id}
-          numColumns={3} 
+          numColumns={3}
           columnWrapperStyle={{
-            justifyContent: 'space-between', 
-            marginBottom: 10, 
+            justifyContent: 'space-between',
+            marginBottom: 10,
           }}
           contentContainerStyle={{
-            marginTop: 20, 
+            marginTop: 20,
             paddingHorizontal: 10,
           }}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={onRefresh}
+              tintColor="#075E54"
+            />
+          }
         />
+
+        )}
       </View>
     </SafeAreaView>
   );

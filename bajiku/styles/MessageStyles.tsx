@@ -2,13 +2,13 @@ import styled from 'styled-components/native';
 
 export const Container = styled.View`
   flex: 1;
-  padding: 10px; /* Changed to a single padding property */
-  background-color: #ffffff;
+  padding: 10px;
+  background-color: #000000;
 `;
 
 export const Card = styled.TouchableOpacity`
   width: 100%;
-  background-color: #ffffff;
+  background-color: #1c1c1e;
   border-radius: 10px; /* Rounded corners */
   elevation: 2; /* Android shadow */
   shadow-color: #000; /* iOS shadow */

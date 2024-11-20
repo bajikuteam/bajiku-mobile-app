@@ -3,10 +3,12 @@ import { View, Text, Image, StyleSheet, KeyboardAvoidingView, Platform, StatusBa
 import { Bubble, GiftedChat, Send, IMessage, InputToolbar } from 'react-native-gifted-chat';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
+import { useRoute, RouteProp, useNavigation, useIsFocused } from '@react-navigation/native';
 import io from 'socket.io-client';
 import { useUser } from '@/utils/useContext/UserContext';
-
+import CustomHeader from '@/components/CustomHeader';
+import { router, useLocalSearchParams } from 'expo-router';
+import * as NavigationBar from 'expo-navigation-bar';
 // Initialize socket connection
 const socket = io('https://backend-server-quhu.onrender.com');
 // const socket = io('http://192.168.1.107:5000');
@@ -26,9 +28,12 @@ interface ChatScreenRouteParams {
 }
 
 const GroupChat: React.FC = () => {
-  const route = useRoute<RouteProp<{ params: ChatScreenRouteParams }, 'params'>>();
+  // const route = useRoute<RouteProp<{ params: ChatScreenRouteParams }, 'params'>>();
 
-  const { senderId, senderName, groupImgUrl, room, name, description } = route.params;
+  // const { senderId, senderName, groupImgUrl, room, name, description } = route.params;
+  const params = useLocalSearchParams();
+  const {senderId, senderName, groupImgUrl, room, name, roomId } = params;
+  console.log("params...!",senderId, senderName, groupImgUrl, room, name, roomId);
   const [messages, setMessages] = useState<any[]>([]);
   const [userColors, setUserColors] = useState<{ [key: string]: string }>({});
   const navigation = useNavigation();
@@ -39,28 +44,48 @@ const GroupChat: React.FC = () => {
     return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
   };
 
-  // Set header with group info
+
+
+  const isFocused = useIsFocused();
+
   useEffect(() => {
-    navigation.setOptions({
-      headerTitle: () => (
-        <View>
-        <Text className='capitalize' style={styles.headerTitle}>{name}</Text>
-        {/* <Text className='capitalize' style={[styles.headerDescription, { flexWrap: 'wrap' }]}>{description}</Text> */}
-      </View>
-      ),
-      headerLeft: () => (
-        <View style={styles.headerLeft}>
-          <Image
-            source={{ uri: groupImgUrl }}
-            style={styles.groupImage}
-          />
-        </View>
-      ),
-      headerStyle: {
-        backgroundColor: '#075E54',
-      },
-    });
-  }, [navigation, groupImgUrl, name, description]);
+    if (isFocused) {
+      // Hide the navigation bar when focused
+      NavigationBar.setVisibilityAsync("hidden"); 
+    } else {
+      // Optionally show the navigation bar when not focused
+      NavigationBar.setVisibilityAsync("visible"); 
+    }
+  }, [isFocused]);
+
+  const goBack = () => {
+    router.back();
+  };
+
+
+
+  // Set header with group info
+  // useEffect(() => {
+  //   navigation.setOptions({
+  //     headerTitle: () => (
+  //       <View>
+  //       <Text className='capitalize' style={styles.headerTitle}>{name}</Text>
+  //       {/* <Text className='capitalize' style={[styles.headerDescription, { flexWrap: 'wrap' }]}>{description}</Text> */}
+  //     </View>
+  //     ),
+  //     headerLeft: () => (
+  //       <View style={styles.headerLeft}>
+  //         <Image
+  //           source={{ uri: groupImgUrl }}
+  //           style={styles.groupImage}
+  //         />
+  //       </View>
+  //     ),
+  //     headerStyle: {
+  //       backgroundColor: '#075E54',
+  //     },
+  //   });
+  // }, [navigation, groupImgUrl, name, description]);
 
   // Fetch chat history
   useEffect(() => {
@@ -195,12 +220,12 @@ const GroupChat: React.FC = () => {
           {...props}
           wrapperStyle={{
             left: {
-              backgroundColor: '#E1FFC7',
+              backgroundColor: '#333',
               borderRadius: 15,
               margin: 5,
             },
             right: {
-              backgroundColor: '#004C8B',
+              backgroundColor: '#000',
               borderRadius: 15,
               margin: 5,
             },
@@ -214,18 +239,18 @@ const GroupChat: React.FC = () => {
 
   return (
 
-    // <SafeAreaView style={{ flex: 1 }}>
-    // <KeyboardAvoidingView
-    //   style={{ flex: 1 }}
-    //   behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    //   keyboardVerticalOffset={0}
-    // >
-    <View style={{ flex: 1 }}>
-      <StatusBar barStyle="light-content" backgroundColor="#075E54" />
+    <View style={{ flex: 1, backgroundColor: '#1c1c1e' }}>
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
+      <CustomHeader 
+  title={name as string} 
+  onBackPress={goBack} 
+  image={groupImgUrl as string}
+ 
+/>
     <GiftedChat
         messages={messages}
         onSend={(messages) => onSend(messages)}
-        user={{ _id: senderId, name: senderName}}
+        user={{ _id: senderId as string, name: senderName as string}}
         renderBubble={renderBubble}
         alwaysShowSend
         renderSend={renderSend}
@@ -237,8 +262,6 @@ const GroupChat: React.FC = () => {
       />
       
       </View>
-    // </KeyboardAvoidingView>
-    // </SafeAreaView>
   );
 };
 
@@ -247,7 +270,7 @@ export default GroupChat;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E5DDD5',
+    backgroundColor: '#1c1c1e',
   },
   headerTitle: {
     fontSize: 18,
@@ -281,19 +304,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 5,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1e1e1e', // Darker background for input toolbar
     borderTopWidth: 1,
-    borderTopColor: '#CCCCCC',
+    borderTopColor: '#333333', // Dark border for separation
   },
   textInput: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#2b2b2b', // Dark text input background
     borderRadius: 25,
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderWidth: 1,
-    borderColor: '#CCCCCC',
+    borderColor: '#444444', // Subtle border color
     marginRight: 10,
+    color: '#fff', // Ensure text is visible on dark background
   },
   sendContainer: {
     justifyContent: 'center',

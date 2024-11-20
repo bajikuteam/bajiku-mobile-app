@@ -1,98 +1,85 @@
 import React, { useEffect, useState } from 'react';
-import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider, useNavigation,  } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, NavigationContainer, ThemeProvider as NavigationThemeProvider, useNavigationContainerRef } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { View, Text } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { ThemeProvider, useTheme } from '@/utils/useContext/ThemeContext';
-import { UserProvider, useUser } from '@/utils/useContext/UserContext';
+import { UserProvider } from '@/utils/useContext/UserContext';
 import { ChatProvider } from '@/utils/useContext/ChatContext';
 import { FollowersProvider } from '@/utils/useContext/FollowingContext';
-import * as Notifications from "expo-notifications";
-import * as TaskManager from "expo-task-manager";
-import { NotificationProvider } from '@/utils/useContext/NotificationContext';
-
-SplashScreen.preventAutoHideAsync();
-
-// Background notification task
-const BACKGROUND_NOTIFICATION_TASK = "BACKGROUND-NOTIFICATION-TASK";
-
-TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, ({ data, error }) => {
-  if (error) {
-    console.error("Error receiving background notification:", error);
-    return;
-  }
-  console.log("Received a background notification!", data);
-});
-
-async function registerNotificationTask() {
-  const { status } = await Notifications.getPermissionsAsync();
-  if (status !== 'granted') {
-    await Notifications.requestPermissionsAsync();
-  }
-  await Notifications.registerTaskAsync(BACKGROUND_NOTIFICATION_TASK);
-}
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
-
-registerNotificationTask();
+import Sidebar from '@/components/Sidebar';
+SplashScreen.preventAutoHideAsync();  
 
 export default function App() {
+  const navigationRef = useNavigationContainerRef();
+
+  const [isNavigationReady, setIsNavigationReady] = useState(false);
+
+  // Update navigation readiness status when the container is ready
+  const handleNavigationReady = () => {
+    setIsNavigationReady(true);
+    console.log('Navigation container is ready');
+  };
+
   return (
-    <ThemeProvider>
-      <UserProvider>
-        <NotificationProvider>
+    <NavigationContainer ref={navigationRef} onReady={handleNavigationReady}>
+      <ThemeProvider>
+        <UserProvider>
           <ChatProvider>
             <FollowersProvider>
               <RootLayout />
             </FollowersProvider>
           </ChatProvider>
-        </NotificationProvider>
-      </UserProvider>
-    </ThemeProvider>
+        </UserProvider>
+      </ThemeProvider>
+    </NavigationContainer>
   );
 }
 
 function RootLayout() {
-  // const { isLoading } = useAuth(); 
   const { theme } = useTheme();
-  const [loaded] = useFonts({
+  const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  const { user } = useUser(); 
 
-  if ( !loaded) {
+
+
+  // Wait for fonts to load before rendering anything
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();  // Hide the splash screen once fonts are loaded
+    }
+  }, [fontsLoaded]);
+
+  // If fonts are not loaded yet, display loading text
+  if (!fontsLoaded) {
     return <Text>Loading...</Text>;
   }
 
   return (
     <NavigationThemeProvider value={theme === 'dark' ? DarkTheme : DefaultTheme}>
-    <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />  
-          <Stack.Screen name="auth" options={{ headerShown: false }} />
-          <Stack.Screen name="NewChat" options={{ headerShown: false }} />
-          <Stack.Screen name="PostDetail" options={{ headerShown: false }} />
-          <Stack.Screen name="Profile" options={{ headerShown: false }} />
-          <Stack.Screen name="Followers" options={{ headerShown: false }} />
-          <Stack.Screen name="Following" options={{ headerShown: false }} />
-          <Stack.Screen name="message" options={{ headerBackTitleVisible: false }} />
-          <Stack.Screen name="groupChat" options={{ headerBackTitleVisible: false }} />
-          <Stack.Screen name="CreateGroup" options={{ headerBackTitleVisible: false }} />
-          <Stack.Screen name="PersonGroupChat" options={{ headerBackTitleVisible: false }} />
-          <Stack.Screen name="AddPersonGroupChatMember" options={{ headerBackTitleVisible: false }} />
-       
- 
-
-      
-    </Stack>
-  </NavigationThemeProvider>
+      <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="auth" options={{ headerShown: false }} />
+        <Stack.Screen name="NewChat" options={{ headerShown: false }} />
+        <Stack.Screen name="PostDetail" options={{ headerShown: false }} />
+        <Stack.Screen name="Profile" 
+        options={{ headerShown: true ,    
+     headerTitleAlign: 'center',  
+      headerTintColor: '#fff',  
+      headerStyle: { backgroundColor: '#000000' },
+       headerLeft: () => <Sidebar />, }} />
+        <Stack.Screen name="Followers" options={{ headerShown: false }} />
+        <Stack.Screen name="Following" options={{ headerShown: false }} />
+        <Stack.Screen name="message" options={{ headerShown: false }} />
+        <Stack.Screen name="groupChat" options={{ headerShown: false }} />
+        <Stack.Screen name="CreateGroup" options={{ headerShown: false }} />
+        <Stack.Screen name="PersonGroupChat" options={{ headerShown: false }} />
+        <Stack.Screen name="AddPersonGroupChatMember" options={{ headerShown: false }} />
+      </Stack>
+    </NavigationThemeProvider>
   );
 }

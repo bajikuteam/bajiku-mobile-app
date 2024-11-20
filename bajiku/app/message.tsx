@@ -4,13 +4,16 @@ import { Bubble, GiftedChat, Send, IMessage } from 'react-native-gifted-chat';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
-import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
+import { useRoute, RouteProp, useNavigation, useIsFocused } from '@react-navigation/native';
 import io from 'socket.io-client';
 import { useChat } from '@/utils/useContext/ChatContext';
 import { useTheme } from '@/utils/useContext/ThemeContext';
-import { useNotification } from '@/utils/useContext/NotificationContext'; 
-import { RootStackParamList, RootStackParamListsChatList } from '@/services/core/types';
+// import { useNotification } from '@/utils/useContext/NotificationContext'; 
+import { RootStackParamList } from '@/services/core/types';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { router, useLocalSearchParams } from 'expo-router';
+import CustomHeader from '@/components/CustomHeader';
+import * as NavigationBar from 'expo-navigation-bar';
 
 // Adjust the socket URL according to your setup
 const socket = io('https://backend-server-quhu.onrender.com');
@@ -26,13 +29,18 @@ interface ChatScreenRouteParams {
 }
 
 const ChatScreen: React.FC = () => {
-  const route = useRoute<RouteProp<{ params: ChatScreenRouteParams }, 'params'>>();
-  const { profileImageUrl, username, senderId, receiverId, senderName } = route.params || {};
+  // const route = useRoute<RouteProp<{ params: ChatScreenRouteParams }, 'params'>>();
+  // const { profileImageUrl, username, senderId, receiverId, senderName } = route.params || {};
+
+  const params = useLocalSearchParams();
+  const { profileImageUrl, username, senderId, receiverId, senderName } = params;
+  console.log("params...!", profileImageUrl, username, senderId, receiverId, senderName,);
+
   const { addMessage, sendNotificationToServer  } = useChat();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [messageInput, setMessageInput] = useState<string>('');
   const { theme } = useTheme();
-  const { expoPushToken } = useNotification();
+  // const { expoPushToken } = useNotification();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [isReady, setIsReady] = useState(false);
 
@@ -40,30 +48,47 @@ const ChatScreen: React.FC = () => {
     setIsReady(true);  
   }, []);
 
+
+  const isFocused = useIsFocused();
+
   useEffect(() => {
-    navigation.setOptions({
-      headerTitle: () => (
-        <Text className='lowercase text-white' style={styles.headerTitle}>@{username}</Text>
-      ),
-      headerLeft: () => (
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Image
-            source={{ uri: profileImageUrl }} 
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              marginRight: 10,
-            }}
-          />
-        </View>
-      ),
-      headerStyle: {
-        backgroundColor: '#075E54',
-      },
-      headerTintColor: '#fff',
-    });
-  }, [navigation, username, profileImageUrl]);
+    if (isFocused) {
+      // Hide the navigation bar when focused
+      NavigationBar.setVisibilityAsync("hidden"); 
+    } else {
+      // Optionally show the navigation bar when not focused
+      NavigationBar.setVisibilityAsync("visible"); 
+    }
+  }, [isFocused]);
+
+  const goBack = () => {
+    router.back();
+  };
+
+  // useEffect(() => {
+  //   navigation.setOptions({
+  //     headerTitle: () => (
+  //       <Text className='lowercase text-white' style={styles.headerTitle}>@{username}</Text>
+  //     ),
+  //     headerLeft: () => (
+  //       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+  //         <Image
+  //           source={{ uri: profileImageUrl }} 
+  //           style={{
+  //             width: 36,
+  //             height: 36,
+  //             borderRadius: 10,
+  //             marginRight: 10,
+  //           }}
+  //         />
+  //       </View>
+  //     ),
+  //     headerStyle: {
+  //       backgroundColor: '#075E54',
+  //     },
+  //     headerTintColor: '#fff',
+  //   });
+  // }, [navigation, username, profileImageUrl]);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -91,12 +116,12 @@ const ChatScreen: React.FC = () => {
   const onSend = useCallback((messages: any[] = []) => {
     const messageToSend = messages[0];
     const newMessage = {
-      _id: messageToSend._id,
-      text: messageToSend.text,
-      senderId: senderId,
-      receiverId: receiverId,
-      senderName: senderName,
-      createdAt: new Date().toISOString(),
+      _id: messageToSend._id as string,
+      text: messageToSend.text as string,
+      senderId: senderId as string,
+      receiverId: receiverId as string,
+      senderName: senderName as string,
+      createdAt: new Date().toISOString()  as string,
       user: {
         _id: senderId,
         name: senderName,
@@ -125,45 +150,30 @@ const ChatScreen: React.FC = () => {
       setMessages((prevMessages) => GiftedChat.append(prevMessages, [receivedMessage]));
   
       // Prepare notification data
-      const notificationData = {
-        to: expoPushToken,
-        title: `New message from ${message.senderName}`,
-        body: message.text,
-        senderId: message.senderId,
-        receiverId: message.receiverId,
-        profileImageUrl: profileImageUrl,
-        username: senderName,
-        senderName: message.senderName,
-      };
+      // const notificationData = {
+      //   to: expoPushToken,
+      //   title: `New message from ${message.senderName}`,
+      //   body: message.text,
+      //   senderId: message.senderId,
+      //   receiverId: message.receiverId,
+      //   profileImageUrl: profileImageUrl,
+      //   username: senderName,
+      //   senderName: message.senderName,
+      // };
   
       // Send push notification
-      if (expoPushToken) {
-        sendNotificationToServer(notificationData);
-      }
+      // if (expoPushToken) {
+      //   sendNotificationToServer(notificationData);
+      // }
     });
   
     return () => {
       socket.off('receiveMessage');
     };
-  }, [expoPushToken, sendNotificationToServer]);
+  }, [ sendNotificationToServer]);
 
 
 
-  
-  // const renderSend = (props: any) => {
-  //   return (
-  //     <Send {...props}>
-  //       <View style={styles.sendContainer}>
-  //         <MaterialCommunityIcons
-  //           name="send-circle"
-  //           style={styles.sendIcon}
-  //           size={32}
-  //           color="#25D366"
-  //         />
-  //       </View>
-  //     </Send>
-  //   );
-  // };
 
   const renderSend = (props: any) => (
     <Send {...props}>
@@ -227,13 +237,18 @@ const ChatScreen: React.FC = () => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <StatusBar barStyle="light-content" backgroundColor="#075E54" />
+    <View style={{ flex: 1, backgroundColor: '#1c1c1e' }}>
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
+      <CustomHeader 
+  title={username as string} 
+  onBackPress={goBack} 
+  image={profileImageUrl as string}
+/>
         <GiftedChat
           messages={messages || []}
           onSend={(messages) => onSend(messages)}
           user={{
-            _id: senderId,
+            _id: senderId as string,
           }}
           renderBubble={renderBubble}
           alwaysShowSend

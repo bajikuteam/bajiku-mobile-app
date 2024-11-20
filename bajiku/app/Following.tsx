@@ -144,8 +144,7 @@ const FollowingScreen = () => {
     return (
         
         <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-
+          <StatusBar barStyle="light-content" backgroundColor="#075E54" />
         <View style={styles.searchComponent}>
             <SearchComponent
                 endpoint="https://api.example.com/users"

@@ -86,16 +86,16 @@ const AddPersonGroupChatMemberScreen: React.FC = () => {
   };
   
 
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: true, 
-      title: 'Add A New Member', 
-      headerStyle: {
-        backgroundColor: '#075E54', 
-      },
-      headerTintColor: '#fff',
-    });
-  }, [navigation]);
+  // React.useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerShown: true, 
+  //     title: 'Add A New Member', 
+  //     headerStyle: {
+  //       backgroundColor: '#075E54', 
+  //     },
+  //     headerTintColor: '#fff',
+  //   });
+  // }, [navigation]);
   
   return (
     <><SearchComponent endpoint={''} fieldsToDisplay={[]} />

@@ -21,6 +21,8 @@ import { useWebSocket } from "@/utils/axios/useWebSocket";
 import { useNavigation } from "expo-router";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamListComponent } from "@/services/core/types";
+import { useIsFocused } from "@react-navigation/native";
+import * as NavigationBar from 'expo-navigation-bar';
 type NavigationProp = StackNavigationProp<RootStackParamListComponent>;
 
 const { width } = Dimensions.get("window");
@@ -32,6 +34,13 @@ const Sidebar: React.FC = () => {
   const { socket } = useWebSocket();
   const sidebarWidth = width * 0.8;
   const navigation = useNavigation<NavigationProp>();
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    if (isFocused) {
+      NavigationBar.setBackgroundColorAsync("#000000");
+      NavigationBar.setButtonStyleAsync("light");
+    }
+  }, [isFocused]);
 
   useEffect(() => {
     if (!socket || !user) return;
@@ -76,6 +85,12 @@ const Sidebar: React.FC = () => {
     router.push("/auth/Login");
   };
 
+  const handlePress = () => {
+    // First navigate to 'Profile' screen
+    navigation.navigate('Profile');
+    // Then execute handleClose to close the sidebar or perform any other action
+    handleClose();
+  };
   // Determine styles based on the current theme
   const sidebarStyles =
     theme === "dark" ? styles.sidebarDark : styles.sidebarLight;
@@ -86,21 +101,21 @@ const Sidebar: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* StatusBar dynamically based on theme */}
-      <StatusBar
+      {/* <StatusBar
         barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
         backgroundColor={headerBackgroundColor}
-      />
+      /> */}
+     <StatusBar barStyle="light-content" backgroundColor="#000000" />
 
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: headerBackgroundColor }]}>
+      <View style={[styles.header]}>
         <TouchableOpacity onPress={toggleSidebar} style={styles.iconContainer}>
           {user ? (
             user.profileImageUrl ? (
               // Display profile image if it exists
               <Image
                 source={{ uri: user.profileImageUrl }}
-                className="w-[30px] h-[30px] rounded-[10px]"
+                style={styles.profileImage}
               />
             ) : (
               <View className="bg-gray-500 p-3 rounded-full">
@@ -117,10 +132,10 @@ const Sidebar: React.FC = () => {
             </TouchableOpacity>
           )}
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: textColor }]}>Bajîkü</Text>
+        {/* <Text style={[styles.headerTitle, { color: textColor }]}>Bajîkü</Text>
         <TouchableOpacity style={styles.iconContainer}>
           <Feather name="bell" size={25} color={iconColor} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {/* Sidebar Modal */}
@@ -143,20 +158,21 @@ const Sidebar: React.FC = () => {
                 {user.profileImageUrl ? (
                   <Image
                     source={{ uri: user.profileImageUrl }}
-                    className="w-[40px] h-[40px] rounded-[10px]"
+                    // className="w-[40px] h-[40px] rounded-[10px]"
+                    style={styles.profileImageTwo}
                   />
                 ) : (
-                  <FontAwesome name="user" size={50} color={iconColor} />
+                  <FontAwesome name="user" size={40} color={iconColor} />
                 )}
                 <View className="flex-row gap-1 text-[10px]">
-                  <Text className="text-[12px]" style={[{ color: textColor }]}>
+                  <Text className="text-[12px] lowercase" style={[{ color: textColor }]}>
                     {user.firstName}
                   </Text>
-                  <Text className="text-[12px]" style={[{ color: textColor }]}>
+                  <Text className="text-[12px] lowercase" style={[{ color: textColor }]}>
                     {user.lastName}
                   </Text>
                 </View>
-                <Text className="text-[12px]" style={[{ color: textColor }]}>
+                <Text className="text-[12px] lowercase" style={[{ color: textColor }]}>
                   @{user.username}
                 </Text>
                 <View
@@ -185,11 +201,15 @@ const Sidebar: React.FC = () => {
             </>
           )}
           <View style={styles.items}>
+          <TouchableOpacity>
+          <Link href="/(tabs)" onPress={handleClose}>
             <SidebarItem
               icon={<Feather name="home" size={28} />}
               label="Home"
             />
-            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+            </Link>
+             </TouchableOpacity>
+             <TouchableOpacity onPress={handlePress}>
             <SidebarItem
               icon={<Feather name="user" size={28} />}
               label="Profile"
@@ -286,6 +306,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: "100%",
+    top:-30
+  
   },
   header: {
     flexDirection: "row",
@@ -295,9 +317,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     position: "absolute",
-    top: 20,
+    top: 0, 
     zIndex: 100,
-    height: 60,
+    // height: 60,
   },
   headerTitle: {
     fontSize: 18,
@@ -365,7 +387,7 @@ const styles = StyleSheet.create({
   },
   sidebarItem: {
     flexDirection: "row",
-    alignItems: "center",
+    // alignItems: "center",
     padding: 10,
   },
   icon: {
@@ -374,11 +396,6 @@ const styles = StyleSheet.create({
   userInfo: {
     alignItems: "center",
     marginBottom: 20,
-  },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
   },
   username: {
     fontSize: 18,
@@ -397,6 +414,20 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  profileImage: {
+    width: 30,
+    height: 30,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+  },
+  profileImageTwo: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
   },
 });
 

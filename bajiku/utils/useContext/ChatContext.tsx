@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client'; // Import socket.io client
-import { useNotification } from '@/utils/useContext/NotificationContext';
+// import { useNotification } from '@/utils/useContext/NotificationContext';
 
 // Define the Message interface
 interface Message {
@@ -26,7 +26,7 @@ const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 // Define the ChatProvider component
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const { expoPushToken } = useNotification();
+  // const { expoPushToken } = useNotification();
   // const socket = useRef(io('http://192.168.1.107:5000')); 
   const socket = useRef(io('https://backend-server-quhu.onrender.com')); 
 
@@ -56,7 +56,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...notificationData,
         priority: 'high', // Add priority
         sound: 'default', // Ensure there's a sound for the notification
-        to: expoPushToken, // Include the expoPushToken in the notification data
+        // to: expoPushToken, // Include the expoPushToken in the notification data
       });
     } catch (error) {
       console.error("Error sending notification to server:", error);

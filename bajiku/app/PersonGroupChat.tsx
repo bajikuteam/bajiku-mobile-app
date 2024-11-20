@@ -1,15 +1,19 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useLayoutEffect, useContext } from 'react';
 import { View, Text, Image, StyleSheet, KeyboardAvoidingView, Platform, StatusBar, TextInput, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Bubble, GiftedChat, Send, IMessage, InputToolbar } from 'react-native-gifted-chat';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
+import { useRoute, RouteProp, useNavigation, useIsFocused } from '@react-navigation/native';
 import io from 'socket.io-client';
 import { useUser } from '@/utils/useContext/UserContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Modal from 'react-native-modal';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamListComponent } from '@/services/core/types';
+import { router, useLocalSearchParams } from 'expo-router';
+import * as NavigationBar from 'expo-navigation-bar';
+import { NavigationContext } from "@react-navigation/native";
+import CustomHeader from '@/components/CustomHeader';
 // Initialize socket connection
 const socket = io('https://backend-server-quhu.onrender.com');
 // const socket = io('http://192.168.1.107:5000');
@@ -28,47 +32,37 @@ interface ChatScreenRouteParams {
 }
 type NavigationProp = StackNavigationProp<RootStackParamListComponent>;
 
-const PersonGroupChatScreen: React.FC = () => {
-  
-  const route = useRoute<RouteProp<{ params: ChatScreenRouteParams }, 'params'>>();
-  const { profileImageUrl, senderId, senderName, groupImgUrl, room, name, roomId } = route.params;
+// const PersonGroupChatScreen: React.FC = () => {
+  const PersonGroupChatScreen = () => {
+    const params = useLocalSearchParams();
+    const {senderId, senderName, groupImgUrl, room, name, roomId } = params;
+    console.log("params...!",senderId, senderName, groupImgUrl, room, name, roomId);
 
   const [messages, setMessages] = useState<any[]>([]);
-  const [userColors, setUserColors] = useState<{ [key: string]: string }>({});
   const [isModalVisible, setModalVisible] = useState(false);
-  const navigation = useNavigation();
-  const navigations = useNavigation<NavigationProp>();
+  const navigation = useContext(NavigationContext);
+  const navigations = useNavigation();
   const { user } = useUser();
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
-  // Helper function to generate a random color
-  const generateRandomColor = () => {
-    return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-  };
+ 
+  const isFocused = useIsFocused();
 
-    // Fetch chat history and socket setup...
-    useEffect(() => {
-      navigation.setOptions({
-        headerTitle: () => (
-          <View>
-            <Text style={styles.headerTitle}>{name}</Text>
-          </View>
-        ),
-        headerLeft: () => (
-          <View style={styles.headerLeft}>
-            <Image
-              source={{ uri: groupImgUrl }}
-              style={styles.groupImage}
-            />
-          </View>
-        ),
-        headerStyle: {
-          backgroundColor: '#075E54',
-        },
-        headerRight: () => renderAdminButton(),
-      });
-    }, [navigation, groupImgUrl, name]);
+  useEffect(() => {
+    if (isFocused) {
+      // Hide the navigation bar when focused
+      NavigationBar.setVisibilityAsync("hidden"); 
+    } else {
+      // Optionally show the navigation bar when not focused
+      NavigationBar.setVisibilityAsync("visible"); 
+    }
+  }, [isFocused]);
+
+
+  const goBack = () => {
+    router.back();
+  };
 
   // Fetch chat history
   useEffect(() => {   
@@ -182,33 +176,33 @@ const PersonGroupChatScreen: React.FC = () => {
     </TouchableOpacity>
   );
 
-  const renderModal = () => (
-    <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
-      <View style={styles.modalContent}>
-      <TouchableOpacity>
-          <Text style={styles.modalButton}>Group Info</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.modalButton}>Group Members</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigations.navigate('AddPersonGroupChatMember', { roomId:roomId,  })}>
-          <Text style={styles.modalButton}>Add Member</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleRemoveUser("user_to_remove")}>
-          <Text style={styles.modalButton}>Remove User</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.modalButton}>Exit Group</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.modalButton}>Delete Group </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={toggleModal}>
-          <Text style={styles.modalCloseButton}>Close</Text>
-        </TouchableOpacity>
-      </View>
-    </Modal>
-  );
+  // const renderModal = () => (
+  //   <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
+  //     <View style={styles.modalContent}>
+  //     <TouchableOpacity>
+  //         <Text style={styles.modalButton}>Group Info</Text>
+  //       </TouchableOpacity>
+  //       <TouchableOpacity>
+  //         <Text style={styles.modalButton}>Group Members</Text>
+  //       </TouchableOpacity>
+  //       <TouchableOpacity onPress={() => navigations.navigate('AddPersonGroupChatMember', { roomId:roomId,  })}>
+  //         <Text style={styles.modalButton}>Add Member</Text>
+  //       </TouchableOpacity>
+  //       <TouchableOpacity onPress={() => handleRemoveUser("user_to_remove")}>
+  //         <Text style={styles.modalButton}>Remove User</Text>
+  //       </TouchableOpacity>
+  //       <TouchableOpacity>
+  //         <Text style={styles.modalButton}>Exit Group</Text>
+  //       </TouchableOpacity>
+  //       <TouchableOpacity>
+  //         <Text style={styles.modalButton}>Delete Group </Text>
+  //       </TouchableOpacity>
+  //       <TouchableOpacity onPress={toggleModal}>
+  //         <Text style={styles.modalCloseButton}>Close</Text>
+  //       </TouchableOpacity>
+  //     </View>
+  //   </Modal>
+  // );
 
   const handleAddUser = (username: string) => {
     console.log(`Adding user: ${username}`);
@@ -266,12 +260,19 @@ const PersonGroupChatScreen: React.FC = () => {
     );
   };
   return (
-    <View style={{ flex: 1 }}>
-      <StatusBar barStyle="light-content" backgroundColor="#075E54" />
+    <View style={{ flex: 1, backgroundColor: '#1c1c1e' }}>
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
+      <CustomHeader 
+  title={name as string} 
+  onBackPress={goBack} 
+  image={groupImgUrl as string}
+ 
+/>
+
     <GiftedChat
         messages={messages}
         onSend={(messages) => onSend(messages)}
-        user={{ _id: senderId, name: senderName}}
+        user={{ _id: senderId as string, name: senderName as string }}
         renderBubble={renderBubble}
         alwaysShowSend
         renderSend={renderSend}

@@ -14,9 +14,9 @@ const buttonStyles = {
     borderRadius: 12,
   } as ViewStyle,
   secondary: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#000000',
     borderWidth: 1,
-    borderColor: '#D84773',
+    borderColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
     width: 160,
@@ -69,7 +69,7 @@ const textStyles = {
     fontSize: 12,
   } as TextStyle,
   secondary: {
-    color: '#000000',
+    color: '#ffffff',
     fontSize: 12,
   } as TextStyle,
   danger: {
