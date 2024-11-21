@@ -9,6 +9,7 @@ import { UserProvider } from '@/utils/useContext/UserContext';
 import { ChatProvider } from '@/utils/useContext/ChatContext';
 import { FollowersProvider } from '@/utils/useContext/FollowingContext';
 import Sidebar from '@/components/Sidebar';
+import { VideoProvider } from '@/utils/useContext/VideoContext';
 SplashScreen.preventAutoHideAsync();  
 
 export default function App() {
@@ -28,7 +29,9 @@ export default function App() {
         <UserProvider>
           <ChatProvider>
             <FollowersProvider>
+            <VideoProvider>
               <RootLayout />
+              </VideoProvider>
             </FollowersProvider>
           </ChatProvider>
         </UserProvider>

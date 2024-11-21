@@ -38,11 +38,7 @@ const SetProfile = () => {
     const [usernameAvailability, setUsernameAvailability] = useState<{ available: boolean; message: string } | null>(null);
     const navigation = useNavigation();
 
-    React.useLayoutEffect(() => {
-      navigation.setOptions({
-        headerShown: false, 
-      });
-    }, [navigation]);
+
 
 
     const handleImageUpload = (imageUri: string) => {
@@ -102,7 +98,7 @@ const SetProfile = () => {
 
                 const updatedProfileData = response.updateProfile;
                 await handleLogin(updatedProfileData);
-                router.push('/(tabs)/');
+                router.push('/(tabs)');
             }
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -213,6 +209,7 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         paddingTop: Platform.OS === 'android' ? 25 : 0, 
+        backgroundColor: '#000000',
     },
     loginModal: {
         backgroundColor: '#fff',

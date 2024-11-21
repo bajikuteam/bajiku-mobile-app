@@ -48,8 +48,6 @@ export default function HomeScreen() {
   const textColor = theme === 'dark' ? '#fff' : '#000';
   const isFocused = useIsFocused();
 
-  const navigation = useNavigation();
-
   useEffect(() => {
     if (isFocused) {
       NavigationBar.setBackgroundColorAsync("#000000");
@@ -60,9 +58,9 @@ export default function HomeScreen() {
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor="#000000" />
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor:"#000000" }}>
         <View>
-          {/* <PostWithCaption /> */}
+          <PostWithCaption />
         </View>
       </SafeAreaView>
     </>

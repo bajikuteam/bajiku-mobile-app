@@ -33,7 +33,7 @@ const NewChatScreen = () => {
           headerShown: true, 
           title: 'New Chat', 
           headerStyle: {
-            backgroundColor: '#075E54', 
+            backgroundColor: '#000000', 
           },
           headerTintColor: '#fff',
         });
@@ -152,8 +152,7 @@ const NewChatScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" />
-
+              <StatusBar barStyle="light-content" backgroundColor="#000000" />
             <View style={styles.searchComponent}>
                 <SearchComponent
                     endpoint="https://api.example.com/users"

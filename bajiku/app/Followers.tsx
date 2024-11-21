@@ -33,7 +33,7 @@ const FollowersScreen = () => {
           headerShown: true, 
           title: 'Followers', 
           headerStyle: {
-            backgroundColor: '#075E54', 
+            backgroundColor: '#000000', 
           },
           headerTintColor: '#fff',
         });
@@ -127,7 +127,6 @@ const FollowersScreen = () => {
                                 senderId: user.id, 
                                 receiverId: item._id, 
                                 senderName: user.username, 
-                                
                             }
                              
                             });
@@ -155,7 +154,7 @@ const FollowersScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="light-content" backgroundColor="#075E54" />
+              <StatusBar barStyle="light-content" backgroundColor="#000000" />
             <View style={styles.searchComponent}>
                 <SearchComponent
                     endpoint="https://api.example.com/users"

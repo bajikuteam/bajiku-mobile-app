@@ -24,18 +24,7 @@ const Search = () => {
         NavigationBar.setButtonStyleAsync("light");
       }
     }, [isFocused]);
-    const navigation = useNavigation()
-
-    // React.useLayoutEffect(() => {
-    //     navigation.setOptions({
-    //       headerShown: true, 
-    //       title: 'Search For Trends', 
-    //       headerStyle: {
-    //         backgroundColor: '#075E54', 
-    //       },
-    //       headerTintColor: '#fff',
-    //     });
-    //   }, [navigation]);
+   
     return (
         <SafeAreaView  >
             <SearchComponent />

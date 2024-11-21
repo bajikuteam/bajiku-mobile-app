@@ -405,7 +405,7 @@ const PostDetail = () => {
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={styles.mediaContainer}>
-      <StatusBar barStyle="light-content" backgroundColor="#075E54" />
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
       <CustomHeader 
   title={'Content'} 
   onBackPress={goBack} 

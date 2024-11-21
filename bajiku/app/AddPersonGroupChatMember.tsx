@@ -101,8 +101,8 @@ const AddPersonGroupChatMemberScreen: React.FC = () => {
     <><SearchComponent endpoint={''} fieldsToDisplay={[]} />
     <View style={styles.container}>
 
-    <Text style={styles.title}>Add Members</Text>
-        <Text style={styles.subTitle}>Total Selected: {selectedFollowers.length}</Text>
+    <Text className='text-center text-red-400 font-bold text-[20px]'>Add Members</Text>
+        <Text className='text-center text-red-400 font-bold text-[14px]'>Total Selected: {selectedFollowers.length}</Text>
 
       <FlatList
         data={followers}

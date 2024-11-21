@@ -37,11 +37,6 @@ const SetPassword = () => {
     const textColor = theme === 'dark' ? '#fff' : '#000';
     const navigation = useNavigation();
 
-    React.useLayoutEffect(() => {
-      navigation.setOptions({
-        headerShown: false, 
-      });
-    }, [navigation]);
 
     
     const validatePassword = () => {
@@ -227,6 +222,7 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         paddingTop: Platform.OS === 'android' ? 25 : 0, 
+        backgroundColor: '#000000',
     },
     loginModal: {
         backgroundColor: '#fff',

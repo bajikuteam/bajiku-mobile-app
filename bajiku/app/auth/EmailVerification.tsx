@@ -20,14 +20,6 @@ const EmailVerification: React.FC = () => {
   const textColor = theme === 'dark' ? '#fff' : '#000';
 
 
-  const navigation = useNavigation();
-
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false, 
-    });
-  }, [navigation]);
-
 
 
   useEffect(() => {
@@ -121,7 +113,7 @@ const EmailVerification: React.FC = () => {
             style={[
               styles.input,
               error && !digit ? styles.inputError : null,
-              { color: textColor }
+              { color: '#ffffff' }
             ]}
             value={digit}
             onChangeText={(value) => handleInputChange(value, index)}
@@ -164,6 +156,7 @@ const styles = StyleSheet.create({
     flex: 0.6,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#000000',
   },
   otpContainer: {
     flexDirection: 'row',

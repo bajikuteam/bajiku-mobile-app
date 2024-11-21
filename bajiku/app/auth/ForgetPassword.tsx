@@ -31,7 +31,7 @@ const ForgetPassword = () => {
             <View style={[styles.loginModal, theme === 'dark' ? styles.darkModal : styles.lightModal]}>
               <View className='absolute right-6 top-2'>
                 <TouchableOpacity>
-                <Link href={"/(tabs)/"}><Text className='text-2xl'>X</Text></Link>
+                <Link href={"/(tabs)"}><Text className='text-2xl'>X</Text></Link>
                 </TouchableOpacity>
               </View>
 
@@ -109,6 +109,7 @@ const styles = StyleSheet.create({
     safeArea: {
       flex: 1,
       paddingTop: Platform.OS === 'android' ? 25 : 0, 
+      backgroundColor: '#000000',
     },
     loginModal: {
       backgroundColor: '#fff',

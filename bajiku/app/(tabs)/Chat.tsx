@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
     color: '#888',
   },
   messageText: {
-    color: '#000',
+
   },
   newMessage: {
     fontWeight: 'bold',

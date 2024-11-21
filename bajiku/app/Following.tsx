@@ -36,7 +36,7 @@ const FollowingScreen = () => {
           headerShown: true, 
           title: 'Followings', 
           headerStyle: {
-            backgroundColor: '#075E54', 
+            backgroundColor: '#000000', 
           },
           headerTintColor: '#fff',
         });
@@ -144,7 +144,7 @@ const FollowingScreen = () => {
     return (
         
         <SafeAreaView style={styles.container}>
-          <StatusBar barStyle="light-content" backgroundColor="#075E54" />
+           <StatusBar barStyle="light-content" backgroundColor="#000000" />
         <View style={styles.searchComponent}>
             <SearchComponent
                 endpoint="https://api.example.com/users"

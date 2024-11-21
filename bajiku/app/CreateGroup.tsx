@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Image, Alert, StatusBar } from 'react-native';
 import { useUser } from '@/utils/useContext/UserContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImageUpload from '@/components/ImageUpload';
@@ -8,6 +8,7 @@ import axios from 'axios';
 import { router } from 'expo-router';
 import Button from '@/components/Button';
 import { useNavigation } from '@react-navigation/native';
+import CustomHeader from '@/components/CustomHeader';
 
 interface Follower {
   id: string;
@@ -37,6 +38,10 @@ const CreateGroupComponent: React.FC = () => {
   //     headerTintColor: '#fff',
   //   });
   // }, [navigation]);
+
+  const goBack = () => {
+    router.back();
+  };
 
   const fetchFollowers = async () => {
     try {
@@ -133,12 +138,19 @@ const CreateGroupComponent: React.FC = () => {
 
   return (
     <View style={styles.container}>
+            <StatusBar barStyle="light-content" backgroundColor="#000000" />
+      <CustomHeader 
+  title={'Create A New Private Room'} 
+  onBackPress={goBack} />
+
+
       <View style={{ marginBottom: 20, alignItems: 'center' }}>
         <ImageUpload key={resetImageKey} onImageSelected={handleImageUpload} />
       </View>
       <TextInput
-        style={styles.input}
+       style={[styles.input, { color: '#ffffff' }]}
         placeholder="Group Name"
+        placeholderTextColor="#808080" 
         value={groupName}
         onChangeText={setGroupName}
       />
@@ -149,10 +161,11 @@ const CreateGroupComponent: React.FC = () => {
         onChangeText={setDescription}
       /> */}
 
-      <Text className='text-[12px] text-center'>Select Group Members:</Text>
-      <Text className='text-[12px] text-center'>Total Selected: {selectedFollowers.length}</Text>
+      <Text className='text-center text-red-400 font-bold text-[16px]'>Select Group Members:</Text>
+      <Text className='text-center text-red-400 font-bold text-[12]'>Total Selected: {selectedFollowers.length}</Text>
       
       <FlatList
+       style={{ marginTop: 5, backgroundColor:'##1c1c1e' }}
         data={followers}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -163,7 +176,7 @@ const CreateGroupComponent: React.FC = () => {
             {item.profileImageUrl ? (
               <Image source={{ uri: item.profileImageUrl }} style={styles.profileImage} />
             ) : null}
-            <Text className='lowercase' style={styles.followerText}>@{item.name}</Text>
+            <Text className='lowercase text-gray-400' style={styles.followerText}>@{item.name}</Text>
           </TouchableOpacity>
         )}
       />
@@ -184,8 +197,7 @@ export default CreateGroupComponent;
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      padding: 20,
-      backgroundColor: '#fff',
+      backgroundColor: '#000000',
       alignItems: 'center', 
     },
     title: {
@@ -195,7 +207,7 @@ const styles = StyleSheet.create({
     },
     input: {
       height: 50,
-      borderColor: '#ccc',
+      borderColor: '#ffffff',
       borderWidth: 1,
       marginBottom: 20,
       paddingHorizontal: 10,

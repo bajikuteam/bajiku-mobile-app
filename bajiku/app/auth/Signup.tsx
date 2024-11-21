@@ -212,7 +212,7 @@ const confirmIOSDate = () => {
               mode="date"
               display="spinner"
               onChange={handleDateChange}
-              // maximumDate={new Date()}
+              maximumDate={new Date()}
             />
               )}
 
@@ -240,12 +240,14 @@ const confirmIOSDate = () => {
              <Text className='text-[#FBBC05] font-bold'>Date of Birth</Text>
              <View style={styles.inputWrapper}>
                <TextInput
-                 style={[styles.input, { color: textColor }]}
+               
+               className='text-white'
+               style={[styles.input, { color: '#ffffff' }]} 
                  placeholder="Select Date of Birth"
                  value={dob}
                  onChangeText={() => {}} 
                  editable={false}
-                 placeholderTextColor={placeholderColor } 
+                 placeholderTextColor={'#ffffff'}
                />
                <Icon name="calendar-today" size={20} color={textColor} style={styles.icon} />
              </View>
@@ -342,6 +344,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     paddingTop: Platform.OS === 'android' ? 25 : 0, 
+    backgroundColor: '#000000',
   },
   loginModal: {
     backgroundColor: '#fff',
@@ -447,7 +450,7 @@ marginTop: -10,
     marginLeft: 8,
   },
   input: {
-    color: '#000', 
+    color: '#ffffff', 
   },
 
 });
