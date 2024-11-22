@@ -14,10 +14,8 @@ SplashScreen.preventAutoHideAsync();
 
 export default function App() {
  
-  
 
   return (
-    // <NavigationContainer ref={navigationRef} onReady={handleNavigationReady}>
       <ThemeProvider>
         <UserProvider>
           <ChatProvider>
@@ -29,7 +27,6 @@ export default function App() {
           </ChatProvider>
         </UserProvider>
       </ThemeProvider>
-    // </NavigationContainer>
   );
 }
 
@@ -38,8 +35,6 @@ function RootLayout() {
   const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
-
-
 
 
   // Wait for fonts to load before rendering anything
