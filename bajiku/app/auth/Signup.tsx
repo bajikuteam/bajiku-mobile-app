@@ -72,6 +72,8 @@ const SignUpScreen = () => {
 
 
   const handleRegister = async () => {
+    const trimmedEmail = email.trim();
+    setEmail(trimmedEmail);
     validateEmail();
     validateDateOfBirth();
   
@@ -197,7 +199,8 @@ const confirmIOSDate = () => {
                               placeholder="Enter Email Address"
                               value={email}
                               onChangeText={(text) => {
-                                setEmail(text);
+                                const trimmedText = text.trim();
+                                setEmail(trimmedText);
                                 setError(''); 
                                 setEmailError('')
                               }}

@@ -251,7 +251,7 @@ const Sidebar: React.FC = () => {
                 </View> */}
               </>
             ) : (
-              <TouchableOpacity onPress={Logout} style={styles.logoutButton}>
+              <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
                 <Text style={styles.logoutText}>Logout</Text>
               </TouchableOpacity>
             )}
@@ -297,7 +297,7 @@ const SidebarItem: React.FC<{ icon: JSX.Element; label: string }> = ({
   return (
     <View style={styles.sidebarItem}>
       <View style={styles.icon}>{coloredIcon}</View>
-      <Text style={{ color: textColor }}>{label}</Text>
+      <Text className="mt-2" style={{ color: textColor }}>{label}</Text>
     </View>
   );
 };

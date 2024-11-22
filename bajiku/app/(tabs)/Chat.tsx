@@ -1,5 +1,5 @@
 
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Text, StatusBar } from 'react-native';
 import { Container, Card, UserInfo, UserImgWrapper, UserImg, UserInfoText, UserName, PostTime, MessageText, TextSection } from '@/styles/MessageStyles';
 import { createNavigationContainerRef, RouteProp, useFocusEffect, useIsFocused, useNavigation, useNavigationContainerRef, useRoute } from '@react-navigation/native';
@@ -57,7 +57,6 @@ const ChatListScreen = () => {
   const socket = io('https://backend-server-quhu.onrender.com');
 
   const [initialized, setInitialized] = useState<boolean>(false);
-  
 
   const fetchChatContacts = async () => {
     try {
@@ -412,7 +411,7 @@ const ChatListScreen = () => {
   return (
     <Container >
     <StatusBar barStyle="light-content" backgroundColor="#000000" />
-    <SearchComponent endpoint={''} fieldsToDisplay={[]}/>
+    {/* <SearchComponent endpoint={''} fieldsToDisplay={[]}/> */}
     {renderToggleButtons()}
     <FlatList
       data={filteredData}

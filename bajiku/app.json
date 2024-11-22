@@ -1,14 +1,14 @@
 {
   "expo": {
     "name": "bajiku",
-    "slug": "bajiku",
+    "slug": "bajiku-revamp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/welcome.png",
+      "image": "./assets/images/welcome.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
@@ -18,11 +18,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/welcome.png",
+        "foregroundImage": "./assets/images/welcome.jpg",
         "backgroundColor": "#000000"
       },
-      "package": "bajiku.com",
-      "googleServiceFile": "./google-services.json"
+      "package": "bajiku.com"
     },
     "web": {
       "bundler": "metro",
@@ -30,15 +29,14 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
-      "expo-video"
+      "expo-router"
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
       "eas": {
-        "projectId": "9c5bbd68-54a1-40a5-b3d0-3756e85ab54c"
+        "projectId": "4136720f-0bba-4205-8e85-47c85412e096"
       }
     },
     "owner": "eehimuebru"

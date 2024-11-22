@@ -26,14 +26,6 @@ const App = () => {
         setMediaType(type as 'image' | 'video');
     };
 
-    // React.useLayoutEffect(() => {
-    //     navigation.setOptions({
-    //         headerShown: true, 
-    //         title: 'Upload Content', 
-    //         headerStyle: { backgroundColor: '#075E54' },
-    //         headerTintColor: '#fff',
-    //     });
-    // }, [navigation]);
 
     const isFocused = useIsFocused();
     useEffect(() => {

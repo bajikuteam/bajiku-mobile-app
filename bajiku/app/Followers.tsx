@@ -119,6 +119,8 @@ const FollowersScreen = () => {
 
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
+                     className='border border-[#ffffff]'
+                     
                         style={styles.messageButton}
                         onPress={() => {
                             router.push({pathname:'/message', params:{
@@ -187,6 +189,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         marginTop: 0,
+        backgroundColor: '#000000', 
     },
     searchComponent: {
         marginBottom: 20,
@@ -200,9 +203,11 @@ const styles = StyleSheet.create({
         paddingBottom: 10,
     },
     profileImage: {
-        width: 36,
-        height: 36,
-        borderRadius: 10,
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#D1D5DB',
     },
     placeholderImage: {
         width: 50,
@@ -219,6 +224,7 @@ const styles = StyleSheet.create({
     followerUsername: {
         fontSize: 12,
         color: '#666',
+     
     },
     buttonContainer: {
         flexDirection: 'row',
@@ -234,6 +240,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginLeft: 10,
+        borderColor: '#D1D5DB',
     },
     followButton: {
         width: 72,

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput } from 'react-native';
-import { useNavigation} from '@react-navigation/native'; 
+import { useNavigation } from '@react-navigation/native'; 
 import ImageTextContainer from '@/components/ImageTextContainer';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
@@ -18,9 +18,6 @@ const EmailVerification: React.FC = () => {
   const [canResend, setCanResend] = useState(false);
   const { theme } = useTheme(); 
   const textColor = theme === 'dark' ? '#fff' : '#000';
-
-
-
 
   useEffect(() => {
     if (timer > 0) {
@@ -106,14 +103,14 @@ const EmailVerification: React.FC = () => {
         subHead="Verify your email."
       />
 
-      <View className='mt-4' style={styles.otpContainer}>
+      <View className="mt-4" style={styles.otpContainer}>
         {otp.map((digit, index) => (
           <Input
             key={index}
             style={[
               styles.input,
               error && !digit ? styles.inputError : null,
-              { color: '#ffffff' }
+              { color: '#fff' } // Ensure contrast against black background
             ]}
             value={digit}
             onChangeText={(value) => handleInputChange(value, index)}
@@ -153,10 +150,10 @@ const EmailVerification: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 0.6,
+    flex: 1, // Ensure full-screen coverage
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: '#000000', // Black background
   },
   otpContainer: {
     flexDirection: 'row',
@@ -171,6 +168,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     marginRight: 10,
+    backgroundColor: '#1a1a1a', // Dark background for input
   },
   inputError: {
     borderColor: 'red',

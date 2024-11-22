@@ -39,28 +39,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   };
 
   const handleLogout = async () => {
-    console.log("Clearing user data...");
-  
-    // Clear user data from AsyncStorage
+    router.push("/auth/Login");
     await AsyncStorage.removeItem('user');
-    setUser(null); // Reset user state to null (ensure no user data left in memory)
+    setUser(null); 
   
-    console.log("User data cleared, navigating to login...");
-  
-    // Use router.push or navigation.navigate depending on your navigation setup
-    if (router) {
-      // Expo Router
-      router.push('/'); // Redirect to the login screen (outside the tabs)
-    } else {
-      // React Navigation
-      const navigation = useNavigation<StackNavigationProp<RootStackParamListS>>();
-      navigation.reset({
-        index: 0, // Reset the navigation stack
-        routes: [{ name: 'index' }], // Navigate to the login screen
-      });
-    }
-  
-    console.log("Navigation to login initiated.");
+   console.log("logged out user........!!!")
+   
   };
 
 

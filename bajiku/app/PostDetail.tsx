@@ -5,7 +5,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import AddComment from '@/components/AddComment';
-import { ContentCaption, ContentLeft, ContentLeftImg, ContentRight } from '@/styles/Home';
+import { ContentCaption, ContentLeft, ContentLeftImg, ContentRight, PContentCaption } from '@/styles/Home';
 import { formatTime } from '@/services/core/globals';
 import { useUser } from '@/utils/useContext/UserContext';
 import { io } from 'socket.io-client';
@@ -392,7 +392,7 @@ const PostDetail = () => {
 
   const [replyModalVisible, setReplyModalVisible] = useState(false);
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
-  
+  const [isExpanded, setIsExpanded] = useState(false);
   const showReplies= (comment: Comment) => {
     setSelectedComment(comment);
     setReplyModalVisible(true);
@@ -402,15 +402,24 @@ const PostDetail = () => {
     router.back();
   };
 
+  const toggleCaption = () => {
+    setIsExpanded(!isExpanded);
+  };
+  const getTruncatedCaption = (caption: string) => {
+    const words = caption.split(' ');
+    if (words.length > 15) {
+      return words.slice(0, 15).join(' ') + '...';
+    }
+    return caption;
+  };
+
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={styles.mediaContainer}>
       <StatusBar barStyle="light-content" backgroundColor="#000000" />
       <CustomHeader 
   title={'Content'} 
-  onBackPress={goBack} 
- 
-/>
+  onBackPress={goBack} />
 
 {isVideo ? (
         <TouchableWithoutFeedback onPress={handleTap}>
@@ -454,12 +463,20 @@ const PostDetail = () => {
         <Image source={{ uri: mediaSrc as string }} style={styles.postImage} />
       )}
         
-
-        <ContentCaption>
-          <TouchableOpacity onPress={openCommentsModal}>
-            <Text style={{ color: '#fff' }}>{caption}</Text>
+<PContentCaption>
+          <TouchableOpacity onPress={toggleCaption}>
+            <Text className="text-gray-200 text-[12px]">
+              {isExpanded ? caption : getTruncatedCaption(caption as string) }
+            </Text>
           </TouchableOpacity>
-        </ContentCaption>
+          {(caption as string).split(' ').length > 15 && (
+            <TouchableOpacity onPress={toggleCaption}>
+              <Text className="text-white text-[13px] pl-2">
+                {isExpanded ? 'Show Less' : 'Show More'}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </PContentCaption>
 
         <ContentLeftImg>
           <Image source={{ uri: authorProfilePicSrc as string }} style={{ height: 50, width: 44, borderRadius: 12 }} />
@@ -649,6 +666,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
+    marginTop:10
   },
   videoIcon: {
     position: 'absolute',

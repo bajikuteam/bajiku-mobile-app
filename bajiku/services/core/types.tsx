@@ -208,6 +208,7 @@ export type RootStackParamListComponent = {
   Followers: undefined;
   Following:undefined
   Profile: undefined;
+  EditProfile: undefined
   PostDetail: {id:string, likes:any , privacy:string, mediaSrc:string, caption:string, authorProfilePicSrc:string, comments:any};
 
 

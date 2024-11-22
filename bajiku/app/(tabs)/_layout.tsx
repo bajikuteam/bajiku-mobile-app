@@ -12,10 +12,12 @@ const headerStatusColor = "#000000"
 
   return (
     <Tabs
+    
     screenOptions={({ route }) => ({
       tabBarActiveTintColor: '#075E54', 
       tabBarInactiveTintColor: 'gray', 
       headerShown: false,
+      unmountOnBlur: true,
       tabBarLabel: () => null, 
       tabBarStyle: {
         height: 60,

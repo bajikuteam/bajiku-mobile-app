@@ -1,17 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, Animated, StyleSheet, Modal, ScrollView} from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, Animated, StyleSheet, Modal, ScrollView, AppState, RefreshControl} from 'react-native';
 import { ResizeMode, Video } from 'expo-av';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AddComment from './AddComment';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect} from '@react-navigation/native';
 import { NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
-import { ContentCaption, ContentLeft, ContentLeftImg, ContentRight } from '@/styles/Home';
+import { ContentCaption, ContentLeft, ContentLeftBottomNameUserText, ContentLeftImg, ContentRight } from '@/styles/Home';
 import { BlurView } from 'expo-blur';
 import { useUser } from '@/utils/useContext/UserContext';
 import { formatTime } from '@/services/core/globals';
 import { io } from 'socket.io-client';
 import Loading from './Loading';
-import { useVideo } from '@/utils/useContext/VideoContext';
+import {  usePathname } from 'expo-router';
 const socket = io('https://backend-server-quhu.onrender.com'); 
 // const socket = io('http://192.168.1.107:5000/'); 
 
@@ -59,17 +59,16 @@ interface ReplyUpdate {
 
 export default function PostWithCaption() {
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
-  // const videoRefs = useRef<(Video | null)[]>([]);
+  const videoRefs = useRef<(Video | null)[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [isPlaying, setIsPlaying] = useState<boolean[]>([]);
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const { user } = useUser();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); 
 
 
-  const navigation = useNavigation();
   
   const scrollY = useRef(new Animated.Value(0)).current;
   const pulseAnimation = useRef(new Animated.Value(1)).current;
@@ -140,11 +139,53 @@ export default function PostWithCaption() {
   useEffect(() => {
     fetchData();
   }, []);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setRefreshing(true); 
+    await fetchData(); 
+    setRefreshing(false); 
+  };
 
 
   const isVideo = (url: string) => {
     return url.endsWith('.mp4') || url.endsWith('.mov');
   };
+  
+
+  const pathname = usePathname();
+  const isTabScreen = pathname === '/';  
+
+
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!isTabScreen) {
+        if (isPlaying[activeVideoIndex] && videoRefs.current[activeVideoIndex]) {
+          videoRefs.current[activeVideoIndex]?.pauseAsync();
+          setIsPlaying(prev => {
+            const newState = [...prev];
+            newState[activeVideoIndex] = false;  
+            return newState;
+          });
+        }
+      }
+      return () => {
+        videoRefs.current.forEach((videoRef, idx) => {
+          if (videoRef) {
+            videoRef.pauseAsync();
+            setIsPlaying(prev => {
+              const newState = [...prev];
+              newState[idx] = false;
+              return newState;
+            });
+          }
+        });
+      };
+    }, [activeVideoIndex, isTabScreen])
+  );
+  
+
 
   const handleScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -167,32 +208,36 @@ export default function PostWithCaption() {
     }
   );
 
-  // const handleVideoClick = () => {
-  //   const currentPlaying = isPlaying[activeVideoIndex];
-  //   if (currentPlaying) {
-  //     videoRefs.current[activeVideoIndex]?.pauseAsync();
-  //   } else {
-  //     videoRefs.current[activeVideoIndex]?.playAsync();
-  //   }
-  //   setIsPlaying(prev => {
-  //     const newState = [...prev];
-  //     newState[activeVideoIndex] = !currentPlaying;
-  //     return newState;
-  //   });
+  const handleVideoClick = () => {
+    const currentPlaying = isPlaying[activeVideoIndex];
+    if (currentPlaying) {
+      videoRefs.current[activeVideoIndex]?.pauseAsync().catch(err => console.log('Error pausing video:', err));
+    } else {
+      videoRefs.current[activeVideoIndex]?.playAsync().catch(err => console.log('Error playing video:', err));
+    }
+    setIsPlaying(prev => {
+      const newState = [...prev];
+      newState[activeVideoIndex] = !currentPlaying;
+      return newState;
+    });
+  
+    Animated.sequence([
+      Animated.timing(pulseAnimation, {
+        toValue: 1.1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(pulseAnimation, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+ 
+  
+ 
 
-  //   Animated.sequence([
-  //     Animated.timing(pulseAnimation, {
-  //       toValue: 1.1,
-  //       duration: 200,
-  //       useNativeDriver: true,
-  //     }),
-  //     Animated.timing(pulseAnimation, {
-  //       toValue: 1,
-  //       duration: 200,
-  //       useNativeDriver: true,
-  //     }),
-  //   ]).start();
-  // };
 
   const toggleCaption = () => {
     setIsExpanded(!isExpanded);
@@ -436,18 +481,17 @@ const likeComment = async (commentId: string, mediaId:string) => {
     return (
       <View style={{ width: '100%', backgroundColor: '#010101', paddingBottom: 20, }}>
         {isVideo(item.mediaSrc) && !isPrivate ? (
-            <TouchableOpacity onPress={() => handleVideoClick(index)}>
+          <TouchableOpacity activeOpacity={1} onPress={handleVideoClick}>
             <Animated.View style={{ transform: [{ scale: pulseAnimation }] }}>
               <Video
                 ref={ref => (videoRefs.current[index] = ref)}
                 style={{ height: 520, width: '100%' }}
                 source={{ uri: item.mediaSrc }}
                 resizeMode={ResizeMode.COVER}
-                shouldPlay={playingIndex === index}
-                // shouldPlay={activeVideoIndex === index && isPlaying[index]}
-                isLooping 
-                />
-                {playingIndex !== index && (
+                shouldPlay={activeVideoIndex === index && isPlaying[index]}
+                isLooping
+              />
+              {!isPlaying[index] && (
                 <View style={styles.overlay}>
                   <Ionicons name="play-circle" size={60} color="#fff" />
                 </View>
@@ -492,6 +536,8 @@ const likeComment = async (commentId: string, mediaId:string) => {
             style={{ height: 50, width: 44, borderRadius: 12 }}
           />
         </ContentLeftImg>
+
+        <ContentLeftBottomNameUserText style={{ textTransform: 'lowercase', }}>@{item.authorName}</ContentLeftBottomNameUserText>
 
         <ContentRight>
         <TouchableOpacity onPress={() => likeContent(item._id || '')}>
@@ -539,68 +585,6 @@ const likeComment = async (commentId: string, mediaId:string) => {
     );
   };
 
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     if (videoRefs.current[activeVideoIndex]) {
-  //       videoRefs.current[activeVideoIndex]?.playAsync();
-  //       setIsPlaying(prev => {
-  //         const newState = [...prev];
-  //         newState[activeVideoIndex] = true;
-  //         return newState;
-  //       });
-  //     }
-
-
-      
-
-  //     return () => {
-  //       videoRefs.current.forEach((videoRef, idx) => {
-  //         if (videoRef) {
-  //           videoRef.pauseAsync();
-  //           setIsPlaying(prev => {
-  //             const newState = [...prev];
-  //             newState[idx] = false;
-  //             return newState;
-  //           });
-  //         }
-  //       });
-  //     };
-  //   }, [activeVideoIndex])
-  // );
- // Pause the video when screen loses focus
-
- const { videoRefs, playingIndex, playVideo, pauseVideo, pauseAllVideos } = useVideo();
- useFocusEffect(
-  React.useCallback(() => {
-    return () => {
-      pauseAllVideos(); // Pause all videos when screen unfocuses
-    };
-  }, [])
-);
-
-const handleVideoClick = (index: number) => {
-  if (playingIndex === index) {
-    pauseVideo(index);
-  } else {
-    playVideo(index);
-  }
-
-  // Pulse animation
-  Animated.sequence([
-    Animated.timing(pulseAnimation, {
-      toValue: 1.1,
-      duration: 200,
-      useNativeDriver: true,
-    }),
-    Animated.timing(pulseAnimation, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: true,
-    }),
-  ]).start();
-};
-
-
 const [replyModalVisible, setReplyModalVisible] = useState(false);
 const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
 
@@ -617,15 +601,21 @@ if (loading) {
 }
   return (
     <View>
-      <Animated.FlatList
-        data={videos}
-        renderItem={renderItem}
-        keyExtractor={item => (item.id ? item.id.toString() : item._id || '')}
-        scrollEventThrottle={16}
-        showsVerticalScrollIndicator={false}
-        onScroll={handleScroll}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
+     <Animated.FlatList
+      data={videos}
+      renderItem={renderItem}
+      keyExtractor={(item) => (item.id ? item.id.toString() : item._id || '')}
+      scrollEventThrottle={16}
+      showsVerticalScrollIndicator={false}
+      onScroll={handleScroll}
+      contentContainerStyle={{ paddingBottom: 20 }}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+      }
+      ListEmptyComponent={
+        !loading && <Text style={styles.emptyText}>No videos available</Text>
+      }
+    />
 
 
 <Modal
@@ -919,5 +909,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginRight: 8,
     
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: '#888',
   },
 });

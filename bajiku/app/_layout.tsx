@@ -13,18 +13,11 @@ import { VideoProvider } from '@/utils/useContext/VideoContext';
 SplashScreen.preventAutoHideAsync();  
 
 export default function App() {
-  const navigationRef = useNavigationContainerRef();
-
-  const [isNavigationReady, setIsNavigationReady] = useState(false);
-
-  // Update navigation readiness status when the container is ready
-  const handleNavigationReady = () => {
-    setIsNavigationReady(true);
-    console.log('Navigation container is ready');
-  };
+ 
+  
 
   return (
-    <NavigationContainer ref={navigationRef} onReady={handleNavigationReady}>
+    // <NavigationContainer ref={navigationRef} onReady={handleNavigationReady}>
       <ThemeProvider>
         <UserProvider>
           <ChatProvider>
@@ -36,7 +29,7 @@ export default function App() {
           </ChatProvider>
         </UserProvider>
       </ThemeProvider>
-    </NavigationContainer>
+    // </NavigationContainer>
   );
 }
 
@@ -52,7 +45,7 @@ function RootLayout() {
   // Wait for fonts to load before rendering anything
   useEffect(() => {
     if (fontsLoaded) {
-      SplashScreen.hideAsync();  // Hide the splash screen once fonts are loaded
+      SplashScreen.hideAsync(); 
     }
   }, [fontsLoaded]);
 
@@ -76,6 +69,7 @@ function RootLayout() {
       headerStyle: { backgroundColor: '#000000' },
        headerLeft: () => <Sidebar />, }} />
         <Stack.Screen name="Followers" options={{ headerShown: false }} />
+        <Stack.Screen name="EditProfile" options={{ headerShown: false }} />
         <Stack.Screen name="Following" options={{ headerShown: false }} />
         <Stack.Screen name="message" options={{ headerShown: false }} />
         <Stack.Screen name="groupChat" options={{ headerShown: false }} />
@@ -86,3 +80,4 @@ function RootLayout() {
     </NavigationThemeProvider>
   );
 }
+

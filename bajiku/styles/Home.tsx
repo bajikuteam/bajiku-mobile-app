@@ -83,11 +83,14 @@ export const ContentLeftImg = styled.View`
     border-radius: 25px;
 `;
 
+
+
+
 export const ContentCaption = styled.View`
     position: absolute;
     padding: 10px;
     left: 10px;
-    top: 2%;
+    top: 0;
     z-index: 1000;
     flex: 1;
     display: flex;
@@ -95,7 +98,18 @@ export const ContentCaption = styled.View`
     justify-content: center;
 
 `;
+export const PContentCaption = styled.View`
+    position: absolute;
+    padding: 10px;
+    left: 10px;
+    top: 6%;
+    z-index: 1000;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
+`;
 export const ContentRightUser = styled.TouchableOpacity`
     width: 40px;
     height: 40px;
@@ -181,6 +195,17 @@ export const ContentLeftBottomNameUser = styled.TouchableOpacity`
 export const ContentLeftBottomNameUserText = styled.Text`
     color: #FFF;
     font-weight: bold;
+     position: absolute;
+    padding: 10px;
+    left: 5px;
+    top: 70%;
+    bottom: 20%;
+    z-index: 99;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+     textTransform: 'lowercase',
 `;
 
 export const ContentLeftBottomDescription = styled.Text`

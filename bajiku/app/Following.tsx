@@ -3,7 +3,7 @@ import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndi
 import axios from 'axios';
 import { useUser } from '@/utils/useContext/UserContext';
 import SearchComponent from '@/components/Search';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/services/core/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -89,17 +89,22 @@ const FollowingScreen = () => {
             {item.profileImageUrl ? (
                 <Image
                     source={{ uri: item.profileImageUrl }}
-                    style={{ width: 36, height: 36, borderRadius: 10 }}
+                    style={{  width: 40,
+                        height: 40,
+                        borderRadius: 12,
+                        borderWidth: 2,
+                        borderColor: '#D1D5DB', }}
                 />
             ) : (
                 <View style={styles.placeholderImage} />
             )}
             <View style={styles.followerInfo}>
                 <Text className='text-[12px]'>{item.firstName} {item.lastName}</Text>
-                <Text className='text-[12px]'>@{item.username}</Text>
+                <Text style={styles.followerUsername}>@{item.username}</Text>
             </View>
             <View className='absolute gap-2 right-1' style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-                <TouchableOpacity
+                {/* <TouchableOpacity
+                className='border border-[#ffffff]'
                     style={{
                         width: 72,
                         height: 38,
@@ -108,6 +113,7 @@ const FollowingScreen = () => {
                         justifyContent: 'center',
                         alignItems: 'center',
                         marginLeft: 10,
+                        borderColor: '#D1D5DB',
                     }}
                     onPress={() => {
                         navigation.navigate('message', {
@@ -122,7 +128,35 @@ const FollowingScreen = () => {
                     }}
                 >
                     <Text style={styles.buttonText}>Message</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
+                    <TouchableOpacity
+                     className='border border-[#ffffff]'
+                     style={{
+                        width: 72,
+                        height: 38,
+                        borderRadius: 12,
+                        backgroundColor: 'black',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginLeft: 10,
+                        borderColor: '#D1D5DB',
+                    }}
+                        onPress={() => {
+                            router.push({pathname:'/message', params:{
+                                profileImageUrl: item.profileImageUrl || '',
+                                username: item.username,
+                                senderId: user.id,
+                                receiverId: item._id,
+                                firstName: item.firstName,
+                                lastName: item.lastName,
+                                senderName: user.username, 
+                            }
+                             
+                            });
+                        }}
+                    >
+                        <Text style={styles.buttonText}>Message</Text>
+                    </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.followButton, { backgroundColor: '#F90C0C' }]}
                     onPress={() => handleUnfollow(item._id)}
@@ -174,6 +208,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         marginTop: 0,
+        backgroundColor: '#000000', 
     },
     searchComponent: {
         marginBottom: 20,
@@ -198,6 +233,7 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#fff',
         fontSize: 12,
+        borderBlockColor:'#fff',
     },
     noFollowersText: {
         textAlign: 'center',
@@ -223,6 +259,11 @@ const styles = StyleSheet.create({
     loadMoreText: {
         color: '#fff',
         fontSize: 16,
+    },
+    followerUsername: {
+        fontSize: 12,
+        color: '#666',
+     
     },
 });
 
