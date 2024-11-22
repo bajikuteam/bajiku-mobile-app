@@ -1,20 +1,15 @@
 
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect,  useState } from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Text, StatusBar } from 'react-native';
 import { Container, Card, UserInfo, UserImgWrapper, UserImg, UserInfoText, UserName, PostTime, MessageText, TextSection } from '@/styles/MessageStyles';
-import { createNavigationContainerRef, RouteProp, useFocusEffect, useIsFocused, useNavigation, useNavigationContainerRef, useRoute } from '@react-navigation/native';
-// import { RootStackParamList, RootStackParamListComponent, RootStackParamListsPersonGroupChat } from '@/services/core/types';
-import { StackNavigationProp } from '@react-navigation/stack';
+import {  useFocusEffect, useIsFocused, useNavigation, useNavigationContainerRef, useRoute } from '@react-navigation/native';
 import { useUser } from '@/utils/useContext/UserContext';
 import { formatTime } from '@/services/core/globals';
 import io from 'socket.io-client';
-import { useTheme } from '@/utils/useContext/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useChat } from '@/utils/useContext/ChatContext';
-// import { useNotification } from '@/utils/useContext/NotificationContext';
 import RoundButton from '@/components/RoundButton';
 import Button from '@/components/Button';
-import SearchComponent from '@/components/Search';
 import * as NavigationBar from 'expo-navigation-bar';
 import { router } from 'expo-router';
 interface ChatScreenRouteParams {
@@ -26,7 +21,6 @@ interface ChatScreenRouteParams {
   lastMessage: string;
 }
 
-// const navigationRef = createNavigationContainerRef();
 
 type RootStackParamList = {
   Home: undefined;
@@ -38,12 +32,7 @@ type RootStackParamList = {
 
 const ChatListScreen = () => {
   const navigationRef = useNavigationContainerRef<RootStackParamList>();
-  // const navigationRef = useNavigation<StackNavigationProp<RootStackParamList>>();
-  // const navigation = useNavigation<NavigationProp>();
-
-  // const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  // const navigation = useNavigation(); // Using the useNavigation hook
-
+ 
   const [viewMode, setViewMode] = useState<'contacts' | 'groups' | 'all'>('all');
 
   const { user } = useUser();
@@ -51,9 +40,6 @@ const ChatListScreen = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [data, setData] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  // const { theme } = useTheme();
-  // const { expoPushToken } = useNotification();
-  // const socket = io('http://192.168.1.107:5000');
   const socket = io('https://backend-server-quhu.onrender.com');
 
   const [initialized, setInitialized] = useState<boolean>(false);
@@ -295,7 +281,7 @@ const ChatListScreen = () => {
 
   const renderItem = ({ item }: { item: any }) => {
     const lastMessageTime = item.lastMessageTime || (item.type === 'group' ? item.lastMessage?.createdAt : item.createdAt);
-    const isNewMessage = false; // Adjust as needed to identify new messages
+    const isNewMessage = false; 
 
     return (
       <Card onPress={() => handleCardPress(item)}>
@@ -405,5 +391,6 @@ const styles = StyleSheet.create({
     width: '20%'
   }
 });
+
 
 export default ChatListScreen;

@@ -16,6 +16,7 @@ interface Follower {
   profileImageUrl: string;
 }
 
+
 const CreateGroupComponent: React.FC = () => {
   const [groupName, setGroupName] = useState<string>('');
   const [description, setDescription] = useState<string>(''); 
@@ -36,7 +37,6 @@ const CreateGroupComponent: React.FC = () => {
   const fetchFollowers = async () => {
     try {
       const userId = user.id || (await AsyncStorage.getItem('userId'));
-      // const response = await fetch(`http://192.168.1.107:5000/users/${userId}/followers`);
       const response = await fetch(`https://backend-server-quhu.onrender.com/users/${userId}/followers`);
       
       if (!response.ok) {
@@ -127,7 +127,7 @@ const CreateGroupComponent: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} >
             <StatusBar barStyle="light-content" backgroundColor="#000000" />
       <CustomHeader 
   title={'Create A New Private Room'} 
@@ -155,7 +155,6 @@ const CreateGroupComponent: React.FC = () => {
 <Text style={{ textAlign: 'center', color: 'red', fontWeight: 'bold', fontSize: 14 }}>Total Selected: {selectedFollowers.length}</Text>
       
       <FlatList
-       style={{ marginTop: 5, backgroundColor:'##1c1c1e' }}
         data={followers}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -166,7 +165,7 @@ const CreateGroupComponent: React.FC = () => {
             {item.profileImageUrl ? (
               <Image source={{ uri: item.profileImageUrl }} style={styles.profileImage} />
             ) : null}
-            <Text className='lowercase text-gray-400' style={styles.followerText}>@{item.name}</Text>
+            <Text className='lowercase' style={styles.followerText}>@{item.name}</Text>
           </TouchableOpacity>
         )}
       />

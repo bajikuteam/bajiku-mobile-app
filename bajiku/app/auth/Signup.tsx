@@ -48,7 +48,6 @@ const SignUpScreen = () => {
     });
   }, [navigation]);
 
-  
 
   // Validate email for both presence and correct format
   const validateEmail = () => {
@@ -135,7 +134,6 @@ const SignUpScreen = () => {
     return typeof error === 'object' && error !== null && 'message' in error;
   }
   
-// error.response.data.message
 
 const placeholderColor = theme === 'dark' ? '#fff' : '#000';
 

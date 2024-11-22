@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, Image, KeyboardAvoidingView, Platform, Touchabl
 import { Video as ExpoVideo, ResizeMode } from 'expo-av';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, } from '@react-navigation/native';
 import AddComment from '@/components/AddComment';
-import { ContentCaption, ContentLeft, ContentLeftImg, ContentRight, PContentCaption } from '@/styles/Home';
+import { ContentLeft, ContentLeftImg, ContentRight, PContentCaption } from '@/styles/Home';
 import { formatTime } from '@/services/core/globals';
 import { useUser } from '@/utils/useContext/UserContext';
 import { io } from 'socket.io-client';
@@ -48,11 +48,8 @@ type VideoItem = {
 };
 
 const PostDetail = () => {
-  // const route = useRoute<RouteProp<{ params: PostDetailScreenRouteParams }, 'params'>>();
- 
   const params = useLocalSearchParams();
   const { privacy, mediaSrc, caption, id, authorProfilePicSrc, likes } = params;
-  // const isVideo = mediaSrc && (mediaSrc.endsWith('.mp4') || mediaSrc.endsWith('.mov'));
   const isVideo = (Array.isArray(mediaSrc) 
   ? mediaSrc.some(src => typeof src === 'string' && (src.endsWith('.mp4') || src.endsWith('.mov')))
   : typeof mediaSrc === 'string' && (mediaSrc.endsWith('.mp4') || mediaSrc.endsWith('.mov')));
@@ -87,24 +84,12 @@ const PostDetail = () => {
     startPulse();
   };
 
-  // useEffect(() => {
-  //   navigation.setOptions({
-  //     headerShown: true,
-  //     title: 'Content',
-  //     headerStyle: {
-  //       backgroundColor: '#075E54',
-  //     },
-  //     headerTintColor: '#fff',
-  //   });
-  // }, [navigation]);
+ 
 
 
-  const [isLiked, setIsLiked] = useState(false);  // Declare the 'isLiked' state
+  const [isLiked, setIsLiked] = useState(false);  
 
   useEffect(() => {
-
-    // const user = 
-    // Function to fetch content data
     const getContent = async () => {
       try {
         const response = await fetch(`https://backend-server-quhu.onrender.com/content/${id}`);
@@ -133,14 +118,6 @@ const PostDetail = () => {
     // Call the getContent function to fetch data when the component mounts
     getContent();
   }, [id, user.id]);
-
-  // useEffect(() => {
-  //   getContent();
-  // }, []);
-
-  // const isUserLiked = (likedBy: string[]) => {
-  //   return likedBy.includes(user?.id);
-  // };
 
 
   const openCommentsModal = async () => {

@@ -7,7 +7,6 @@ import { router, useNavigation } from 'expo-router';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/services/core/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { BASE_URL } from '@env';
 import { useTheme } from '@/utils/useContext/ThemeContext';
 
 interface Follower {
@@ -50,7 +49,6 @@ const FollowingScreen = () => {
             setLoading(true);
             
             const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${userId}/following`, {
-                // const response = await axios.get(`http://192.168.1.107:5000/users/${userId}/following`, {
                 params: { page, limit },
             });
             setFollowers(response.data.following);
@@ -75,8 +73,7 @@ const FollowingScreen = () => {
     const handleUnfollow = async (followerId: string) => {
         try {
             const userId = user.id;
-           
-            // await axios.post(`http://192.168.1.107:5000/users/${userId}/unfollow/${followerId}`);
+      
             await axios.post(`https://backend-server-quhu.onrender.com/users/${userId}/unfollow/${followerId}`);
             setFollowers((prevFollowers) => prevFollowers.filter(follower => follower._id !== followerId));
         } catch (error) {
@@ -103,32 +100,7 @@ const FollowingScreen = () => {
                 <Text style={styles.followerUsername}>@{item.username}</Text>
             </View>
             <View className='absolute gap-2 right-1' style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-                {/* <TouchableOpacity
-                className='border border-[#ffffff]'
-                    style={{
-                        width: 72,
-                        height: 38,
-                        borderRadius: 12,
-                        backgroundColor: 'black',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginLeft: 10,
-                        borderColor: '#D1D5DB',
-                    }}
-                    onPress={() => {
-                        navigation.navigate('message', {
-                            profileImageUrl: item.profileImageUrl || '',
-                            username: item.username,
-                            senderId: user.id,
-                            receiverId: item._id,
-                            firstName: item.firstName,
-                            lastName: item.lastName,
-                            senderName: user.username,
-                        });
-                    }}
-                >
-                    <Text style={styles.buttonText}>Message</Text>
-                </TouchableOpacity> */}
+                
                     <TouchableOpacity
                      className='border border-[#ffffff]'
                      style={{

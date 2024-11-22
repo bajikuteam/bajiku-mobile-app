@@ -14,7 +14,6 @@ SplashScreen.preventAutoHideAsync();
 
 export default function App() {
  
-
   return (
       <ThemeProvider>
         <UserProvider>

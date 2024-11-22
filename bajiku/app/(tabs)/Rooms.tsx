@@ -37,15 +37,6 @@ const GroupScreen = () => {
     const [groups, setGroups] = useState<Group[]>([]);
     const [loading, setLoading] = useState(true);
     const { user } = useUser();
-    // React.useLayoutEffect(() => {
-    //     navigation.setOptions({
-    //       headerShown: true,
-    //       headerStyle: {
-    //         backgroundColor: '#075E54', 
-    //       },
-    //       headerTintColor: '#fff',
-    //     });
-    //   }, [navigation]);
 
       const isFocused = useIsFocused();
       useEffect(() => {
@@ -58,7 +49,6 @@ const GroupScreen = () => {
     useEffect(() => {
         const fetchGroups = async () => {
             try {
-                // const response = await fetch('http://192.168.1.107:5000/chat/rooms');
                 const response = await fetch('https://backend-server-quhu.onrender.com/chat/rooms');
                 const data: Group[] = await response.json();
                 setGroups(data);

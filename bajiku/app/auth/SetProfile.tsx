@@ -1,7 +1,7 @@
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import { useTheme } from '@/utils/useContext/ThemeContext';
-import { Link, router, useNavigation } from 'expo-router';
+import {router } from 'expo-router';
 import React, { useState, useCallback } from 'react';
 import axios from 'axios'; 
 import {
@@ -16,7 +16,7 @@ import {
     Alert,
 } from 'react-native';
 import ImageUpload from '@/components/ImageUpload';
-import { checkUsernameAvailability, setuUpUserProfile, updateProfile } from '@/services/api/request';
+import { checkUsernameAvailability, updateProfile } from '@/services/api/request';
 import { useUser } from '@/utils/useContext/UserContext';
 import { debounce } from 'lodash';
 const { height } = Dimensions.get('window');
@@ -27,7 +27,6 @@ const SetProfile = () => {
     const [formError, setFormError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [profileImage, setProfileImage] = useState<string | null>(null);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [userName, setUsername] = useState('');
@@ -36,7 +35,7 @@ const SetProfile = () => {
     const { handleLogin  } = useUser(); 
     const textColor = theme === 'dark' ? '#fff' : '#000';
     const [usernameAvailability, setUsernameAvailability] = useState<{ available: boolean; message: string } | null>(null);
-    const navigation = useNavigation();
+  
 
 
 

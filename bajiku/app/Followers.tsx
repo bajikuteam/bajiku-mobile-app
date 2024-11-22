@@ -7,7 +7,6 @@ import { router, useNavigation } from 'expo-router';
 import { RootStackParamList } from '@/services/core/types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { BASE_URL } from '@env';
 import { useTheme } from '@/utils/useContext/ThemeContext';
 
 interface Follower {
@@ -47,7 +46,7 @@ const FollowersScreen = () => {
             setLoading(true);
             
             const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${userId}/followers`);
-            // const response = await axios.get(`http://192.168.1.107:5000/users/${userId}/followers`);
+         
             setFollowers(response.data.followers);
         } catch (error) {
             // console.error('Error fetching followers:', error);
@@ -60,7 +59,7 @@ const FollowersScreen = () => {
     const fetchFollowing = async () => {
         try {
             const userId = user.id;
-            // const response = await axios.get(`http://192.168.1.107:5000/users/${userId}/following`);
+          
             const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${userId}/following`);
             setFollowing(response.data.following || []); 
         } catch (error) {

@@ -29,7 +29,6 @@ const AddPersonGroupChatMemberScreen: React.FC = () => {
   const fetchFollowers = async () => {
     try {
       const userId = user.id || (await AsyncStorage.getItem('userId'));
-      // const response = await fetch(`http://192.168.1.107:5000/users/${userId}/followers`);
       const response = await fetch(`https://backend-server-quhu.onrender.com/users/${userId}/followers`);
       
       if (!response.ok) {
@@ -67,7 +66,6 @@ const AddPersonGroupChatMemberScreen: React.FC = () => {
     setLoading(true);
     try {
       const userId = user.id || (await AsyncStorage.getItem('userId'));
-      // const response = await axios.post(`http://192.168.1.107:5000/personal-group-chat/${roomId}/add-followers/${userId}`, {
         const response = await axios.post(`https://backend-server-quhu.onrender.com/personal-group-chat/${roomId}/add-followers/${userId}`, {
         members: selectedFollowers,
       });

@@ -3,20 +3,18 @@ import { View, Text, Image, StyleSheet, KeyboardAvoidingView, Platform, StatusBa
 import { Bubble, GiftedChat, Send, IMessage, InputToolbar } from 'react-native-gifted-chat';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { useRoute, RouteProp, useNavigation, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import io from 'socket.io-client';
 import { useUser } from '@/utils/useContext/UserContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Modal from 'react-native-modal';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamListComponent } from '@/services/core/types';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as NavigationBar from 'expo-navigation-bar';
 import { NavigationContext } from "@react-navigation/native";
 import CustomHeader from '@/components/CustomHeader';
-// Initialize socket connection
 const socket = io('https://backend-server-quhu.onrender.com');
-// const socket = io('http://192.168.1.107:5000');
+
 
 interface ChatScreenRouteParams {
   roomId: string;
@@ -36,12 +34,10 @@ type NavigationProp = StackNavigationProp<RootStackParamListComponent>;
   const PersonGroupChatScreen = () => {
     const params = useLocalSearchParams();
     const {senderId, senderName, groupImgUrl, room, name, roomId } = params;
-    console.log("params...!",senderId, senderName, groupImgUrl, room, name, roomId);
 
   const [messages, setMessages] = useState<any[]>([]);
   const [isModalVisible, setModalVisible] = useState(false);
-  const navigation = useContext(NavigationContext);
-  const navigations = useNavigation();
+
   const { user } = useUser();
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -94,36 +90,7 @@ type NavigationProp = StackNavigationProp<RootStackParamListComponent>;
 
   // Handle socket events
   useEffect(() => {
-    // socket.emit('joinRoom', { room: name, userId: senderName });
-
-    // socket.on('userJoined', ({ userId }) => {
-    //   if (!userColors[userId]) {
-    //     const randomColor = generateRandomColor();
-    //     setUserColors((prev) => ({ ...prev, [userId]: randomColor }));
-    //   }
-
-    //   const notificationMessage = {
-    //     _id: `notif-${Date.now()}`, 
-    //     text: `@${userId} just joined`,
-    //     createdAt: new Date(),
-    //     system: true,
-    //     user: { _id: 0 },  
-    //   };
-
-    //   setMessages((prevMessages) => GiftedChat.append(prevMessages, [notificationMessage]));
-    // });
-
-    // socket.on('userLeft', ({ userId }) => {
-    //   const notificationMessage = {
-    //     _id: `${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
-    //     text: `@${userId} has left`,
-    //     createdAt: new Date(),
-    //     system: true,
-    //     user: { _id: 0 },
-    //   };
-
-    //   setMessages((prevMessages) => GiftedChat.append(prevMessages, [notificationMessage]));
-    // });
+  
 
    socket.on('receiveMessageFrompersonalGroupChat', (message) => {
   setMessages((prevMessages) => {

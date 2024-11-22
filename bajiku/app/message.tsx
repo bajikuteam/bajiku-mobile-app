@@ -1,23 +1,20 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, StyleSheet, Text, Image, TextInput, KeyboardAvoidingView, Platform, StatusBar, SafeAreaView, ScrollView } from 'react-native';
+import React, { useState, useEffect, useCallback, } from 'react';
+import { View, StyleSheet, TextInput, StatusBar} from 'react-native';
 import { Bubble, GiftedChat, Send, IMessage } from 'react-native-gifted-chat';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
-import { useRoute, RouteProp, useNavigation, useIsFocused } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import io from 'socket.io-client';
 import { useChat } from '@/utils/useContext/ChatContext';
-import { useTheme } from '@/utils/useContext/ThemeContext';
-// import { useNotification } from '@/utils/useContext/NotificationContext'; 
-import { RootStackParamList } from '@/services/core/types';
-import { StackNavigationProp } from '@react-navigation/stack';
+
 import { router, useLocalSearchParams } from 'expo-router';
 import CustomHeader from '@/components/CustomHeader';
 import * as NavigationBar from 'expo-navigation-bar';
 
 // Adjust the socket URL according to your setup
 const socket = io('https://backend-server-quhu.onrender.com');
-// const socket = io('http://192.168.1.107:5000');
+
 
 interface ChatScreenRouteParams {
   room: string;
@@ -29,19 +26,14 @@ interface ChatScreenRouteParams {
 }
 
 const ChatScreen: React.FC = () => {
-  // const route = useRoute<RouteProp<{ params: ChatScreenRouteParams }, 'params'>>();
-  // const { profileImageUrl, username, senderId, receiverId, senderName } = route.params || {};
 
   const params = useLocalSearchParams();
   const { profileImageUrl, username, senderId, receiverId, senderName } = params;
-  console.log("params...!", profileImageUrl, username, senderId, receiverId, senderName,);
-
+ 
   const { addMessage, sendNotificationToServer  } = useChat();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [messageInput, setMessageInput] = useState<string>('');
-  const { theme } = useTheme();
-  // const { expoPushToken } = useNotification();
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -65,36 +57,12 @@ const ChatScreen: React.FC = () => {
     router.back();
   };
 
-  // useEffect(() => {
-  //   navigation.setOptions({
-  //     headerTitle: () => (
-  //       <Text className='lowercase text-white' style={styles.headerTitle}>@{username}</Text>
-  //     ),
-  //     headerLeft: () => (
-  //       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-  //         <Image
-  //           source={{ uri: profileImageUrl }} 
-  //           style={{
-  //             width: 36,
-  //             height: 36,
-  //             borderRadius: 10,
-  //             marginRight: 10,
-  //           }}
-  //         />
-  //       </View>
-  //     ),
-  //     headerStyle: {
-  //       backgroundColor: '#075E54',
-  //     },
-  //     headerTintColor: '#fff',
-  //   });
-  // }, [navigation, username, profileImageUrl]);
 
   useEffect(() => {
     const fetchMessages = async () => {
       try {
         const response = await axios.get(`https://backend-server-quhu.onrender.com/chat/messages/${senderId}/${receiverId}`);
-        // const response = await axios.get(`http://192.168.1.107:5000/chat/messages/${senderId}/${receiverId}`);
+      
         const fetchedMessages = response.data.map((message: Record<string, any>) => ({
           _id: message._id || `${message.senderId}-${Date.now()}`,
           text: message.text || '',
@@ -149,22 +117,6 @@ const ChatScreen: React.FC = () => {
   
       setMessages((prevMessages) => GiftedChat.append(prevMessages, [receivedMessage]));
   
-      // Prepare notification data
-      // const notificationData = {
-      //   to: expoPushToken,
-      //   title: `New message from ${message.senderName}`,
-      //   body: message.text,
-      //   senderId: message.senderId,
-      //   receiverId: message.receiverId,
-      //   profileImageUrl: profileImageUrl,
-      //   username: senderName,
-      //   senderName: message.senderName,
-      // };
-  
-      // Send push notification
-      // if (expoPushToken) {
-      //   sendNotificationToServer(notificationData);
-      // }
     });
   
     return () => {

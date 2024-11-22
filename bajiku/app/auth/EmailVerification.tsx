@@ -1,13 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; 
+import { View, Text, StyleSheet, TextInput } from 'react-native'; 
 import ImageTextContainer from '@/components/ImageTextContainer';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import { router } from 'expo-router';
 import { verifyEmail } from '@/services/api/request';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme } from '@/utils/useContext/ThemeContext';
 
 const EmailVerification: React.FC = () => {
   const inputsRef = useRef<(TextInput | null)[]>([]);
@@ -16,9 +14,7 @@ const EmailVerification: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState<number>(120);
   const [canResend, setCanResend] = useState(false);
-  const { theme } = useTheme(); 
-  const textColor = theme === 'dark' ? '#fff' : '#000';
-
+ 
   useEffect(() => {
     if (timer > 0) {
       const countdown = setInterval(() => {
@@ -110,7 +106,7 @@ const EmailVerification: React.FC = () => {
             style={[
               styles.input,
               error && !digit ? styles.inputError : null,
-              { color: '#fff' } // Ensure contrast against black background
+              { color: '#fff' } 
             ]}
             value={digit}
             onChangeText={(value) => handleInputChange(value, index)}
@@ -150,10 +146,10 @@ const EmailVerification: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Ensure full-screen coverage
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000', // Black background
+    backgroundColor: '#000000', 
   },
   otpContainer: {
     flexDirection: 'row',
@@ -168,7 +164,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     marginRight: 10,
-    backgroundColor: '#1a1a1a', // Dark background for input
+    backgroundColor: '#1a1a1a', 
   },
   inputError: {
     borderColor: 'red',

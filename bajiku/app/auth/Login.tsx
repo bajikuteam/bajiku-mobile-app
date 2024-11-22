@@ -20,8 +20,6 @@ import { useUser } from '@/utils/useContext/UserContext';
 import { Ionicons } from '@expo/vector-icons'; 
 import { Input } from 'react-native-elements';
 
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-
 const { height } = Dimensions.get('window');
 
 const LoginScreen = () => {
@@ -34,60 +32,6 @@ const LoginScreen = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const { handleLogin } = useUser();
   const [showPassword, setShowPassword] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
-//  const [request, response, promptAsyn] = Google.useAuthRequest({
-//   androidClientId:"382144475557-89n9a8olcmv4kflbdriju1j06p0u71ql.apps.googleusercontent.com",
-//   iosClientId:"382144475557-ev3vcvohaji5f4gvgpp46ijn6qbs49io.apps.googleusercontent.com",
-//   webClientId:"382144475557-unvshpmrj3m92gr4qsr86l13h8dvrnmf.apps.googleusercontent.com"
-//  })
-
-
-//  React.useEffect(()=>{
-//   handleSigninWithGoogle()
-//  },[response])
-
-//  async function handleSigninWithGoogle() {
-//   const user = await AsyncStorage.getItem('@use');
-//   if (!user) {
-//       if (response?.type === "success") {
-//           const accessToken = response.authentication?.accessToken;
-//           if (accessToken) {
-//               await getUserInfo(accessToken);
-//           } else {
-//               console.error("Access token is undefined");
-//               // Handle error (e.g., show a message to the user)
-//           }
-//       }
-//   } else {
-//       setUserInfo(JSON.parse(user));
-//   }
-// }
-
-
-
-// const getUserInfo = async (token: string) => {
-//   if (!token) return;
-
-//   try {
-//       const response = await fetch("https://www.googleapis.com/userinfo/v2/me", {
-//           headers: {
-//               Authorization: `Bearer ${token}`,
-//           },
-//       });
-
-//       if (!response.ok) {
-//           throw new Error(`Error fetching user info: ${response.statusText}`);
-//       }
-
-//       const userInfo = await response.json();
-//       // Process userInfo as needed
-//       console.log("User Info:", userInfo);
-//       return userInfo; // Return user info if needed
-//   } catch (error) {
-//       console.error("Failed to get user info:", error);
-//       // Handle error appropriately (e.g., show a message to the user)
-//   }
-// };
 
 
 

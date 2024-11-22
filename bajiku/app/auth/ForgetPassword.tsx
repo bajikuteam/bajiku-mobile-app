@@ -77,9 +77,6 @@ const ForgetPassword = () => {
                  
                 </View> */}
               
-          
-       
-               
               </View>
 
             </View>

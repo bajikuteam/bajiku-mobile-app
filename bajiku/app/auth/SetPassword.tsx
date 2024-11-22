@@ -210,6 +210,7 @@ const labelColor = '#FBBC05'
     );
 };
 
+
 const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,

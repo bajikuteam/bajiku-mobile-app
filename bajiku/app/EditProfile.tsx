@@ -1,7 +1,7 @@
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import { useTheme } from '@/utils/useContext/ThemeContext';
-import { Link, router, useNavigation } from 'expo-router';
+import { Link, router,} from 'expo-router';
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios'; 
 import {
@@ -21,7 +21,6 @@ import { checkUsernameAvailability} from '@/services/api/request';
 import { useUser } from '@/utils/useContext/UserContext';
 import { debounce } from 'lodash';
 import CustomHeader from '@/components/CustomHeader';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
 const { height } = Dimensions.get('window');
 
@@ -33,10 +32,10 @@ const EditProfile = () => {
     const [formError, setFormError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [image, setImage] = useState<string | null>(user?.profileImageUrl || null); // Pre-fill with user's current image
-    const [firstName, setFirstName] = useState(user?.firstName || ''); // Pre-fill with user's first name
-    const [lastName, setLastName] = useState(user?.lastName || ''); // Pre-fill with user's last name
-    const [userName, setUsername] = useState(user?.username || ''); // Pre-fill with user's username
+    const [image, setImage] = useState<string | null>(user?.profileImageUrl || null); 
+    const [firstName, setFirstName] = useState(user?.firstName || ''); 
+    const [lastName, setLastName] = useState(user?.lastName || ''); 
+    const [userName, setUsername] = useState(user?.username || '');
     const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
     const [usernameAvailability, setUsernameAvailability] = useState<{ available: boolean; message: string } | null>(null);
  

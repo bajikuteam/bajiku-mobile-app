@@ -41,19 +41,9 @@ const Index = () => {
     loadUser();
   }, [user]);
 
-  // useEffect(() => {
 
-  //   if (isReady && isUserLoaded) {
-  //     if (user) {
-  //       router.push('/(tabs)'); 
-  //     } else {
-  //       router.push('/auth/Login'); 
-  //     }
-  //   }
-  // }, [isReady, isUserLoaded, user]); 
 
   useEffect(() => {
-    // console.log('Navigation check: isReady:', isReady, 'isUserLoaded:', isUserLoaded, 'user:', user);
     if (isReady && isUserLoaded) {
       if (user) {
         // console.log('Navigating to tabs');

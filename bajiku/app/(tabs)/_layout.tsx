@@ -56,7 +56,6 @@ const headerStatusColor = "#000000"
   }}
 />
 
-
       <Tabs.Screen
         name="search"
         options={{

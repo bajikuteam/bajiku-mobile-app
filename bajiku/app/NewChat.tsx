@@ -7,7 +7,6 @@ import { useNavigation } from 'expo-router';
 import { RootStackParamList } from '@/services/core/types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { BASE_URL } from '@env';
 import { useTheme } from '@/utils/useContext/ThemeContext';
 
 interface Follower {
@@ -47,7 +46,6 @@ const NewChatScreen = () => {
             setLoading(true);
             
             const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${userId}/followers`);
-            // const response = await axios.get(`http://192.168.1.107:5000/users/${userId}/followers`);
             setFollowers(response.data.followers);
         } catch (error) {
             // console.error('Error fetching followers:', error);
@@ -56,17 +54,6 @@ const NewChatScreen = () => {
             setRefreshing(false);
         }
     };
-
-    // const fetchFollowing = async () => {
-    //     try {
-    //         const userId = user.id;
-    //         // const response = await axios.get(`http://192.168.1.107:5000/users/${userId}/following`);
-    //         const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${userId}/following`);
-    //         setFollowing(response.data.following || []); 
-    //     } catch (error) {
-    //         // console.error('Error fetching following:', error);
-    //     }
-    // };
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -77,27 +64,6 @@ const NewChatScreen = () => {
     useEffect(() => {
         onRefresh(); 
     }, []);
-
-    // const toggleFollow = async (followerId: string) => {
-    //     try {
-    //         const userId = user.id;
-    //         const isFollowing = following.some(f => f._id === followerId); 
-    //         const url = `https://backend-server-quhu.onrender.com/users/${userId}/${isFollowing ? 'unfollow' : 'follow'}/${followerId}`;
-    //         await axios.post(url);
-            
-    //         // Update local following state
-    //         if (isFollowing) {
-    //             setFollowing(prev => prev.filter(f => f._id !== followerId));
-    //         } else {
-    //             const newFollower = followers.find(f => f._id === followerId);
-    //             if (newFollower) {
-    //                 setFollowing(prev => [...prev, newFollower]); 
-    //             }
-    //         }
-    //     } catch (error) {
-    //         // console.error('Error toggling follow:', error);
-    //     }
-    // };
     
     const renderFollower = ({ item }: { item: Follower }) => {
         const isFollowing = following.some(f => f._id === item._id); 
@@ -132,19 +98,7 @@ const NewChatScreen = () => {
                     >
                         <Text style={styles.buttonText}>Message</Text>
                     </TouchableOpacity>
-                    {/* <TouchableOpacity
-                        style={[
-                            styles.followButton,
-                            {
-                                backgroundColor: isFollowing ? 'gray' : '#F90C0C',
-                            },
-                        ]}
-                        onPress={() => toggleFollow(item._id)}
-                    >
-                        <Text style={styles.buttonText}>
-                            {isFollowing ? 'Unfollow' : 'Follow'}
-                        </Text>
-                    </TouchableOpacity> */}
+                   
                 </View>
             </View>
         );

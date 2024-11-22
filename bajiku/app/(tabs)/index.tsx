@@ -3,7 +3,6 @@ import { StyleSheet, View, StatusBar, SafeAreaView } from "react-native";
 import PostWithCaption from "@/components/MediaPlayer";
 import * as NavigationBar from 'expo-navigation-bar';
 import { useIsFocused } from "@react-navigation/native";
-import { useTheme } from "@/utils/useContext/ThemeContext";
 
 export default function HomeScreen() {
  

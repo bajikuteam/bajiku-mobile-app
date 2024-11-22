@@ -1,18 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, Image, StyleSheet, KeyboardAvoidingView, Platform, StatusBar, TextInput, SafeAreaView } from 'react-native';
-import { Bubble, GiftedChat, Send, IMessage, InputToolbar } from 'react-native-gifted-chat';
+import { View,  StyleSheet, StatusBar} from 'react-native';
+import { Bubble, GiftedChat, Send, IMessage,  } from 'react-native-gifted-chat';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { useRoute, RouteProp, useNavigation, useIsFocused } from '@react-navigation/native';
+import {  useNavigation, useIsFocused } from '@react-navigation/native';
 import io from 'socket.io-client';
 import { useUser } from '@/utils/useContext/UserContext';
 import CustomHeader from '@/components/CustomHeader';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as NavigationBar from 'expo-navigation-bar';
-// Initialize socket connection
+
 const socket = io('https://backend-server-quhu.onrender.com');
-// const socket = io('http://192.168.1.107:5000');
-// 
 
 interface ChatScreenRouteParams {
   _id: string;
@@ -28,9 +26,7 @@ interface ChatScreenRouteParams {
 }
 
 const GroupChat: React.FC = () => {
-  // const route = useRoute<RouteProp<{ params: ChatScreenRouteParams }, 'params'>>();
 
-  // const { senderId, senderName, groupImgUrl, room, name, description } = route.params;
   const params = useLocalSearchParams();
   const {senderId, senderName, groupImgUrl, room, name, roomId } = params;
   console.log("params...!",senderId, senderName, groupImgUrl, room, name, roomId);
@@ -63,35 +59,11 @@ const GroupChat: React.FC = () => {
   };
 
 
-
-  // Set header with group info
-  // useEffect(() => {
-  //   navigation.setOptions({
-  //     headerTitle: () => (
-  //       <View>
-  //       <Text className='capitalize' style={styles.headerTitle}>{name}</Text>
-  //       {/* <Text className='capitalize' style={[styles.headerDescription, { flexWrap: 'wrap' }]}>{description}</Text> */}
-  //     </View>
-  //     ),
-  //     headerLeft: () => (
-  //       <View style={styles.headerLeft}>
-  //         <Image
-  //           source={{ uri: groupImgUrl }}
-  //           style={styles.groupImage}
-  //         />
-  //       </View>
-  //     ),
-  //     headerStyle: {
-  //       backgroundColor: '#075E54',
-  //     },
-  //   });
-  // }, [navigation, groupImgUrl, name, description]);
-
   // Fetch chat history
   useEffect(() => {
     const fetchChatHistory = async () => {  
       try {
-        // const response = await fetch(`http://192.168.1.107:5000/chat/history/${name}`);
+     
         const response = await fetch(`https://backend-server-quhu.onrender.com/chat/history/${name}`);
         const data = await response.json();
 

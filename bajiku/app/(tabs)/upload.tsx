@@ -115,6 +115,7 @@ const App = () => {
             {/* Conditionally render MediaUpload only if no media is selected */}
             <MediaUpload key={resetImageKey} onMediaSelected={handleMediaSelected} />
 
+
             <TextInput
                 style={styles.captionInput}
                 placeholder="Enter a caption..."
