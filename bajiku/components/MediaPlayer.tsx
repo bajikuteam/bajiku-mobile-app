@@ -520,8 +520,10 @@ const likeComment = async (commentId: string, mediaId:string) => {
               {isPrivate && (
                 <>
                   <BlurView intensity={100} style={styles.blurView}>
+                  <TouchableOpacity onPress={handleNavigateToPostDetails} style={{alignItems: 'center' }}>
                     <Ionicons name="lock-closed" size={50} color="#fff" />
-                    <Text style={{ color: '#fff', textAlign:'center' }}>Click to unlock content</Text>
+                    <Text style={{ color: '#fff', textAlign:'center', paddingVertical: 5 }}>Click to unlock content</Text>
+                  </TouchableOpacity>
                   </BlurView>
                   
                 </>
