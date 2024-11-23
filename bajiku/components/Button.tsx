@@ -4,7 +4,7 @@ import { TouchableOpacity, Text, View, ViewStyle, TextStyle, StyleProp } from 'r
 
 const buttonStyles = {
   primary: {
-    backgroundColor: '#075E54',
+    backgroundColor: '#D84773',
     borderWidth: 1,
     borderColor: 'transparent',
     justifyContent: 'center',
@@ -65,7 +65,7 @@ const buttonStyles = {
 
 const textStyles = {
   primary: {
-    color: '#ffffff',
+    color: '#FBBC05',
     fontSize: 12,
   } as TextStyle,
   secondary: {

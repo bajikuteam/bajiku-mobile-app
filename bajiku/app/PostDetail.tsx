@@ -11,6 +11,7 @@ import { useUser } from '@/utils/useContext/UserContext';
 import { io } from 'socket.io-client';
 import { router, useLocalSearchParams } from 'expo-router';
 import CustomHeader from '@/components/CustomHeader';
+import { BlurView } from 'expo-blur';
 const socket = io('https://backend-server-quhu.onrender.com'); 
 
 
@@ -201,8 +202,6 @@ const PostDetail = () => {
   
 
 
-
-
   const sendReplyToComment = async (comment:string, mediaId:string, commentId:string, username:string) => {
     try {
       const payload = {
@@ -389,7 +388,7 @@ const PostDetail = () => {
     }
     return caption;
   };
-
+  const isPrivate = privacy === 'private';
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={styles.mediaContainer}>
@@ -398,7 +397,7 @@ const PostDetail = () => {
   title={'Content'} 
   onBackPress={goBack} />
 
-{isVideo ? (
+        {isVideo ? (
         <TouchableWithoutFeedback onPress={handleTap}>
           <View style={styles.videoContainer}>
             <ExpoVideo
@@ -439,6 +438,13 @@ const PostDetail = () => {
       ) : (
         <Image source={{ uri: mediaSrc as string }} style={styles.postImage} />
       )}
+      {isPrivate && (
+  <BlurView intensity={100} style={styles.blurView}>
+    <Ionicons name="lock-closed" size={50} color="#fff" />
+    <Text style={{ color: '#fff', textAlign:'center' }}>Click to unlock content</Text>
+  </BlurView>
+)}
+
         
 <PContentCaption>
           <TouchableOpacity onPress={toggleCaption}>
@@ -798,6 +804,17 @@ const styles = StyleSheet.create({
     color: 'gray', 
     fontSize: 12,
     marginTop: 2, 
+  },
+  blurView: {
+    position: 'absolute',
+    top: '5%',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'black',
+ 
   },
   
   

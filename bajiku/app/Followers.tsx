@@ -8,6 +8,7 @@ import { RootStackParamList } from '@/services/core/types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '@/utils/useContext/ThemeContext';
+import CustomHeader from '@/components/CustomHeader';
 
 interface Follower {
     _id: string;
@@ -26,17 +27,6 @@ const FollowersScreen = () => {
     const { theme } = useTheme();
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
-
-    React.useLayoutEffect(() => {
-        navigation.setOptions({
-          headerShown: true, 
-          title: 'Followers', 
-          headerStyle: {
-            backgroundColor: '#000000', 
-          },
-          headerTintColor: '#fff',
-        });
-      }, [navigation]);
 
     // const sidebarStyles = theme === 'dark' ? styles.sidebarDark : styles.sidebarLight;
   const textColor = theme === 'dark' ? '#fff' : '#000';
@@ -98,6 +88,10 @@ const FollowersScreen = () => {
         }
     };
     
+
+    const goBack = () => {
+        router.back();
+      };
     const renderFollower = ({ item }: { item: Follower }) => {
         const isFollowing = following.some(f => f._id === item._id); 
         return (
@@ -118,8 +112,6 @@ const FollowersScreen = () => {
 
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
-                     className='border border-[#ffffff]'
-                     
                         style={styles.messageButton}
                         onPress={() => {
                             router.push({pathname:'/message', params:{
@@ -154,32 +146,30 @@ const FollowersScreen = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-              <StatusBar barStyle="light-content" backgroundColor="#000000" />
-            <View style={styles.searchComponent}>
-                <SearchComponent
-                    endpoint="https://api.example.com/users"
-                    fieldsToDisplay={['username', 'email', 'fullName']}
-                />
-            </View>
+        <><CustomHeader
+            title={"Followers"}
+            onBackPress={goBack} /><SafeAreaView style={styles.container}>
+                <StatusBar barStyle="light-content" backgroundColor="#000000" />
 
-            {loading ? (
-                <ActivityIndicator size="large" color="#0000ff" />
-            ) : (
-                <FlatList
-                    data={followers}
-                    keyExtractor={(item) => item._id}
-                    renderItem={renderFollower}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }
-                    ListEmptyComponent={
-                        <Text style={[styles.noFollowersText, { color: textColor }]}>
-                        No followers found
-                    </Text>}
-                />
-            )}
-        </SafeAreaView>
+                <View style={styles.searchComponent}>
+                    <SearchComponent
+                        endpoint="https://api.example.com/users"
+                        fieldsToDisplay={['username', 'email', 'fullName']} />
+                </View>
+
+                {loading ? (
+                    <ActivityIndicator size="large" color="#0000ff" />
+                ) : (
+                    <FlatList
+                        data={followers}
+                        keyExtractor={(item) => item._id}
+                        renderItem={renderFollower}
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                        ListEmptyComponent={<Text style={[styles.noFollowersText, { color: textColor }]}>
+                            No followers found
+                        </Text>} />
+                )}
+            </SafeAreaView></>
     );
 };
 
@@ -199,7 +189,7 @@ const styles = StyleSheet.create({
         marginBottom: 30,
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
-        paddingBottom: 10,
+        padding: 15,
     },
     profileImage: {
         width: 40,
@@ -239,7 +229,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginLeft: 10,
-        borderColor: '#D1D5DB',
+        borderWidth: 2,       
+        borderColor: '#ffffff',
     },
     followButton: {
         width: 72,

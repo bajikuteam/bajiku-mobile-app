@@ -199,7 +199,7 @@ const labelColor = '#FBBC05'
                                 variant="primary"
                                 onClick={handleSubmit}
                                 disabled={loading}
-                                style={{ width: 320 }}
+                                style={{ width: '100%' }}
                             />
 
                         </View>
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     darkModal: {
-        backgroundColor: '#333',
+        backgroundColor: '#000',
     },
     lightModal: {
         backgroundColor: '#fff',

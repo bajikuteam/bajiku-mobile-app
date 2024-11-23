@@ -46,7 +46,7 @@ export const UserInfoText = styled.View`
 `;
 
 export const UserName = styled.Text`
-  font-size: 16px; /* Increased font size */
+  font-size: 14px; /* Increased font size */
   font-weight: bold;
   color: #333; /* Dark color for contrast */
 `;
@@ -57,7 +57,7 @@ export const PostTime = styled.Text`
 `;
 
 export const MessageText = styled.Text`
-  font-size: 14px;
+  font-size: 12px;
   color: #666; /* Subtle color for message preview */
 `;
 

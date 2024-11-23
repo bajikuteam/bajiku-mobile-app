@@ -2,8 +2,6 @@ import { apiGet, apiPost, apiUpdate } from "@/utils/axios/api";
 import axios, { AxiosProgressEvent } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
-import { Alert } from "react-native";
-
 
 export const registerUser = async (email: string, dateOfBirth: string) => {
   const response = await apiPost<{ token: string, user:any }>('/api/auth/signup', {

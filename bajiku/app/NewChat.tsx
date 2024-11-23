@@ -3,11 +3,12 @@ import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndi
 import axios from 'axios';
 import { useUser } from '@/utils/useContext/UserContext'; 
 import SearchComponent from '@/components/Search';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { RootStackParamList } from '@/services/core/types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '@/utils/useContext/ThemeContext';
+import CustomHeader from '@/components/CustomHeader';
 
 interface Follower {
     _id: string;
@@ -26,17 +27,6 @@ const NewChatScreen = () => {
     const { theme } = useTheme();
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
-
-    React.useLayoutEffect(() => {
-        navigation.setOptions({
-          headerShown: true, 
-          title: 'New Chat', 
-          headerStyle: {
-            backgroundColor: '#000000', 
-          },
-          headerTintColor: '#fff',
-        });
-      }, [navigation]);
 
     // const sidebarStyles = theme === 'dark' ? styles.sidebarDark : styles.sidebarLight;
   const textColor = theme === 'dark' ? '#fff' : '#000';
@@ -64,6 +54,10 @@ const NewChatScreen = () => {
     useEffect(() => {
         onRefresh(); 
     }, []);
+
+    const goBack = () => {
+        router.back();
+      };
     
     const renderFollower = ({ item }: { item: Follower }) => {
         const isFollowing = following.some(f => f._id === item._id); 
@@ -105,32 +99,29 @@ const NewChatScreen = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-              <StatusBar barStyle="light-content" backgroundColor="#000000" />
-            <View style={styles.searchComponent}>
-                <SearchComponent
-                    endpoint="https://api.example.com/users"
-                    fieldsToDisplay={['username', 'email', 'fullName']}
-                />
-            </View>
+        <><CustomHeader
+            title={"New Chat"}
+            onBackPress={goBack} /><SafeAreaView style={styles.container}>
+                <StatusBar barStyle="light-content" backgroundColor="#000000" />
+                <View style={styles.searchComponent}>
+                    <SearchComponent
+                        endpoint="https://api.example.com/users"
+                        fieldsToDisplay={['username', 'email', 'fullName']} />
+                </View>
 
-            {loading ? (
-                <ActivityIndicator size="large" color="#0000ff" />
-            ) : (
-                <FlatList
-                    data={followers}
-                    keyExtractor={(item) => item._id}
-                    renderItem={renderFollower}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }
-                    ListEmptyComponent={
-                        <Text style={[styles.noFollowersText, { color: textColor }]}>
-                        No followers found
-                    </Text>}
-                />
-            )}
-        </SafeAreaView>
+                {loading ? (
+                    <ActivityIndicator size="large" color="#0000ff" />
+                ) : (
+                    <FlatList
+                        data={followers}
+                        keyExtractor={(item) => item._id}
+                        renderItem={renderFollower}
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                        ListEmptyComponent={<Text style={[styles.noFollowersText, { color: textColor }]}>
+                            No followers found
+                        </Text>} />
+                )}
+            </SafeAreaView></>
     );
 };
 
@@ -186,6 +177,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginLeft: 10,
+        borderWidth: 2,       
+        borderColor: '#ffffff',
     },
     followButton: {
         width: 72,

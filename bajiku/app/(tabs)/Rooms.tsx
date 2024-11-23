@@ -11,6 +11,7 @@ import {
   UserName,
   TextSection,
   MessageText,
+  PostTime,
 } from '@/styles/MessageStyles';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamLists } from '@/services/core/types';
@@ -73,8 +74,8 @@ const GroupScreen = () => {
     return (
         <Container style={styles.container}>
               <StatusBar barStyle="light-content" backgroundColor="#000000" />
-          <Text className='text-center text-xl text-[#D84773]'>Select a room to join</Text>
-          <Text className='text-center text-xs mb-4 text-[#6E6E6E]'>Connect with new friends</Text>
+          <Text style={styles.Header}>Select a room to join</Text>
+          <Text  style={styles.subHeader} >Connect with new friends</Text>
             <FlatList
                 data={groups}
                 keyExtractor={(item) => item._id}
@@ -125,10 +126,10 @@ const GroupScreen = () => {
                                 </UserImgWrapper>
                                 <TextSection>
                                     <UserInfoText>
-                                        <UserName className='capitalize'>{item.name}</UserName>
+                                        <UserName style={{textTransform:'capitalize'}}>{item.name}</UserName>
                                         {/* <PostTime >{item.description}</PostTime> */}
                                     </UserInfoText>
-                                    <MessageText className='capitalize text-[10px]'>{item.description}</MessageText>
+                                    <MessageText >{item.description}</MessageText>
                                 </TextSection>
                             </UserInfo>
                         </Card>
@@ -152,4 +153,18 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    Header:{
+        color: '#D84773',
+        textAlign: 'center',
+        fontWeight: 'bold',
+        marginBottom: 10,
+        textTransform:'capitalize'
+
+    },
+    subHeader: {
+        textAlign: 'center',
+        color: '#6E6E6E',
+        fontWeight: 'bold',
+        marginBottom: 20,
+    }
 });

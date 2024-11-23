@@ -1,8 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { CommonActions, useNavigation } from '@react-navigation/native'; // Import useNavigation
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamListS } from '@/services/core/types';
 import { router } from 'expo-router';
 
 interface UserContextType {
@@ -39,7 +36,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   };
 
   const handleLogout = async () => {
-    router.push("/auth/Login");
+    router.push("/");
     await AsyncStorage.removeItem('user');
     setUser(null); 
   

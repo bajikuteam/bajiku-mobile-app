@@ -8,6 +8,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/services/core/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '@/utils/useContext/ThemeContext';
+import CustomHeader from '@/components/CustomHeader';
 
 interface Follower {
     _id: string;
@@ -27,21 +28,11 @@ const FollowingScreen = () => {
     const [limit] = useState(10);
     const [totalFollowers, setTotalFollowers] = useState(0);
     const { theme } = useTheme();
-    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-
-
-    React.useLayoutEffect(() => {
-        navigation.setOptions({
-          headerShown: true, 
-          title: 'Followings', 
-          headerStyle: {
-            backgroundColor: '#000000', 
-          },
-          headerTintColor: '#fff',
-        });
-      }, [navigation]);
-
     // const sidebarStyles = theme === 'dark' ? styles.sidebarDark : styles.sidebarLight;
+
+    const goBack = () => {
+        router.back();
+      };
   const textColor = theme === 'dark' ? '#fff' : '#000';
     const fetchFollowing = async () => {
         try {
@@ -82,45 +73,30 @@ const FollowingScreen = () => {
     };
 
     const renderFollower = ({ item }: { item: Follower }) => (
-        <View className='relative mt-4' style={styles.followerItem}>
-            {item.profileImageUrl ? (
-                <Image
-                    source={{ uri: item.profileImageUrl }}
-                    style={{  width: 40,
-                        height: 40,
-                        borderRadius: 12,
-                        borderWidth: 2,
-                        borderColor: '#D1D5DB', }}
-                />
-            ) : (
-                <View style={styles.placeholderImage} />
-            )}
-            <View style={styles.followerInfo}>
-                <Text className='text-[12px]'>{item.firstName} {item.lastName}</Text>
-                <Text style={styles.followerUsername}>@{item.username}</Text>
-            </View>
-            <View className='absolute gap-2 right-1' style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-                
+        <View style={styles.followerItem}>
+                {item.profileImageUrl ? (
+                    <Image
+                        source={{ uri: item.profileImageUrl }}
+                        style={styles.profileImage}
+                    />
+                ) : (
+                    <View style={styles.placeholderImage} />
+                )}
+
+                <View style={styles.followerInfo}>
+                    <Text style={styles.followerName}>{item.firstName} {item.lastName}</Text>
+                    <Text style={styles.followerUsername}>@{item.username}</Text>
+                </View>
+
+                <View style={styles.buttonContainer}>
                     <TouchableOpacity
-                     className='border border-[#ffffff]'
-                     style={{
-                        width: 72,
-                        height: 38,
-                        borderRadius: 12,
-                        backgroundColor: 'black',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginLeft: 10,
-                        borderColor: '#D1D5DB',
-                    }}
+                        style={styles.messageButton}
                         onPress={() => {
                             router.push({pathname:'/message', params:{
-                                profileImageUrl: item.profileImageUrl || '',
+                                profileImageUrl: item.profileImageUrl || '', 
                                 username: item.username,
-                                senderId: user.id,
-                                receiverId: item._id,
-                                firstName: item.firstName,
-                                lastName: item.lastName,
+                                senderId: user.id, 
+                                receiverId: item._id, 
                                 senderName: user.username, 
                             }
                              
@@ -148,30 +124,27 @@ const FollowingScreen = () => {
     };
 
     return (
-        
-        <SafeAreaView style={styles.container}>
-           <StatusBar barStyle="light-content" backgroundColor="#000000" />
-        <View style={styles.searchComponent}>
-            <SearchComponent
-                endpoint="https://api.example.com/users"
-                fieldsToDisplay={['username', 'email', 'fullName']}
-            />
-        </View>
+        <><CustomHeader
+            title={"Followings"}
+            onBackPress={goBack} /><SafeAreaView style={styles.container}>
+                <StatusBar barStyle="light-content" backgroundColor="#000000" />
+                <View style={styles.searchComponent}>
+                    <SearchComponent
+                        endpoint="https://api.example.com/users"
+                        fieldsToDisplay={['username', 'email', 'fullName']} />
+                </View>
 
-        {loading ? (
-            <ActivityIndicator size="large" color="#0000ff" />
-        ) : (
-            <FlatList
-                data={followers}
-                keyExtractor={(item) => item._id}
-                renderItem={renderFollower}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                }
-                ListEmptyComponent={<Text style={[styles.noFollowersText, { color: textColor }]}>No followings found</Text>}
-            />
-        )}
-    </SafeAreaView>
+                {loading ? (
+                    <ActivityIndicator size="large" color="#0000ff" />
+                ) : (
+                    <FlatList
+                        data={followers}
+                        keyExtractor={(item) => item._id}
+                        renderItem={renderFollower}
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                        ListEmptyComponent={<Text style={[styles.noFollowersText, { color: textColor }]}>No followings found</Text>} />
+                )}
+            </SafeAreaView></>
     );
 };
 
@@ -191,7 +164,7 @@ const styles = StyleSheet.create({
         marginBottom: 30,
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
-        paddingBottom: 10,
+        padding: 15,
     },
     placeholderImage: {
         width: 50,
@@ -236,6 +209,34 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#666',
      
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        marginLeft: 'auto',
+        gap:10
+    },
+    messageButton: {
+        width: 72,
+        height: 38,
+        borderRadius: 12,
+        backgroundColor: 'black',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 10,
+        borderWidth: 2,       
+        borderColor: '#ffffff',
+    },
+    followerName: {
+        fontSize: 12,
+    },
+    profileImage: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#D1D5DB',
     },
 });
 

@@ -249,6 +249,7 @@ const confirmIOSDate = () => {
                  onChangeText={() => {}} 
                  editable={false}
                  placeholderTextColor={'#ffffff'}
+                 
                />
                <Icon name="calendar-today" size={20} color={textColor} style={styles.icon} />
              </View>
@@ -282,13 +283,14 @@ const confirmIOSDate = () => {
            variant="primary"
            image="https://res.cloudinary.com/dyz7znlj0/image/upload/v1726888095/Vector_ef0eca.png"
          />
-        <View className='mt-4'></View>
-           <SocialButton
-          text="Continue with Facebook"
-          // onClick={handleGoogleLogin}
-          variant="primary"
-           image="https://res.cloudinary.com/dyz7znlj0/image/upload/v1726888560/Social_Icons_fdhtsm.png"
-        />
+         <View style={{marginTop:30}}>
+              <SocialButton
+                text="Continue with Facebook"
+                variant="primary"
+                image="https://res.cloudinary.com/dyz7znlj0/image/upload/v1726888560/Social_Icons_fdhtsm.png"
+          
+              />
+              </View>
         {/* <View className='mt-4'></View>
            <SocialButton
           text="Continue with X"
@@ -305,13 +307,10 @@ const confirmIOSDate = () => {
         /> */}
 
 
-                 <View className='flex items-center text-center justify-center mt-8' >
+            <View style={styles.signupLink}>
                <Link href={"/auth/Login"}>  <Text style={[{ textAlign: 'center', fontSize: 14 }, { color: textColor }]}>
                 Already have an account? 
-                  <Text 
-                    className="text-red-500 underline" 
-                   
-                  >
+                <Text style={styles.signupText}>
                     Sign in
                   </Text>
                 </Text></Link>
@@ -326,21 +325,15 @@ const confirmIOSDate = () => {
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
   modalContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'center', 
+    alignItems: 'center',
   },
   scrollViewContainer: {
     flexGrow: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   safeArea: {
     flex: 1,
@@ -358,6 +351,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
+    justifyContent: 'center',
+    alignItems: 'center', 
   },
   modalTitle: {
     fontSize: 22,
@@ -365,6 +360,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
     marginTop: 30,
+    color: '#FBBC05'
   },
 
   checkboxContainer: {
@@ -398,14 +394,14 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#ccc',
     marginHorizontal: 3,
-    width: '35%',
+    width: '40%',
   },
   orText: {
     marginHorizontal: 8,
     color: '#555',
   },
   darkModal: {
-    backgroundColor: '#333', 
+    backgroundColor: '#000', 
   },
   lightModal: {
     backgroundColor: '#fff', 
@@ -437,21 +433,31 @@ marginTop: -10,
   },
   inputWrapper: {
     flexDirection: 'row',
-    // alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ddd',
     width:293,
     height:38,
     borderRadius: 12,
     padding: 10,
-    // marginBottom: 15,
     justifyContent: 'space-between',
+
+    paddingHorizontal: 20,
+    alignItems: 'center',
   },
   icon: {
     marginLeft: 8,
   },
   input: {
     color: '#ffffff', 
+  },
+
+  signupLink: {
+    marginTop: 50,
+    alignItems: 'center',
+  },
+  signupText: {
+    color: 'red',
+    textDecorationLine: 'underline',
   },
 
 });

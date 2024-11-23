@@ -130,7 +130,7 @@ const SetProfile = () => {
             <SafeAreaView style={styles.safeArea}>
                 <ScrollView contentContainerStyle={styles.scrollViewContainer}>
                     <View style={[styles.loginModal, theme === 'dark' ? styles.darkModal : styles.lightModal]}>
-                    <Text  className='text-[#FBBC05] text-center text-xl mb-12'>
+                    <Text style={styles.modalTitle} >
                 Set-up Your Account
               </Text>
                         <View style={{ marginBottom: 20, alignItems: 'center' }}>
@@ -138,7 +138,7 @@ const SetProfile = () => {
                         </View>
 
                         <View style={{ flex: 1, alignItems: 'center' }}>
-                        <View className='flex-row items-center justify-around'>
+                        <View style={styles.nameInputsContainer}>
                             <Input
                                     label="First Name"
                                     style={[styles.input, { color: textColor }]}
@@ -166,7 +166,7 @@ const SetProfile = () => {
                             </View>
                             <Input
                                 label="Username"
-                                style={[{ color: textColor }]}
+                                style={[styles.inputUser, { color: textColor }]}
                                 placeholder="Enter Username"
                                 value={userName}
                                 onChangeText={handleUsernameChange}
@@ -184,7 +184,7 @@ const SetProfile = () => {
                                 variant="primary"
                                 onClick={handleUpdate}
                                 disabled={loading || usernameAvailable === false} 
-                                style={{ width: 293 }}
+                                style={{ width: 320 }}
                             />
                             {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
                         </View>
@@ -230,6 +230,12 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         width: 140,
     },
+    inputUser: {
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 12,
+        width: 320,
+    },
     errorText: {
         color: 'red',
         marginBottom: 10,
@@ -239,10 +245,24 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     darkModal: {
-        backgroundColor: '#333',
+        backgroundColor: '#000',
     },
     lightModal: {
         backgroundColor: '#fff',
+    },
+    modalTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 20,
+        marginTop: 30,
+        color: '#FBBC05'
+      },
+      nameInputsContainer: {
+        flexDirection: 'row', 
+        alignItems: 'center',
+        justifyContent: 'space-around', 
+        width: '100%', 
     },
 });
 

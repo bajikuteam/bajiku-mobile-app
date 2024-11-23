@@ -19,7 +19,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '@/utils/useContext/UserContext';
 import { Ionicons } from '@expo/vector-icons'; 
 import { Input } from 'react-native-elements';
-
 const { height } = Dimensions.get('window');
 
 const LoginScreen = () => {
@@ -32,8 +31,7 @@ const LoginScreen = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const { handleLogin } = useUser();
   const [showPassword, setShowPassword] = useState(false);
-
-
+  const [userInfo, setUserInfo] = useState(null);
 
   const navigation = useNavigation();
 
@@ -87,17 +85,11 @@ const LoginScreen = () => {
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.scrollViewContainer}>
           <View style={[styles.loginModal, theme === 'dark' ? styles.darkModal : styles.lightModal]}>
-            {/* <View className='absolute right-6 top-2'>
-              <TouchableOpacity>
-                <Link href={"/"}><Text className='text-2xl'>X</Text></Link>
-              </TouchableOpacity>
-            </View> */}
-
-            <Text style={styles.modalTitle} className='text-[#FBBC05]'>
+            <Text style={styles.modalTitle}>
               Sign in to get started
             </Text>
 
-            <View style={[styles.inputWrapper, { alignItems: 'center' }]}>
+            <View style={styles.inputWrapper}>
               <Input
                 label="Email"
                 style={[{ color: textColor }]}
@@ -154,37 +146,34 @@ const LoginScreen = () => {
                 style={styles.button}
                 disabled={loading}
               />
-               <View style={styles.separator}>
-              <View style={styles.line} />
-              <Text style={styles.orText}>OR</Text>
-              <View style={styles.line} />
+              
+              <View style={styles.separator}>
+                <View style={styles.line} />
+                <Text style={styles.orText}>OR</Text>
+                <View style={styles.line} />
+              </View>
+
+              <SocialButton
+                text="Continue with Google"
+                variant="primary"
+                image="https://res.cloudinary.com/dyz7znlj0/image/upload/v1726888095/Vector_ef0eca.png"
+                style={styles.button}
+              />
+              <View style={{marginTop:30}}>
+              <SocialButton
+                text="Continue with Facebook"
+                variant="primary"
+                image="https://res.cloudinary.com/dyz7znlj0/image/upload/v1726888560/Social_Icons_fdhtsm.png"
+          
+              />
+              </View>
             </View>
 
-            <SocialButton
-              text="Continue with Google"
-              variant="primary"
-              image="https://res.cloudinary.com/dyz7znlj0/image/upload/v1726888095/Vector_ef0eca.png"
-            />
-
-            <View className='mt-4'></View>
-
-            <SocialButton
-            // onClick={()=>promptAsyn()}
-              text="Continue with Facebook"
-              variant="primary"
-              image="https://res.cloudinary.com/dyz7znlj0/image/upload/v1726888560/Social_Icons_fdhtsm.png"
-            />
-            </View>
-
-           
-
-            <View className='flex items-center text-center justify-center mt-8'>
+            <View style={styles.signupLink}>
               <Link href={"/auth/Signup"}>
                 <Text style={[{ textAlign: 'center', fontSize: 14 }, { color: textColor }]}>
                   Don’t have an account?{' '}
-                  <Text className="text-red-500 underline">
-                    Sign up
-                  </Text>
+                  <Text style={styles.signupText}>Sign up</Text>
                 </Text>
               </Link>
             </View>
@@ -198,11 +187,13 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'center', // Center vertically
+    alignItems: 'center',
   },
   scrollViewContainer: {
     flexGrow: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'center', // Center vertically
+    alignItems: 'center',
   },
   safeArea: {
     flex: 1,
@@ -220,6 +211,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
+    justifyContent: 'center', // Center items vertically
+    alignItems: 'center',
   },
   modalTitle: {
     fontSize: 22,
@@ -227,6 +220,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
     marginTop: 30,
+    color: '#FBBC05'
   },
   input: {
     borderWidth: 1,
@@ -237,6 +231,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 38,
     width: 293,
+    
   },
   separator: {
     flexDirection: 'row',
@@ -247,14 +242,14 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#ccc',
     marginHorizontal: 3,
-    width: '42%',
+    width: '40%',
   },
   orText: {
     marginHorizontal: 8,
     color: '#555',
   },
   darkModal: {
-    backgroundColor: '#333', 
+    backgroundColor: '#000', 
   },
   lightModal: {
     backgroundColor: '#fff', 
@@ -262,22 +257,31 @@ const styles = StyleSheet.create({
   inputWrapper: {
     width: '100%',
     paddingHorizontal: 20,
-    alignItems: 'center',
+    alignItems: 'center', 
   },
   inputContainer: {
     width: '100%',
   },
   button: {
-    width: '100%',
-    marginTop: 20,
     padding: 10,
-    alignItems: 'center',
+    marginBottom: 15,
+    justifyContent: 'center',
+    height: 38,
+    width: 293,
   },
   eyeIcon: {
     position: 'absolute',
     right: 10,
     top: '50%',
     transform: [{ translateY: -10 }],
+  },
+  signupLink: {
+    marginTop: 50,
+    alignItems: 'center',
+  },
+  signupText: {
+    color: 'red',
+    textDecorationLine: 'underline',
   },
 });
 

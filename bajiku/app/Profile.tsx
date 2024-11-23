@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   senbutton: {
-    width: 160,
+    width: 165,
     height: 40,
     marginTop: 10,
   },
@@ -94,6 +94,10 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 10,
     color: '#888',
+  },
+  allBtn:{
+    color:'#fff',
+    fontSize: 11,
   },
   icon: {
     color: '#555',
@@ -268,7 +272,7 @@ const Profile = () => {
 
         <Button text="Edit Profile" variant="secondary" style={styles.button} icon={Icon} iconProps={{ name: 'pencil', size: 14, color: '#ffffff' }} onClick={() => navigation.navigate('EditProfile')}/>
         
-        <View style={{ flexDirection: 'row', gap: 10, }}>
+        <View style={{ flexDirection: 'row', gap: 12, }}>
           <Button text="Subscribers" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'bell', size: 14, color: '#ffffff' }} />
           <Button text="Total Earnings" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'credit-card', size: 14, color: '#ffffff' }} />
         </View>
@@ -276,27 +280,27 @@ const Profile = () => {
         <View style={{ flexDirection: 'row', gap: 10, marginTop: 15, marginBottom:15,  }}>
           <TouchableOpacity onPress={() => handleCategoryChange('all')} style={{ alignItems: 'center' }}>
             <Feather name="menu" size={20} color="#ffffff" />
-            <Text className='text-white text-[10px]'>All Content</Text>
+            <Text  style={styles.allBtn}>All Content</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => handleCategoryChange('public')} style={{ alignItems: 'center' }}>
             <Ionicons name="eye" size={20} color="#ffffff" />
-            <Text className='text-white text-[10px]' >Public Content</Text>
+            <Text  style={styles.allBtn} >Public Content</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => handleCategoryChange('private')} style={{ alignItems: 'center' }}>
             <Ionicons name="eye-off" size={20} color="#ffffff" />
-            <Text className='text-white text-[10px]' >Private Content</Text>
+            <Text  style={styles.allBtn} >Private Content</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => navigation.navigate('Following')}> 
             <Icon name="user" size={20} color="#ffffff" />
-            <Text className='text-white text-[10px]' >Following</Text>
+            <Text style={styles.allBtn} >Following</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={{ alignItems: 'center' }}  onPress={() => navigation.navigate('Followers')}>
             <MaterialCommunityIcons name="account-group" size={20} color="#ffffff" />
-            <Text className='text-white text-[10px]' >Followers</Text>
+            <Text style={styles.allBtn} >Followers</Text>
           </TouchableOpacity>
         </View>
       {loading ? (
@@ -310,7 +314,7 @@ const Profile = () => {
             renderItem={renderItem}
             keyExtractor={(item) => item._id}
             numColumns={3}
-            columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 10 }}
+            columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 10, gap: 20}}
             contentContainerStyle={{ marginTop: 20, paddingHorizontal: 10 }}
             refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor="#075E54" />}
           />

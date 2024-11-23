@@ -84,7 +84,18 @@ export const ContentLeftImg = styled.View`
 `;
 
 
+export const FullScreen = styled.View`
+    position: absolute;
+    padding: 10px;
+    right: 10px;
+    top: 0;
+    z-index: 1000;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
+`;
 
 export const ContentCaption = styled.View`
     position: absolute;

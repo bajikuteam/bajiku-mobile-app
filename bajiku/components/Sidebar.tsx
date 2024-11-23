@@ -12,7 +12,7 @@ import {
   Image,
 } from "react-native";
 import { Feather, FontAwesome } from "@expo/vector-icons";
-import ModeSettings from "./ModeSetting";
+// import ModeSettings from "./ModeSetting";
 import { useTheme } from "@/utils/useContext/ThemeContext";
 import { useUser } from "@/utils/useContext/UserContext";
 import { Link, router } from "expo-router";
@@ -158,42 +158,78 @@ const Sidebar: React.FC = () => {
                 {user.profileImageUrl ? (
                   <Image
                     source={{ uri: user.profileImageUrl }}
-                    // className="w-[40px] h-[40px] rounded-[10px]"
                     style={styles.profileImageTwo}
                   />
                 ) : (
                   <FontAwesome name="user" size={40} color={iconColor} />
                 )}
-                <View className="flex-row gap-1 text-[10px]">
-                  <Text className="text-[12px] lowercase" style={[{ color: textColor }]}>
+                <View style={{
+               
+                 flexDirection: 'row', 
+                 marginRight: 4,
+                 gap:6,
+                 marginTop:4
+                  }}>
+                  <Text style={{
+                 textTransform:"lowercase",
+                 fontSize:12,
+                 color:'#fff'
+                 
+                  }}>
                     {user.firstName}
                   </Text>
-                  <Text className="text-[12px] lowercase" style={[{ color: textColor }]}>
+                  <Text style={{
+                 textTransform:"lowercase",
+                 fontSize:12,
+                 color:'#fff'
+                  }}>
                     {user.lastName}
                   </Text>
                 </View>
-                <Text className="text-[12px] lowercase" style={[{ color: textColor }]}>
+                <Text style={{
+                 textTransform:"lowercase",
+                 fontSize:12,
+                 color:'#fff'
+                  }}>
                   @{user.username}
                 </Text>
                 <View
-                  className="mb-4 mt-4"
+                
+                
                   style={{
+                    marginTop:5,
+                    marginBottom:4,
                     flexDirection: "row",
                     alignItems: "center",
                     marginVertical: 2,
+                    borderBottomWidth: 1,
+                    borderColor: "#ccc",
+                    paddingVertical: 30,
                   }}
                 >
                   <Link href="/Followers" onPress={handleClose}>
-                    <Text className="text-[10px]" style={{ color: textColor }}>
+                    <Text style={{
+                 textTransform:"capitalize",
+                 fontSize:12,
+                 color:'#fff'
+                    }}>
                       {user.followerCount} Followers {""} |{" "}
                     </Text>
                   </Link>
                   <Link href="/Following" onPress={handleClose}>
-                    <Text className="text-[10px]" style={{ color: textColor }}>
+                    <Text   style={{
+                 textTransform:"capitalize",
+                 fontSize:12,
+                 color:'#fff'
+                    }}>
                       {user.followingCount} Following |{" "}
                     </Text>
                   </Link>
-                  <Text className="text-[10px]" style={{ color: textColor }}>
+                  <Text style={{
+                 textTransform:"capitalize",
+                 fontSize:12,
+                 color:'#fff'
+                    }}>
                     0 Subscribers
                   </Text>
                 </View>
@@ -234,21 +270,6 @@ const Sidebar: React.FC = () => {
                     </View>
                   </Link>
                 </View>
-                {/* <View className="flex items-center mt-4">
-                  <Link href="/SetPassword" onPress={handleClose}>
-                    <View className="bg-red-500 w-[180px] h-[38px] rounded-[12px] items-center justify-center text-center text-white">
-                      <Text className="text-center text-white pt-1 text-xs">Get Started</Text>
-                    </View>
-                  </Link>
-                </View> */}
-
-                {/* <View className="flex items-center mt-4">
-                  <Link href="/SetProfile" onPress={handleClose}>
-                    <View className="bg-red-500 w-[180px] h-[38px] rounded-[12px] items-center justify-center text-center text-white">
-                      <Text className="text-center text-white pt-1 text-xs">Profile</Text>
-                    </View>
-                  </Link>
-                </View> */}
               </>
             ) : (
               <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
@@ -269,10 +290,6 @@ const Sidebar: React.FC = () => {
               Terms and Conditions
             </Text>
             <Text style={[styles.policyText, { color: textColor }]}>FAQ</Text>
-          </View>
-
-          <View style={styles.modeSettingsContainer}>
-            <ModeSettings />
           </View>
         </View>
       </Modal>
@@ -297,7 +314,7 @@ const SidebarItem: React.FC<{ icon: JSX.Element; label: string }> = ({
   return (
     <View style={styles.sidebarItem}>
       <View style={styles.icon}>{coloredIcon}</View>
-      <Text className="mt-2" style={{ color: textColor }}>{label}</Text>
+      <Text style={{ color: textColor, marginTop:8 }}>{label}</Text>
     </View>
   );
 };

@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ApiConfig } from '@/services/core/types';
-import { BASE_URL } from '@env';
+
 
 
 // const baseUrl: string = (BASE_URL);
