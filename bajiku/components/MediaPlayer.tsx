@@ -42,6 +42,8 @@ type VideoItem = {
   likes: number;
   comments?: Comment[];
   likedBy: string[];
+  price: number;
+  subscribers:string[]
 };
 
 interface Reply {
@@ -116,7 +118,7 @@ export default function PostWithCaption() {
   };
 
   const fetchData = async () => {
-    setLoading(true); // Set loading to true before fetching
+    setLoading(true); 
     try {
       const response = await fetch('https://backend-server-quhu.onrender.com/content');
       const data = await response.json();
@@ -139,6 +141,7 @@ export default function PostWithCaption() {
   useEffect(() => {
     fetchData();
   }, []);
+
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = async () => {
@@ -486,14 +489,15 @@ const likeComment = async (commentId: string, mediaId:string) => {
       caption: item.caption,
       authorProfilePicSrc: item.authorProfilePicSrc,
       comments: item.comments as any,
-      likes: item.likes
+      likes: item.likes,
+      price: item.price
     }
    } )
 }
   return (
     <View style={{ width: '100%', backgroundColor: '#010101', paddingBottom: 20 }}>
         <View>
-          {isVideo(item.mediaSrc) && !isPrivate ? (
+          {/* {isVideo(item.mediaSrc) && !isPrivate ? (
             <TouchableOpacity activeOpacity={1} onPress={handleVideoClick}>
               <Animated.View style={{ transform: [{ scale: pulseAnimation }] }}>
                 <Video
@@ -529,7 +533,64 @@ const likeComment = async (commentId: string, mediaId:string) => {
                 </>
               )}
             </View>
-          )}
+          )} */}
+
+{isVideo(item.mediaSrc) ? (
+  isPrivate && (!item.subscribers || !item.subscribers.includes(user.id)) ? (
+    // Private content locked
+    <View style={styles.privateContent}>
+      <Image
+        source={{ uri: item.mediaSrc }}
+        style={{ height: 500, width: '100%', opacity: 0.5 }}
+      />
+      <BlurView intensity={100} style={styles.blurView}>
+        <TouchableOpacity onPress={handleNavigateToPostDetails} style={{ alignItems: 'center' }}>
+          <Ionicons name="lock-closed" size={50} color="#fff" />
+          <Text style={{ color: '#fff', textAlign: 'center', paddingVertical: 5 }}>
+            Click to unlock content
+          </Text>
+        </TouchableOpacity>
+      </BlurView>
+    </View>
+  ) : (
+    // Video content (either public or private but user is a subscriber)
+    <TouchableOpacity activeOpacity={1} onPress={handleVideoClick}>
+      <Animated.View style={{ transform: [{ scale: pulseAnimation }] }}>
+        <Video
+          ref={(ref) => (videoRefs.current[index] = ref)}
+          style={{ height: 520, width: '100%' }}
+          source={{ uri: item.mediaSrc }}
+          resizeMode={ResizeMode.COVER}
+          shouldPlay={activeVideoIndex === index && isPlaying[index]}
+          isLooping
+        />
+        {!isPlaying[index] && (
+          <View style={styles.overlay}>
+            <Ionicons name="play-circle" size={60} color="#fff" />
+          </View>
+        )}
+      </Animated.View>
+    </TouchableOpacity>
+  )
+) : (
+  <View style={styles.privateContent}>
+    <Image
+      source={{ uri: item.mediaSrc }}
+      style={{ height: 500, width: '100%'}}
+    />
+    {isPrivate && (!item.subscribers || !item.subscribers.includes(user.id)) && (
+      <BlurView style={styles.blurView}>
+        <TouchableOpacity onPress={handleNavigateToPostDetails} style={{ alignItems: 'center' }}>
+          <Ionicons name="lock-closed" size={50} color="#fff" />
+          <Text style={{ color: '#fff', textAlign: 'center', paddingVertical: 5 }}>
+            Click to unlock content
+          </Text>
+        </TouchableOpacity>
+      </BlurView>
+    )}
+  </View>
+)}
+
           
           <FullScreen>
             <TouchableOpacity onPress={handleNavigateToPostDetails}>

@@ -314,7 +314,7 @@ const Profile = () => {
             renderItem={renderItem}
             keyExtractor={(item) => item._id}
             numColumns={3}
-            columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 10, gap: 20}}
+            columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 10, gap:5}}
             contentContainerStyle={{ marginTop: 20, paddingHorizontal: 10 }}
             refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor="#075E54" />}
           />

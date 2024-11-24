@@ -212,7 +212,7 @@ const EditProfile = () => {
                         </View>
 
                         <View style={{ flex: 1, alignItems: 'center' }}>
-                            <View className='flex-row items-center justify-around gap-4'>
+                        <View style={styles.nameInputsContainer}>
                                 <Input
                                     style={[styles.input, { color: theme === 'dark' ? '#fff' : '#000' }]}
                                     placeholder="First Name"
@@ -245,7 +245,7 @@ const EditProfile = () => {
                                 name={''}
                             />
                             {usernameAvailability && (
-                                <Text className='text-xs -mt-4 mb-4' style={{ color: usernameAvailability.available ? 'green' : 'red' }}>
+                                <Text  style={{textTransform:'lowercase', marginTop:4,marginBottom:4, color: usernameAvailability.available ? 'green' : 'red' }}>
                                     {usernameAvailability.message}
                                 </Text>
                             )}
@@ -270,6 +270,7 @@ const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
         justifyContent: 'flex-end',
+        
     },
     scrollViewContainer: {
         flexGrow: 1,
@@ -291,13 +292,20 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.8,
         shadowRadius: 2,
         elevation: 5,
-        paddingTop: "20%",
+        paddingTop:"20%",
+       
     },
     input: {
         borderWidth: 1,
         borderColor: '#ddd',
         borderRadius: 12,
-        width: 140,
+        width: 130,
+    },
+    inputUser: {
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 12,
+        width: 320,
     },
     errorText: {
         color: 'red',
@@ -308,11 +316,27 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     darkModal: {
-        backgroundColor: '#333',
+        backgroundColor: '#000',
     },
     lightModal: {
         backgroundColor: '#fff',
     },
+    modalTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 20,
+        marginTop: 30,
+        color: '#FBBC05'
+      },
+      nameInputsContainer: {
+        flexDirection: 'row', 
+        alignItems: 'center',
+        justifyContent: 'space-around', 
+        width: '100%', 
+    },
 });
+
+
 
 export default EditProfile;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Paystack, paystackProps } from "react-native-paystack-webview";
 import {
   View,
@@ -31,6 +31,8 @@ import { io } from "socket.io-client";
 import { router, useLocalSearchParams } from "expo-router";
 import CustomHeader from "@/components/CustomHeader";
 import { BlurView } from "expo-blur";
+import axios from "axios";
+import { useFocusEffect } from "@react-navigation/native";
 const socket = io("https://backend-server-quhu.onrender.com");
 
 interface Comment {
@@ -64,11 +66,15 @@ type VideoItem = {
   likes: number;
   comments?: Comment[];
   likedBy: string[];
+  subscribers: string[];
+  
 };
 
 const PostDetail = () => {
   const params = useLocalSearchParams();
-  const { privacy, mediaSrc, caption, id, authorProfilePicSrc, likes } = params;
+  const { privacy, mediaSrc, caption, id, authorProfilePicSrc, likes , price} = params;
+  const postPrice = Array.isArray(price) ? parseFloat(price[0]) : parseFloat(price);
+
   const isVideo = Array.isArray(mediaSrc)
     ? mediaSrc.some(
         (src) =>
@@ -85,10 +91,44 @@ const PostDetail = () => {
   const [selectedItem, setSelectedItem] =
     useState<PostDetailScreenRouteParams | null>(null);
   const [videos, setVideos] = useState<VideoItem[]>([]);
-
+  const [isSubscriber, setIsSubscriber] = useState(false); 
   const [isPlaying, setIsPlaying] = useState(false);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const paystackWebViewRef = useRef(paystackProps.PayStackRef);
+
+
+  const handlePaymentSuccess = (res: any) => {
+  
+    const paymentData = {
+      transactionRef: res.data.transactionRef.reference, 
+      userId: user.id, 
+      postId: id, 
+      status: res.data.event, 
+    };
+    // Send payment data to the backend (NestJS) using axios
+    axios.post('https://backend-server-quhu.onrender.com/payment/track', paymentData)
+      .then((response) => {
+        // console.log('Payment tracking data saved:', response.data);
+      })
+      .catch((error) => {
+        // console.error('Error tracking payment:', error);
+        // Log the error response details
+        if (error.response) {
+          // console.error('Server responded with status:', error.response.status);
+          // console.error('Response body:', error.response.data);
+        } else {
+          // console.error('Network error:', error.message);
+        }
+      });
+  };
+
+  
+  
+
+  const handlePaymentCancel = () => {
+    // console.log('Payment cancelled');
+    // You can add additional logic for handling cancellations
+  };  
 
   // Function to start the pulse animation
   const startPulse = () => {
@@ -109,8 +149,19 @@ const PostDetail = () => {
   };
 
   const [isLiked, setIsLiked] = useState(false);
-
+ 
+  useFocusEffect(
+    React.useCallback(() => {
+      getContent(); 
+    }, []) 
+  );
   useEffect(() => {
+    getContent();
+  }, []);
+
+
+
+  // useEffect(() => {
     const getContent = async () => {
       try {
         const response = await fetch(
@@ -122,24 +173,23 @@ const PostDetail = () => {
         }
 
         const data = await response.json();
-
         // Set comments from response
         setComments(data.comments || []);
 
         // Check if the current user is in the 'likedBy' array
         const likedByUser = data.likedBy || [];
         const isLikedByUser = likedByUser.includes(user.id);
-
-        // Update the 'isLiked' state
         setIsLiked(isLikedByUser);
+        const isSubscriber = data.subscribers && data.subscribers.includes(user.id);
+        setIsSubscriber(isSubscriber); 
+  
       } catch (error) {
         // console.error('Error fetching data:', error);
       }
     };
+  //   getContent();
+  // }, [id, user.id, isSubscriber]);
 
-    // Call the getContent function to fetch data when the component mounts
-    getContent();
-  }, [id, user.id]);
 
   const openCommentsModal = async () => {
     setSelectedItem(params as any);
@@ -428,6 +478,7 @@ const PostDetail = () => {
   const isPrivate = privacy === "private";
 
   return (
+
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -436,51 +487,7 @@ const PostDetail = () => {
         <StatusBar barStyle="light-content" backgroundColor="#000000" />
         <CustomHeader title={"Content"} onBackPress={goBack} />
 
-        {isVideo ? (
-          <TouchableWithoutFeedback onPress={handleTap}>
-            <View style={styles.videoContainer}>
-              <ExpoVideo
-                source={{ uri: mediaSrc as string }}
-                rate={1.0}
-                volume={1.0}
-                isMuted={false}
-                resizeMode={ResizeMode.COVER}
-                shouldPlay={isPlaying}
-                style={{ height: "100%", width: "100%" }}
-                useNativeControls
-              />
-
-              {!isPlaying && (
-                <MaterialCommunityIcons
-                  name="play-circle"
-                  style={styles.videoIcon}
-                  size={64}
-                  color="white"
-                />
-              )}
-
-              {/* Pulse animation */}
-              <Animated.View
-                style={[
-                  // styles.pulseCircle,
-                  {
-                    transform: [{ scale: pulseAnim }],
-                    opacity: pulseAnim.interpolate({
-                      inputRange: [1, 1.5],
-                      outputRange: [1, 0],
-                    }),
-                  },
-                ]}
-              />
-            </View>
-          </TouchableWithoutFeedback>
-        ) : (
-          <Image
-            source={{ uri: mediaSrc as string }}
-            style={styles.postImage}
-          />
-        )}
-        {isPrivate && (
+        {isPrivate && !isSubscriber ? (
           <TouchableWithoutFeedback
             onPress={() => paystackWebViewRef.current.startTransaction()}
             style={{ alignItems: "center" }}
@@ -494,34 +501,68 @@ const PostDetail = () => {
                   paddingVertical: 5,
                 }}
               >
-                Pay xxx to view content!
+                Pay {postPrice} to view content!
               </Text>
             </BlurView>
           </TouchableWithoutFeedback>
-        )}
+        ) : (
+          <>
+            {isVideo ? (
+              <TouchableWithoutFeedback onPress={handleTap}>
+                <View style={styles.videoContainer}>
+                  <ExpoVideo
+                    source={{ uri: mediaSrc as string }}
+                    rate={1.0}
+                    volume={1.0}
+                    isMuted={false}
+                    resizeMode={ResizeMode.COVER}
+                    shouldPlay={isPlaying}
+                    style={{ height: "100%", width: "100%" }}
+                    useNativeControls
+                  />
+                  {!isPlaying && (
+                    <MaterialCommunityIcons
+                      name="play-circle"
+                      style={styles.videoIcon}
+                      size={64}
+                      color="white"
+                    />
+                  )}
 
+                  {/* Pulse animation */}
+                  <Animated.View
+                style={[
+                  // styles.pulseCircle,
+                  {
+                    transform: [{ scale: pulseAnim }],
+                    opacity: pulseAnim.interpolate({
+                      inputRange: [1, 1.5],
+                      outputRange: [1, 0],
+                    }),
+                  },
+                ]}
+              />
+                </View>
+              </TouchableWithoutFeedback>
+            ) : (
+              <Image
+                source={{ uri: mediaSrc as string }}
+                style={styles.postImage}
+              />
+            )}
+          </>
+        )}
         <Paystack
-          // paystackKey="pk_live_922e8a136a4ed0649e4d9741dd6d86a23fbdf567" // live key
-          paystackKey="pk_test_6738fce2cbc3ee832e7f7e86ee0e850969e48683" // test key
-          billingEmail={"oluwagbogoadebanjo@gmail.com"}
-          // billingMobile=''
+          // paystackKey="pk_live_922e8a136a4ed0649e4d9741dd6d86a23fbdf567"
+          paystackKey="pk_test_6738fce2cbc3ee832e7f7e86ee0e850969e48683"
+          billingEmail={user.email} 
+          // billingMobile={user.id}
           billingName="Bajiku"
           activityIndicatorColor="#000"
-          amount={500}
+          amount={postPrice}
           channels={["card", "bank", "ussd", "qr", "mobile_money"]}
-          onCancel={() => {
-            // setIsSuccess(false);
-            // setModalTitle('Transaction Unsuccessful');
-            // setModalMessage('Your payment was not completed. Please try again.');
-            // setModalVisible(true);
-            console.log("cancelled");
-          }}
-          onSuccess={(res) => {
-            console.log("successful", res);
-            // setLoadingScreen(true);
-            // setReference(res.data.transactionRef.reference);
-            // setIsSuccess(true);
-          }}
+          onCancel={handlePaymentCancel} 
+          onSuccess={handlePaymentSuccess} 
           autoStart={false}
           ref={paystackWebViewRef}
         />
@@ -569,6 +610,7 @@ const PostDetail = () => {
             </View>
           </TouchableOpacity>
         </ContentRight>
+
       </View>
 
       {/* Modal for comments */}
@@ -740,7 +782,10 @@ const PostDetail = () => {
           </View>
         </View>
       </Modal>
+       
+     
     </KeyboardAvoidingView>
+
   );
 };
 
