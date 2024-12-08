@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, StatusBar, Alert, Image, Dimensions } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, StatusBar, Alert, Image, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import MediaUpload from '@/components/MediaUpload';
 import Button from '@/components/Button';
@@ -109,6 +109,10 @@ const App = () => {
       
       
     return (
+      <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
         <View style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor="#000000" />
 
@@ -162,6 +166,8 @@ const App = () => {
                 disabled={loading}
             />
         </View>
+
+        </KeyboardAvoidingView>
     );
 };
 const { width } = Dimensions.get('window');

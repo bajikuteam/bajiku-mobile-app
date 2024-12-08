@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, TouchableOpacity, StyleSheet, Image, Alert, Text, Dimensions } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Image, Alert, Text, Dimensions, Keyboard } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as ImagePicker from 'expo-image-picker';
 import { Video, ResizeMode } from 'expo-av';
@@ -79,27 +79,51 @@ const MediaUpload = ({ onMediaSelected }: { onMediaSelected: (uri: string, type:
         onMediaSelected('', ''); 
     };
 
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+    useEffect(() => {
+        // Listen for keyboard events
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
+            () => {
+                setIsKeyboardVisible(true);
+            }
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                setIsKeyboardVisible(false);
+            }
+        );
+
+        // Cleanup the listeners on unmount
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+    }, []);
     return (
+        
         <View style={styles.container}>
-            {/* Button to open camera */}
+        {/* Conditionally render the uploadButton based on keyboard visibility */}
+        {!isKeyboardVisible && (
             <TouchableOpacity style={styles.uploadButton} onPress={pickFromGallery}>
                 {mediaUri ? (
                     mediaType === 'image' ? (
-                        <Image source={{ uri: mediaUri }} style={styles.media} />
+                        <Image source={{ uri: mediaUri }} style={styles.fullMedia} />
                     ) : (
                         <View style={styles.videoContainer}>
                             <Video
-                                ref={videoRef}
                                 source={{ uri: mediaUri }}
-                                style={styles.video}
+                                style={styles.fullMedia}
                                 useNativeControls
-                                resizeMode={ResizeMode.CONTAIN}
+                                resizeMode={ResizeMode.COVER}
                                 isLooping
                                 shouldPlay={false}
                             />
-                            <TouchableOpacity style={styles.fullScreenButton} onPress={handleFullScreen}>
-                                <MaterialCommunityIcons name="fullscreen" size={30} color="#fff" />
-                            </TouchableOpacity>
+                                 <TouchableOpacity style={styles.fullScreenButton} onPress={handleFullScreen}>
+                        <MaterialCommunityIcons name="fullscreen" size={30} color="#fff" />
+                    </TouchableOpacity>
                         </View>
                     )
                 ) : (
@@ -108,19 +132,26 @@ const MediaUpload = ({ onMediaSelected }: { onMediaSelected: (uri: string, type:
                         <Text style={styles.placeholderText}>Select Media</Text>
                     </View>
                 )}
-            </TouchableOpacity>
 
-            {/* Gallery Icon at the bottom center */}
-            <TouchableOpacity style={styles.galleryButton} onPress={pickFromCamera}>
-                <MaterialCommunityIcons name="camera" size={30} color="#fff" />
-            </TouchableOpacity>
+                {/* Delete Button positioned at the top of uploadButton */}
+                {mediaUri && (
+                    <TouchableOpacity
+                        style={styles.deleteButton}
+                        onPress={deleteMedia}>
+                        <MaterialCommunityIcons name="delete" size={20} color="#ff0000" />
+                    </TouchableOpacity>
+                )}
 
-            {mediaUri && (
-                <TouchableOpacity style={styles.deleteButton} onPress={deleteMedia}>
-                    <MaterialCommunityIcons name="delete" size={20} color="#ff0000" />
-                </TouchableOpacity>
-            )}
-        </View>
+<TouchableOpacity style={styles.galleryButton} onPress={pickFromCamera}>
+            <MaterialCommunityIcons name="camera" size={30} color="#fff" />
+        </TouchableOpacity>
+            </TouchableOpacity>
+        )}
+
+        {/* Camera Button */}
+     
+    </View>
+    
     );
 };
 
@@ -136,6 +167,7 @@ const styles = StyleSheet.create({
         height: "80%",
         backgroundColor: '#222',
         borderRadius: 12,
+        overflow: 'hidden', 
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -147,22 +179,15 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#666',
     },
-    media: {
+    fullMedia: {
         width: '100%',
         height: '100%',
-        borderRadius: 12,
-        resizeMode: 'contain',
+        resizeMode: 'cover', 
     },
     videoContainer: {
         width: '100%',
         height: '100%',
         position: 'relative',
-        borderRadius: 12,
-        overflow: 'hidden',
-    },
-    video: {
-        flex: 1,
-        borderRadius: 12,
     },
     fullScreenButton: {
         position: 'absolute',
@@ -173,25 +198,26 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     deleteButton: {
-        top: 30,
         position: 'absolute',
         left: 10,
+        top:10,
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         padding: 10,
         borderRadius: 50,
     },
     galleryButton: {
         position: 'absolute',
-        bottom: 20,  
-        left: '50%',  
-        transform: [{ translateX: -20 }],  
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+        bottom: 0,
+        left: '50%',
+        transform: [{ translateX: -20 }],
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
         padding: 10,
         borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center',
     },
 });
+
 
 export default MediaUpload;
 
@@ -373,30 +399,30 @@ function setImageUri(uri: string) {
 //         position: 'absolute',
 //         bottom: 10,
 //     },
-//     image: {
-//         width: '100%',
-//         height: '100%',
-//         borderRadius: 12, 
-//     },
-//     modalBackground: {
-//         flex: 1,
-//         justifyContent: 'flex-end',
-//         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-//     },
-//     modalContainer: {
-//         backgroundColor: '#fff',
-//         padding: 20,
-//         borderTopLeftRadius: 20,
-//         borderTopRightRadius: 20,
-//     },
-//     optionButton: {
-//         padding: 15,
-//         alignItems: 'center',
-//     },
-//     optionText: {
-//         fontSize: 18,
-//         color: '#007BFF',
-//     },
+    // image: {
+    //     width: '100%',
+    //     height: '100%',
+    //     borderRadius: 12, 
+    // },
+    // modalBackground: {
+    //     flex: 1,
+    //     justifyContent: 'flex-end',
+    //     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    // },
+    // modalContainer: {
+    //     backgroundColor: '#fff',
+    //     padding: 20,
+    //     borderTopLeftRadius: 20,
+    //     borderTopRightRadius: 20,
+    // },
+    // optionButton: {
+    //     padding: 15,
+    //     alignItems: 'center',
+    // },
+    // optionText: {
+    //     fontSize: 18,
+    //     color: '#007BFF',
+    // },
 // });
 
 // export default MediaUploads;
