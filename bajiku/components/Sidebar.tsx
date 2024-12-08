@@ -23,6 +23,8 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamListComponent } from "@/services/core/types";
 import { useIsFocused } from "@react-navigation/native";
 import * as NavigationBar from 'expo-navigation-bar';
+import { formatCount } from "@/services/core/globals";
+import axios from "axios";
 type NavigationProp = StackNavigationProp<RootStackParamListComponent>;
 
 const { width } = Dimensions.get("window");
@@ -84,6 +86,27 @@ const Sidebar: React.FC = () => {
   const Logout = () => {
     router.push("/auth/Login");
   };
+
+  const [personalDetails, setPersonalDetails] = useState<string[]>([]);
+  const [personalDetailsFollowers, setPersonalDetailsFollowers] = useState<string[]>([]);
+
+  const fetchPersonalDetail = async () => {
+    try {
+      const response = await axios.get(
+        `https://backend-server-quhu.onrender.com/users/${user?.id}`
+      );
+      setPersonalDetails(response.data.following || []); 
+      setPersonalDetailsFollowers(response.data.followers || []); 
+    } catch (error) {
+      console.error('Error fetching personal details:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchPersonalDetail();
+    }
+  }, [user?.id]);
 
   const handlePress = () => {
     // First navigate to 'Profile' screen
@@ -213,7 +236,7 @@ const Sidebar: React.FC = () => {
                  fontSize:12,
                  color:'#fff'
                     }}>
-                      {user.followerCount} Followers {""} |{" "}
+                         {personalDetailsFollowers?.length=== 1 ? '1 Follower' : `${formatCount(personalDetailsFollowers?.length)} Followers`} | {" "}
                     </Text>
                   </Link>
                   <Link href="/Following" onPress={handleClose}>
@@ -222,7 +245,7 @@ const Sidebar: React.FC = () => {
                  fontSize:12,
                  color:'#fff'
                     }}>
-                      {user.followingCount} Following |{" "}
+                        {personalDetails?.length === 1 ? '1 Following' : `${formatCount(personalDetails?.length)} Following`} {" "} | {" "}
                     </Text>
                   </Link>
                   <Text style={{
@@ -230,7 +253,7 @@ const Sidebar: React.FC = () => {
                  fontSize:12,
                  color:'#fff'
                     }}>
-                    0 Subscribers
+                    0 Subscribed to
                   </Text>
                 </View>
               </View>

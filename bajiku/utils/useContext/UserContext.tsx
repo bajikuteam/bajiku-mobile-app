@@ -33,14 +33,15 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const handleLogin = async (userData: any) => {
     setUser(userData);
     await AsyncStorage.setItem('user', JSON.stringify(userData));
+    //  await AsyncStorage.setItem('id', id);  
+        // await AsyncStorage.setItem('token', token);
   };
 
   const handleLogout = async () => {
     router.push("/");
     await AsyncStorage.removeItem('user');
+    await AsyncStorage.removeItem('id');
     setUser(null); 
-  
-   console.log("logged out user........!!!")
    
   };
 

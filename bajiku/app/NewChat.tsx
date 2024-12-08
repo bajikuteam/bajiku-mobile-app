@@ -32,7 +32,7 @@ const NewChatScreen = () => {
   const textColor = theme === 'dark' ? '#fff' : '#000';
     const fetchFollowers = async () => {
         try {
-            const userId = user.id || await AsyncStorage.getItem('userId');
+            const userId = user?.id || await AsyncStorage.getItem('userId');
             setLoading(true);
             
             const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${userId}/followers`);
@@ -84,9 +84,9 @@ const NewChatScreen = () => {
                             navigation.navigate('message', {
                                 profileImageUrl: item.profileImageUrl || '', 
                                 username: item.username,
-                                senderId: user.id, 
-                                receiverId: item._id, 
-                                senderName: user.username, 
+                                senderId: user?.id, 
+                                receiverId: item?._id, 
+                                senderName: user?.username, 
                             });
                         }}
                     >
@@ -143,9 +143,11 @@ const styles = StyleSheet.create({
         paddingBottom: 10,
     },
     profileImage: {
-        width: 36,
-        height: 36,
-        borderRadius: 10,
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#D1D5DB',
     },
     placeholderImage: {
         width: 50,

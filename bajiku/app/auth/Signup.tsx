@@ -88,10 +88,10 @@ const SignUpScreen = () => {
       const response = await registerUser(email, dob);
   
       // Check if the response contains both token and user object
-      if (response.token && response.user && response.user._id) {
+      if (response.token && response.user && response.user?._id) {
         // Store both the token and userId in AsyncStorage
         await AsyncStorage.setItem('token', response.token);
-        await AsyncStorage.setItem('userId', response.user._id); 
+        await AsyncStorage.setItem('userId', response.user?._id); 
   
         // Clear the form fields after successful registration
         setEmail('');

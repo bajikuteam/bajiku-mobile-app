@@ -79,8 +79,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   subtitle: {
-    color: '#bbbbbb',
-    fontSize: 14,
+    color: '#444',
+    fontSize: 12,
   },
 });
 

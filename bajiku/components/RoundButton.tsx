@@ -23,6 +23,7 @@ const RoundButton: React.FC = () => {
         onPress={togglePopup}
         style={[styles.mainButton, isOpen ? styles.openButton : styles.closedButton]}
       >
+
         <FontAwesome name={isOpen ? 'times' : 'plus'} size={24} color="#FFFFFF" />
       </TouchableOpacity>
 

@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, Animated, StyleSheet, Modal, ScrollView, AppState, RefreshControl} from 'react-native';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { View, Text, FlatList, Image, TouchableOpacity, Animated, StyleSheet, Modal, ScrollView, AppState, RefreshControl, ActivityIndicator} from 'react-native';
 import { ResizeMode, Video } from 'expo-av';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AddComment from './AddComment';
@@ -8,11 +8,11 @@ import { NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { ContentCaption, ContentLeft, ContentLeftBottomNameUserText, ContentLeftImg, ContentRight, FullScreen } from '@/styles/Home';
 import { BlurView } from 'expo-blur';
 import { useUser } from '@/utils/useContext/UserContext';
-import { formatTime } from '@/services/core/globals';
+import { formatCount, formatTime } from '@/services/core/globals';
 import { io } from 'socket.io-client';
-import Loading from './Loading';
 import {  router, usePathname } from 'expo-router';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Button from './Button';
 const socket = io('https://backend-server-quhu.onrender.com'); 
 
 
@@ -44,6 +44,7 @@ type VideoItem = {
   likedBy: string[];
   price: number;
   subscribers:string[]
+  createdBy: string;
 };
 
 interface Reply {
@@ -60,6 +61,7 @@ interface ReplyUpdate {
 }
 
 export default function PostWithCaption() {
+  const [showPrivateContent, setShowPrivateContent] = useState(false);
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
   const videoRefs = useRef<(Video | null)[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -68,14 +70,11 @@ export default function PostWithCaption() {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const { user } = useUser();
-  const [loading, setLoading] = useState(true); 
-
-
-  
+  const [loading, setLoading] = useState(true);  
   const scrollY = useRef(new Animated.Value(0)).current;
   const pulseAnimation = useRef(new Animated.Value(1)).current;
-
   const [expandedComments, setExpandedComments] = useState<{ [key: string]: boolean }>({});
+
 
   const toggleReplies = (commentId: string) => {
     setExpandedComments((prev) => ({
@@ -117,14 +116,41 @@ export default function PostWithCaption() {
     return caption;
   };
 
+  // const fetchData = async () => {
+  //   setLoading(true); 
+  //   try {
+  //     const response = await fetch('https://backend-server-quhu.onrender.com/content');
+  //     const data = await response.json();
+  //     setVideos(data);
+  //     setIsPlaying(new Array(data.length).fill(false));
+  //     const allComments = data.flatMap((video: VideoItem) => video.comments || []);
+  //     setComments(allComments);
+  //   } catch (error) {
+  //     // console.error("Error fetching video data:", error);
+  //   } finally {
+  //     setLoading(false); 
+  //   }
+  // };
+
+  const togglePrivacy = () => {
+    setShowPrivateContent(prev => !prev);
+  };
+
+
   const fetchData = async () => {
     setLoading(true); 
     try {
       const response = await fetch('https://backend-server-quhu.onrender.com/content');
       const data = await response.json();
-      setVideos(data);
-      setIsPlaying(new Array(data.length).fill(false));
-      const allComments = data.flatMap((video: VideoItem) => video.comments || []);
+      
+      // Filter the videos based on the privacy setting
+      const filteredVideos = data.filter((video: VideoItem) => 
+        showPrivateContent ? video.privacy === 'private' : video.privacy === 'public'
+      );
+      
+      setVideos(filteredVideos);
+      setIsPlaying(new Array(filteredVideos.length).fill(false));
+      const allComments = filteredVideos.flatMap((video: VideoItem) => video.comments || []);
       setComments(allComments);
     } catch (error) {
       // console.error("Error fetching video data:", error);
@@ -132,15 +158,19 @@ export default function PostWithCaption() {
       setLoading(false); 
     }
   };
+  
+
 
   useFocusEffect(
-    React.useCallback(() => {
-      fetchData(); 
-    }, []) 
+    useCallback(() => {
+      setLoading(true);
+      fetchData();
+      const timeout = setTimeout(() => {
+        setLoading(false); 
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }, [showPrivateContent])
   );
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -155,10 +185,8 @@ export default function PostWithCaption() {
     return url.endsWith('.mp4') || url.endsWith('.mov');
   };
   
-
   const pathname = usePathname();
   const isTabScreen = pathname === '/';  
-
 
 
   useFocusEffect(
@@ -189,7 +217,6 @@ export default function PostWithCaption() {
   );
   
 
-
   const handleScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
     {
@@ -214,9 +241,9 @@ export default function PostWithCaption() {
   const handleVideoClick = () => {
     const currentPlaying = isPlaying[activeVideoIndex];
     if (currentPlaying) {
-      videoRefs.current[activeVideoIndex]?.pauseAsync().catch(err => console.log('Error pausing video:', err));
+      videoRefs.current[activeVideoIndex]?.pauseAsync().catch();
     } else {
-      videoRefs.current[activeVideoIndex]?.playAsync().catch(err => console.log('Error playing video:', err));
+      videoRefs.current[activeVideoIndex]?.playAsync().catch();
     }
     setIsPlaying(prev => {
       const newState = [...prev];
@@ -239,8 +266,6 @@ export default function PostWithCaption() {
   };
  
   
- 
-
 
   const toggleCaption = () => {
     setIsExpanded(!isExpanded);
@@ -266,7 +291,7 @@ const openCommentsModal = async (videoItem: VideoItem) => {
     setVideoData(data);  
 
   } catch (error) {
-    console.error('Error fetching content:', error);
+    // console.error('Error fetching content:', error);
   } finally {
     setLoadingComments(false); 
   }
@@ -385,7 +410,7 @@ const openCommentsModal = async (videoItem: VideoItem) => {
   }, []);
 
   const likeContent = async (mediaId: string) => {
-    const userId = user.id;
+    const userId = user?.id;
   
     try {
       const response = await fetch(`https://backend-server-quhu.onrender.com/content/${mediaId}/like/${userId}`, {
@@ -490,53 +515,46 @@ const likeComment = async (commentId: string, mediaId:string) => {
       authorProfilePicSrc: item.authorProfilePicSrc,
       comments: item.comments as any,
       likes: item.likes,
-      price: item.price
+      price: item.price,
+      createdBy: item.createdBy
     }
    } )
 }
+
+const handlePress = (
+  userId: string, 
+  username: string, 
+  profileImageUrl: string,
+) => {
+  // Check if the pressed user is the logged-in user
+  if (userId === user.id) {
+    // Navigate to the logged-in user's profile
+    router.push({
+      pathname: '/Profile',
+      params: {
+        userId: userId,
+        username: username,
+        profileImageUrl: profileImageUrl,
+      },
+    });
+  } else {
+    // Navigate to the user details page
+    router.push({
+      pathname: '/userDetails/UserDetails',
+      params: {
+        searchUserId: userId,
+        username: username,
+        profileImageUrl: profileImageUrl,
+      },
+    });
+  }
+};
+
   return (
     <View style={{ width: '100%', backgroundColor: '#010101', paddingBottom: 20 }}>
         <View>
-          {/* {isVideo(item.mediaSrc) && !isPrivate ? (
-            <TouchableOpacity activeOpacity={1} onPress={handleVideoClick}>
-              <Animated.View style={{ transform: [{ scale: pulseAnimation }] }}>
-                <Video
-                  ref={ref => (videoRefs.current[index] = ref)}
-                  style={{ height: 520, width: '100%' }}
-                  source={{ uri: item.mediaSrc }}
-                  resizeMode={ResizeMode.COVER}
-                  shouldPlay={activeVideoIndex === index && isPlaying[index]}
-                  isLooping
-                />
-                {!isPlaying[index] && (
-                  <View style={styles.overlay}>
-                    <Ionicons name="play-circle" size={60} color="#fff" />
-                  </View>
-                )}
-              </Animated.View>
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.privateContent}>
-              <Image
-                source={{ uri: item.mediaSrc }}
-                style={{ height: 500, width: '100%', opacity: isPrivate ? 0.5 : 1 }}
-              />
-              {isPrivate && (
-                <>
-                  <BlurView intensity={100} style={styles.blurView}>
-                  <TouchableOpacity onPress={handleNavigateToPostDetails} style={{alignItems: 'center' }}>
-                    <Ionicons name="lock-closed" size={50} color="#fff" />
-                    <Text style={{ color: '#fff', textAlign:'center', paddingVertical: 5 }}>Click to unlock content</Text>
-                  </TouchableOpacity>
-                  </BlurView>
-                  
-                </>
-              )}
-            </View>
-          )} */}
-
 {isVideo(item.mediaSrc) ? (
-  isPrivate && (!item.subscribers || !item.subscribers.includes(user.id)) ? (
+  isPrivate && (!item.subscribers || !item.subscribers.includes(user?.id)) ? (
     // Private content locked
     <View style={styles.privateContent}>
       <Image
@@ -578,7 +596,7 @@ const likeComment = async (commentId: string, mediaId:string) => {
       source={{ uri: item.mediaSrc }}
       style={{ height: 500, width: '100%'}}
     />
-    {isPrivate && (!item.subscribers || !item.subscribers.includes(user.id)) && (
+    {isPrivate && (!item.subscribers || !item.subscribers.includes(user?.id)) && (
       <BlurView style={styles.blurView}>
         <TouchableOpacity onPress={handleNavigateToPostDetails} style={{ alignItems: 'center' }}>
           <Ionicons name="lock-closed" size={50} color="#fff" />
@@ -590,9 +608,7 @@ const likeComment = async (commentId: string, mediaId:string) => {
     )}
   </View>
 )}
-
-          
-          <FullScreen>
+           <FullScreen>
             <TouchableOpacity onPress={handleNavigateToPostDetails}>
               <MaterialCommunityIcons name="fullscreen" size={40} color="#fff" />
             </TouchableOpacity>
@@ -606,7 +622,7 @@ const likeComment = async (commentId: string, mediaId:string) => {
             </TouchableOpacity>
             {item.caption.split(' ').length > 10 && (
               <TouchableOpacity onPress={toggleCaption}>
-                <Text style={{ color: '#fff', fontSize: 13, paddingLeft: 2 }}>
+                <Text style={{ color: '#fff', fontSize: 13, paddingLeft: 2, fontWeight:'bold' }}>
                   {isExpanded ? 'Show Less' : 'Show More'}
                 </Text>
               </TouchableOpacity>
@@ -614,52 +630,84 @@ const likeComment = async (commentId: string, mediaId:string) => {
           </ContentCaption>
 
           <ContentLeftImg>
+          <TouchableOpacity onPress={() => handlePress(item.createdBy, item.authorName, item.authorProfilePicSrc)}>
             <Image
               source={{ uri: item.authorProfilePicSrc }}
-              style={{ height: 50, width: 44, borderRadius: 12 }}
+              style={{ height: 50, width: 44, borderRadius: 12,
+                borderWidth: 2,
+                borderColor: '#D1D5DB', }}
             />
+            </TouchableOpacity>
           </ContentLeftImg>
 
           <ContentLeftBottomNameUserText style={{ textTransform: 'lowercase' }}>
             @{item.authorName}
           </ContentLeftBottomNameUserText>
 
-          <ContentRight>
-            <TouchableOpacity onPress={() => likeContent(item._id || '')}>
-              <View style={styles.iconContainer}>
-                <Ionicons
-                  name="heart"
-                  size={40}
-                  color={isLikedByUser ? 'red' : '#fff'}
-                />
-                <Text style={styles.iconText}>{item.likes}</Text>
-              </View>
-            </TouchableOpacity>
-          </ContentRight>
+
+<ContentRight>
+  <TouchableOpacity onPress={() => likeContent(item._id || '')}>
+    <View style={styles.likeButtonContainer}>
+      <Ionicons
+        name="heart"
+        size={25}
+        color={isLikedByUser ? 'red' : '#fff'}
+      />
+      {/* <Text style={styles.iconText}>{formatCount(item.likes)}</Text> */}
+    </View>
+  </TouchableOpacity>
+</ContentRight>
+
 
           <ContentLeft>
             <TouchableOpacity onPress={() => openCommentsModal(item)}>
-              <View style={styles.iconContainer}>
-                <Ionicons name="chatbubble-outline" size={30} color="#fff" />
-                <Text style={styles.iconText}>{item.comments?.length}</Text>
+              <View style={{  flexDirection: 'column',
+    alignItems: 'center',
+    backgroundColor: '#2d2d2d',  
+    borderRadius: 50,             
+    padding: 10,                
+    borderWidth: 1,              
+    borderColor: '#888',                     
+    justifyContent: 'center',    
+    height: 45,                  
+    width: 45, }}>
+                <Ionicons name="chatbubble-outline" size={23} color="#fff" />
+                {/* <Text style={styles.iconText}>{formatCount(item.comments?.length || 0)}</Text> */}
               </View>
             </TouchableOpacity>
           </ContentLeft>
 
           <View>
-            <Text style={{ color: '#fff', paddingTop: 3, fontSize: 12, paddingLeft: 2 }}>
-              {item.likes} Likes
-            </Text>
+          <Text style={{ color: '#fff', paddingTop: 5, fontSize: 12, paddingLeft: 10, fontWeight: 'bold' }}>
+  {item.likes === 1 
+    ? '1 Like' 
+    : `${formatCount(item.likes)} Likes`}
+</Text>
+
           </View>
+          <TouchableOpacity onPress={() => openCommentsModal(item)}>
+  <View>
+    {item.comments && item.comments.length > 0 && (
+      <Text style={{ color: '#fff', paddingTop: 5, fontSize: 12, paddingLeft: 10, fontWeight: 'bold' }}>
+        <Text style={styles.iconText}>
+          {item.comments?.length === 1 
+            ? '1 comment' 
+            : `View All ${formatCount(item.comments?.length || 0)} Comments`}
+        </Text>
+      </Text>
+    )}
+  </View>
+</TouchableOpacity>
+
 
           {item.comments && item.comments.length > 0 ? (
             <View>
               {/* Display only the last comment */}
               <View style={{ marginBottom: 5 }}>
-                <Text style={{ color: '#fff', paddingTop: 3, fontSize: 12, paddingLeft: 2, textTransform: 'lowercase' }}>
+                <Text style={{ color: '#fff', paddingTop: 3, fontSize: 12, paddingLeft: 10, textTransform: 'lowercase' }}>
                   @{item.comments[item.comments.length - 1].username}: {item.comments[item.comments.length - 1].comment}
                 </Text>
-                <Text style={{ color: '#fff', fontSize: 12, paddingLeft: 2 }}>
+                <Text style={{ color: '#fff', fontSize: 12, paddingLeft: 10 }}>
                   {formatTime(item.comments[item.comments.length - 1].createdAt)}
                 </Text>
               </View>
@@ -684,13 +732,33 @@ const showReplies= (comment: Comment) => {
 };
 
 
+
+const toggleButton = (
+
+<View style={styles.toggleContainer}>
+  <TouchableOpacity onPress={() => setShowPrivateContent(false)}>
+    <Text style={styles.toggleButtonText}>Public Content</Text>
+  </TouchableOpacity>
+  <TouchableOpacity onPress={() => setShowPrivateContent(true)}>
+    <Text style={styles.toggleButtonText}>Private Content</Text>
+  </TouchableOpacity>
+</View>
+
+
+
+);
+
 if (loading) {
   return (
- <Loading/>
+    <View style={styles.container}>
+    <ActivityIndicator size="large" color="#fff" />
+  </View>
   );
 }
   return (
-    <View>
+    <View style={{ width: '100%', backgroundColor: '#010101', paddingBottom: 20 }}>
+      {/* Toggle button at the top */}
+      {toggleButton}
      <Animated.FlatList
       data={videos}
       renderItem={renderItem}
@@ -707,7 +775,6 @@ if (loading) {
       }
     />
 
-
 <Modal
   animationType="slide"
   transparent={true}
@@ -715,10 +782,10 @@ if (loading) {
   onRequestClose={() => {
     setModalVisible(false);
   }}
->
+> 
   <View style={styles.modalOverlay}>
     <View style={styles.modalContainer}>
-      <Text  style={{color:'#fff',fontSize:14, textAlign:'center'}}>{comments.length} Comments</Text>
+      <Text  style={{color:'#000',fontSize:14, textAlign:'center'}}>{formatCount(comments.length)} Comments</Text>
       <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
         <Text style={styles.closeButtonText}>X</Text>
       </TouchableOpacity>
@@ -754,7 +821,8 @@ if (loading) {
                         size={30}
                         color={item.likedBy?.includes(user.id) ? 'red' : 'gray'}
                       />
-                      <Text style={styles.likeCount}>{item.likes}</Text>
+                     <Text style={styles.likeCount}>{formatCount(item.likes ?? 0)}</Text>
+
                     </View>
                   </TouchableOpacity>
 
@@ -764,7 +832,7 @@ if (loading) {
                       ? "Reply"
                       : item.replies?.length === 1
                         ? "1 Reply"
-                        : `${item.replies?.length} Replies`}
+                        : `${formatCount(item.replies?.length ?? 0)} Replies`}
                   </Text>
                 </TouchableOpacity>
 
@@ -797,7 +865,7 @@ if (loading) {
     <View style={styles.modalContainer}>
       <Text  style={{fontSize:14, textAlign:'center', textTransform:"lowercase"}} className='text-center text-[14px] lowercase'>Reply to: @{selectedComment?.username} comment:</Text>
       <Text style={styles.commentText}>"{selectedComment?.comment}"</Text> 
-      <Text style={{fontSize:14, textAlign:'center'}}  className='text-center text-[14px]'>{selectedComment?.replies?.length || 0} Replies</Text>
+      <Text style={{fontSize:14, textAlign:'center'}}  className='text-center text-[14px]'>{formatCount(selectedComment?.replies?.length ?? 0) || 0} Replies</Text>
   
       <TouchableOpacity style={styles.closeButton} onPress={() => setReplyModalVisible(false)}>
         <Text style={styles.closeButtonText}>X</Text>
@@ -850,6 +918,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
+  },
+  toggleButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    padding: 10,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    borderRadius: 25,
+    marginBottom: 10,
+    marginTop: 10,
   },
   privateContent: {
     position: 'relative',
@@ -957,6 +1035,7 @@ const styles = StyleSheet.create({
     color: 'gray', 
     fontSize: 12,
     marginTop: 2, 
+    fontWeight: 'bold',
   },
   likeCount: {
     marginLeft: 5,
@@ -1009,6 +1088,48 @@ const styles = StyleSheet.create({
   },
   expandBtn:{
     color:'#fff', 
-    fontSize:12
-  }
+    fontSize:14,
+    textTransform:"capitalize",
+    fontWeight:'bold'
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor:'#000000',
+    top:30
+  },
+  likeButtonContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    backgroundColor: '#2d2d2d',  
+    borderRadius: 50,             
+    padding: 10,                
+    borderWidth: 1,              
+    borderColor: '#888',         
+    marginLeft: 10,              
+    justifyContent: 'center',    
+    height: 45,                  
+    width: 45,                   
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 10,
+  },
+  toggleContainerBtn:{
+    width: '40%'
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  activeButton: {
+    textDecorationLine: 'underline',  
+  },
+ 
+
 });

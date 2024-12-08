@@ -43,7 +43,7 @@ const buttonStyles = {
   third: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: '#075E54',
+    borderColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
     width: 300,
@@ -81,7 +81,7 @@ const textStyles = {
     fontSize: 12,
   } as TextStyle,
   third: {
-    color: '#075E54',
+    color: '#fff',
     fontSize: 12,
   } as TextStyle,
   fourth: {

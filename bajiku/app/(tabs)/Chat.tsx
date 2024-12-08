@@ -1,8 +1,8 @@
 
 import React, { useEffect,  useState } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Text, StatusBar } from 'react-native';
+import { View, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Text, StatusBar, Modal, TouchableOpacity, Image, Pressable } from 'react-native';
 import { Container, Card, UserInfo, UserImgWrapper, UserImg, UserInfoText, UserName, PostTime, MessageText, TextSection } from '@/styles/MessageStyles';
-import {  useFocusEffect, useIsFocused, useNavigation, useNavigationContainerRef, useRoute } from '@react-navigation/native';
+import {  useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useUser } from '@/utils/useContext/UserContext';
 import { formatTime } from '@/services/core/globals';
 import io from 'socket.io-client';
@@ -12,27 +12,10 @@ import RoundButton from '@/components/RoundButton';
 import Button from '@/components/Button';
 import * as NavigationBar from 'expo-navigation-bar';
 import { router } from 'expo-router';
-interface ChatScreenRouteParams {
-  room: string;
-  senderId: string;
-  receiverId: string;
-  senderName: string;
-  lastMessageTime: string;
-  lastMessage: string;
-}
-
-
-type RootStackParamList = {
-  Home: undefined;
-  message: { username: string; senderId: string; receiverId: string; senderName: string; profileImageUrl: string; lastMessage: string; lastMessageTime: string };
-  PersonGroupChat: { roomId: string; room: string; groupName: string; profileImageUrl: string; username: string; groupImgUrl: string; groupDescription: string; groupCreationTime: string; senderId: string; senderName: string; name: string; description: string; lastMessage: string; lastMessageTime: string };
-};
-
 
 
 const ChatListScreen = () => {
-  const navigationRef = useNavigationContainerRef<RootStackParamList>();
- 
+
   const [viewMode, setViewMode] = useState<'contacts' | 'groups' | 'all'>('all');
 
   const { user } = useUser();
@@ -41,12 +24,14 @@ const ChatListScreen = () => {
   const [data, setData] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const socket = io('https://backend-server-quhu.onrender.com');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const [initialized, setInitialized] = useState<boolean>(false);
 
   const fetchChatContacts = async () => {
     try {
-      const userId = user.id || await AsyncStorage.getItem('userId');
+      const userId = user?.id || await AsyncStorage.getItem('userId');
       const response = await fetch(`https://backend-server-quhu.onrender.com/chat/message/contacts/${userId}`);
       const data = await response.json();
       return Array.isArray(data) ? data : []; 
@@ -58,7 +43,7 @@ const ChatListScreen = () => {
 
   const fetchUserGroups = async () => {
     try {
-      const userId = user.id || await AsyncStorage.getItem('userId');
+      const userId = user?.id || await AsyncStorage.getItem('userId');
       const response = await fetch(`https://backend-server-quhu.onrender.com/personal-group-chat/user/${userId}/rooms`);
       const data = await response.json();
       // console.log('Fetched user groups:', data); 
@@ -125,7 +110,7 @@ const ChatListScreen = () => {
               ...item,
               lastMessage: text,
               lastMessageTime: createdAt,
-              unreadCount: receiverId === user.id ? (item.unreadCount || 0) + 1 : item.unreadCount,
+              unreadCount: receiverId === user?.id ? (item.unreadCount || 0) + 1 : item.unreadCount,
             };
           }
           return item;
@@ -156,9 +141,9 @@ const ChatListScreen = () => {
       router.push({pathname:'/message',
         params:{
           username: item.userInfo.username,
-          senderId: user.id,
+          senderId: user?.id,
           receiverId: item.userInfo._id,
-          senderName: user.username,
+          senderName: user?.username,
           profileImageUrl: item.userInfo.profileImageUrl,
           lastMessage: item.lastMessage, 
           lastMessageTime: item.lastMessageTime,
@@ -171,13 +156,13 @@ const ChatListScreen = () => {
           roomId: item._id,
           room: item.room,
           groupName: item.groupName,
-          profileImageUrl: user.profileImage,
-          username: user.username,
+          profileImageUrl: user?.profileImage,
+          username: user?.username,
           groupImgUrl: item.groupImgUrl,
           groupDescription: item.groupDescription,
           groupCreationTime: item.groupCreationTime,
-          senderId: user.id,
-          senderName: user.username,
+          senderId: user?.id,
+          senderName: user?.username,
           name: item.name,
           description: item.description,
           lastMessage: item.lastMessage, 
@@ -269,10 +254,16 @@ const ChatListScreen = () => {
     }
   }, [isFocused]);
 
+  const handleImagePress = (imageUrl: string | null) => {
+    // Provide a fallback image URL if imageUrl is null
+    setSelectedImage(imageUrl || 'https://via.placeholder.com/150'); // Use a placeholder image if null
+    setModalVisible(true); // Show the modal
+  };
+
   if (loading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#fff" />
       </View>
     );
   }
@@ -287,7 +278,13 @@ const ChatListScreen = () => {
       <Card onPress={() => handleCardPress(item)}>
         <UserInfo>
           <UserImgWrapper>
-            <UserImg source={{ uri: item.type === 'contact' ? item.userInfo.profileImageUrl : item.groupImgUrl || 'default-image-url' }} />
+          <TouchableOpacity onPress={() => handleImagePress(item.type === 'contact' ? item.userInfo.profileImageUrl : item.groupImgUrl)}>
+            <UserImg style={{  width: 40,
+        height: 40,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#D1D5DB',}} source={{ uri: item.type === 'contact' ? item.userInfo.profileImageUrl : item.groupImgUrl || 'default-image-url' }} />
+        </TouchableOpacity>
           </UserImgWrapper>
           <TextSection>
             <UserInfoText>
@@ -335,6 +332,18 @@ const ChatListScreen = () => {
       }
     />
     <RoundButton />
+
+
+    <Modal 
+        visible={modalVisible} 
+        transparent={true} 
+        animationType="fade" 
+        onRequestClose={() => setModalVisible(false)}
+      >
+          <Pressable style={styles.modalContainer} onPress={() => setModalVisible(false)}>
+          <Image source={{ uri: selectedImage  as string}} style={styles.modalImage} />
+        </Pressable>
+      </Modal>
   </Container>
   );
 };
@@ -389,7 +398,33 @@ const styles = StyleSheet.create({
   },
   toggleContainerBtn:{
     width: '20%'
-  }
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  },
+  modalImage: {
+     height: 300,
+     width: '80%',
+    resizeMode: 'contain',
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    
+  },
+  modalCloseButton: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    padding: 10,
+  
+  },
+  closeButtonText: {
+    fontSize: 20,
+    color: 'red',
+  },
 });
 
 

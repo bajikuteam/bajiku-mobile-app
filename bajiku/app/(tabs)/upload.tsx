@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, StatusBar, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, StatusBar, Alert, Image, Dimensions } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import MediaUpload from '@/components/MediaUpload';
 import Button from '@/components/Button';
@@ -37,9 +37,9 @@ const App = () => {
 
 
     const handleUpload = async () => {
-        const createdBy = user.id || await AsyncStorage.getItem('userId');
-        const authorName = user.username;
-        const authorProfilePicSrc = user.profileImageUrl;
+        const createdBy = user?.id || await AsyncStorage.getItem('userId');
+        const authorName = user?.username;
+        const authorProfilePicSrc = user?.profileImageUrl;
       
         setLoading(true);
         setUploadPercent(0); 
@@ -52,7 +52,7 @@ const App = () => {
             return;
           }
       
-          const userId = user.id || (await AsyncStorage.getItem('userId'));
+          const userId = user?.id || (await AsyncStorage.getItem('userId'));
           if (!userId) {
             throw new Error('User ID not found');
           }
@@ -114,8 +114,11 @@ const App = () => {
 
             {/* Conditionally render MediaUpload only if no media is selected */}
             <MediaUpload key={resetImageKey} onMediaSelected={handleMediaSelected} />
-
-
+            <View style={styles.containerCap}>
+<Image
+                source={{ uri: user?.profileImageUrl }}
+                style={styles.profileImage}
+              />
             <TextInput
                 style={styles.captionInput}
                 placeholder="Enter a caption..."
@@ -126,6 +129,8 @@ const App = () => {
                 numberOfLines={4} 
                 textAlignVertical="top" 
             />
+</View>
+           
 
 
             {/* Toggle for public/private */}
@@ -159,6 +164,7 @@ const App = () => {
         </View>
     );
 };
+const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
     container: {
@@ -168,19 +174,27 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: '#000', 
     },
-    captionInput: {
-        width: '100%',
-        minHeight: 100, 
-        borderColor: '#333',
-        borderWidth: 1,
-        borderRadius: 25,
-        paddingHorizontal: 15,
-        paddingVertical: 10, 
-        color: '#fff',
-        backgroundColor: '#222',
-        fontSize: 16,
-        textAlignVertical: 'top',
-    },
+    containerCap: {
+      flexDirection: 'row', 
+      alignItems: 'flex-start', 
+      width: width - 40, 
+    
+  },
+
+captionInput: {
+  width: '80%',
+  minHeight: 100, 
+  borderColor: '#333',
+  borderWidth: 1,
+  borderRadius: 25,
+  paddingHorizontal: 15,
+  paddingVertical: 10, 
+  color: '#fff',
+  backgroundColor: '#222',
+  fontSize: 16,
+  textAlignVertical: 'top',
+},
+  
     radioButtonContainer: {
         flexDirection: 'row',
         marginTop: 20,
@@ -211,6 +225,16 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#fff',
     },
+    profileImage: {
+      width: 30,
+      height: 30,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: '#D1D5DB',
+      marginRight: 12,
+    },
 });
 
 export default App;
+
+

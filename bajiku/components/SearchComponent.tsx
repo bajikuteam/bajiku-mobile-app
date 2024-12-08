@@ -1,115 +1,298 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, FlatList, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, TextInput, FlatList, Text, ActivityIndicator, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import { router } from 'expo-router';
+import { useUser } from '@/utils/useContext/UserContext';
+import RandomDataDisplay from '@/components/PeopleYouMayKnow';
 
-// Define the User type
+// Define the type for User data
 interface User {
-  id: number;
-  name: string;
-  email: string;
+  _id: string;
+  username: string;
+  profileImageUrl: string;
+  followerCount?: number 
+  followingCount?: number;
+  firstName: string;
+  lastName: string;
+  
 }
 
-// Sample API URL (replace with your own endpoint)
-const API_URL = 'https://backend-server-quhu.onrender.com/users/all-users';
+const SearchScreen = () => {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]); 
+  const { user } = useUser();
 
-const SearchComponent: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState<string>(''); // Search input
-  const [users, setUsers] = useState<User[]>([]); // List of users
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]); // Filtered users based on search
-  const [loading, setLoading] = useState<boolean>(true); // Loading state
+  // Debounce function to delay API request
+  const debounce = (func: (...args: any[]) => void, delay: number) => {
+    let timer: ReturnType<typeof setTimeout>;
 
-  // Fetch users from the API when the component mounts
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch(API_URL);
-        const data: User[] = await response.json(); // Explicitly define the type here
-        setUsers(data);
-        setFilteredUsers(data); // Initialize filteredUsers with all users
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      } finally {
-        setLoading(false);
-      }
+    return (...args: any[]) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => func(...args), delay);
     };
+  };
 
-    fetchUsers();
-  }, []);
+  // Function to handle search
+  const handleSearch = async (query: string) => {
+    // Only trigger search if query has at least 3 characters
+    if (!query.trim() || query.length < 3) {
+      setResults([]); // Clear results if query is empty or too short
+      return;
+    }
 
-  // Filter users based on the search query
-  const handleSearch = (text: string) => {
-    setSearchQuery(text);
-    if (text === '') {
-      setFilteredUsers(users); // If no search query, show all users
-    } else {
-      const filtered = users.filter((user) =>
-        user.name.toLowerCase().includes(text.toLowerCase()) ||
-        user.email.toLowerCase().includes(text.toLowerCase())
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `https://backend-server-quhu.onrender.com/search/users?query=${query}`
       );
-      setFilteredUsers(filtered);
+      setResults(response.data); 
+
+      // Update recent searches to ensure no duplicates and a max of 5
+      updateRecentSearches(query);
+    } catch (error) {
+      setResults([]);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Display loading spinner until data is fetched
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
+  // Update recent searches ensuring no duplicates and max of 5
+  const updateRecentSearches = async (newSearch: string) => {
+    const updatedSearches = [newSearch, ...recentSearches.filter(search => search !== newSearch)];
+
+    // Ensure there are no more than 5 items
+    const limitedSearches = updatedSearches.slice(0, 5);
+
+    // Save updated list to AsyncStorage
+    await AsyncStorage.setItem('recentSearches', JSON.stringify(limitedSearches));
+    setRecentSearches(limitedSearches); // Update state with the new list
+  };
+
+  // Debounced version of the handleSearch function
+  const debouncedSearch = debounce(handleSearch, 500);
+
+  useEffect(() => {
+    // Only call debouncedSearch if query length is 3 or more and not empty
+    if (query.trim() && query.length >= 4) {
+      debouncedSearch(query); 
+    } else if (query.trim() === '') {
+      setResults([]); // Clear results if query is empty
+    }
+  }, [query]);
+
+  // Load recent searches when the component mounts
+  useEffect(() => {
+    const loadRecentSearches = async () => {
+      const storedSearches = await AsyncStorage.getItem('recentSearches');
+      if (storedSearches) {
+        setRecentSearches(JSON.parse(storedSearches));
+      }
+    };
+    loadRecentSearches();
+  }, []);
+
+  // Function to handle removal of a recent search
+  const removeRecentSearch = async (searchToRemove: string) => {
+    const updatedRecentSearches = recentSearches.filter(search => search !== searchToRemove);
+    await AsyncStorage.setItem('recentSearches', JSON.stringify(updatedRecentSearches));
+    setRecentSearches(updatedRecentSearches); 
+  };
+
+  const clearAllRecentSearches = async () => {
+    await AsyncStorage.removeItem('recentSearches');
+    setRecentSearches([]); 
+  };
+
+  // Clear search input when navigating away from the screen
+  useFocusEffect(
+    React.useCallback(() => {
+      setQuery(''); 
+    }, [])
+  );
+
+  useEffect(() => {
+    // console.log('Results:', results); 
+  }, [results]);
+
+  // Handle press on recent search to autofill and search
+  const handleRecentSearchClick = async (search: string) => {
+    setQuery(search);  
+    await handleSearch(search);
+  };
+
+  const handlePress = (
+    userId: string, 
+    username: string, 
+    firstName: string, 
+    lastName: string, 
+    profileImageUrl: string,
+    followerCount: number,
+    followingCount:number
+  ) => {
+    // Check if the pressed user is the logged-in user
+    if (userId === user?.id) {
+      // Navigate to the logged-in user's profile
+      router.push({
+        pathname: '/Profile',
+        params: {
+          userId: userId,
+          username: username,
+          firstName: firstName,
+          lastName: lastName,
+          profileImageUrl: profileImageUrl,
+          followerCount:followerCount,
+          followingCount:followingCount
+        },
+      });
+    } else {
+      // Navigate to the user details page
+      router.push({
+        pathname: '/userDetails/UserDetails',
+        params: {
+          searchUserId: userId,
+          username: username,
+          firstName: firstName,
+          lastName: lastName,
+          profileImageUrl: profileImageUrl,
+          followerCount:followerCount,
+          followingCount:followingCount
+        },
+      });
+    }
+  };
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, padding: 20, backgroundColor: '#333'}}>
       {/* Search Input */}
       <TextInput
         style={styles.searchInput}
-        placeholder="Search users..."
-        value={searchQuery}
-        onChangeText={handleSearch}
+        placeholder="Search by username"
+        placeholderTextColor="#ccc"
+        value={query}
+        onChangeText={setQuery}
       />
 
-      {/* User List */}
+      {/* Loading Indicator */}
+      {loading && <ActivityIndicator size="large" color="#fff" />}
+
+      {/* Display Recent Searches */}
+      {recentSearches.length > 0 && !query && (
+        <><View>
+          <Text style={{ color: 'white', marginBottom:10 }}>Recent Searches:</Text>
+          <FlatList
+            data={recentSearches}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.recentSearchItem}>
+                <TouchableOpacity onPress={() => handleRecentSearchClick(item)}>
+                  <Text style={styles.recentSearchText}>{item}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => removeRecentSearch(item)}>
+                  <Text style={styles.removeText}>X</Text>
+                </TouchableOpacity>
+
+               
+              </View>
+              
+            )} />
+
+          <TouchableOpacity onPress={clearAllRecentSearches}>
+            <Text style={styles.clearAllText}>Clear All</Text>
+          </TouchableOpacity>
+          {/* <RandomDataDisplay />  */}
+
+        </View>
+    
+        </>
+      )}
+
+      {/* Results Text */}
+      {!query && recentSearches.length === 0 && (
+        <Text style={{ color: 'white', marginBottom: 10 }}>
+          No results
+        </Text>
+      )}
+
+      {/* Display "No Results Found" if query has been made and no results */}
+      {query && results.length === 0 && !loading && (
+        <Text style={{ color: 'white', marginTop: 20 }}>No results found</Text>
+      )}
+
+      {/* Search Results List */}
       <FlatList
-        data={filteredUsers}
-        keyExtractor={(item) => item.id.toString()} // Ensure id is a string
-        renderItem={({ item }) => (
-          <View style={styles.userItem}>
-            <Text style={styles.userName}>{item.name}</Text>
-            <Text style={styles.userEmail}>{item.email}</Text>
-          </View>
-        )}
+        data={results.length > 0 ? results : []} 
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => {
+          return (
+            <TouchableOpacity onPress={() => handlePress(item._id, item.username, item.firstName, item.lastName, item.profileImageUrl,   item.followerCount ?? 0,
+              item.followingCount ?? 0)}>
+              <View style={styles.userItem}>
+                <Image source={{ uri: item.profileImageUrl }} style={styles.profileImage} />
+                <Text style={styles.username}>@{item.username}</Text>
+              </View>
+            </TouchableOpacity>
+          );
+        }}
       />
+          {/* <RandomDataDisplay /> */}
+
     </View>
   );
 };
 
+// Styles for the components
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 50,
-    paddingHorizontal: 20,
-  },
   searchInput: {
     height: 40,
     borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 5,
-    paddingLeft: 10,
-    marginBottom: 20,
+    borderRadius: 40,
+    paddingHorizontal: 10,
+    marginBottom: 40,
+    color: '#000',
+    backgroundColor: '#fff',
+    marginTop: 40,
   },
   userItem: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    marginBottom: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  userName: {
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    marginRight: 10,
+  },
+  username: {
+    color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    textTransform: 'lowercase'
   },
-  userEmail: {
-    fontSize: 14,
-    color: '#666',
+  recentSearchItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  recentSearchText: {
+    color: '#fff',
+    fontSize: 18,
+  },
+  removeText: {
+    color: 'red',
+    fontSize: 16,
+  },
+  clearAllText: {
+    color: '#fff',
+    fontSize: 16,
+    marginTop: 10,
+    textAlign: 'center',
   },
 });
 
-export default SearchComponent;
+export default SearchScreen;

@@ -36,7 +36,7 @@ const CreateGroupComponent: React.FC = () => {
 
   const fetchFollowers = async () => {
     try {
-      const userId = user.id || (await AsyncStorage.getItem('userId'));
+      const userId = user?.id || (await AsyncStorage.getItem('userId'));
       const response = await fetch(`https://backend-server-quhu.onrender.com/users/${userId}/followers`);
       
       if (!response.ok) {
@@ -76,7 +76,7 @@ const CreateGroupComponent: React.FC = () => {
     setLoading(true);
 
     try {
-        const userId = user.id || (await AsyncStorage.getItem('userId'));
+        const userId = user?.id || (await AsyncStorage.getItem('userId'));
         if (!userId) {
             throw new Error('User ID not found');
         }

@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     alignItems: 'center',
+    // marginBottom: 60,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 12,
     borderColor: '#D1D5DB',
-    backgroundColor: '#EAEAEA', // Placeholder color
+    backgroundColor: '#EAEAEA', 
     borderWidth: 2,
   },
   textInput: {

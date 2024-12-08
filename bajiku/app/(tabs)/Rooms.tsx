@@ -66,7 +66,7 @@ const GroupScreen = () => {
     if (loading) {
         return (
             <View style={styles.loader}>
-                <ActivityIndicator size="large" color="#0000ff" />
+                <ActivityIndicator size="large" color="#fff" />
             </View>
         );
     }
@@ -86,13 +86,13 @@ const GroupScreen = () => {
                                 id: item._id,
                                 room: item.room,
                                 groupName: item.groupName,
-                                profileImageUrl: user.profileImage, 
-                                username: user.username, 
+                                profileImageUrl: user?.profileImage, 
+                                username: user?.username, 
                                 groupImgUrl: item.groupImgUrl,
                                 groupDescription: item.groupDescription,
                                 groupCreationTime: item.groupCreationTime,   
-                                senderId: user.id,
-                                senderName: user.username, 
+                                senderId: user?.id,
+                                senderName: user?.username, 
                                 name: item.name,
                                 description: item.description, 
 
@@ -103,17 +103,18 @@ const GroupScreen = () => {
                     >
                         <Card key={item._id}
                            onPress={() => {
-                            router.push({pathname:'/groupChat', params:{
+                            router.push({
+                                pathname:'/groupChat', params:{
                                 id: item._id,
                                 room: item.room,
                                 groupName: item.groupName,
-                                profileImageUrl: user.profileImage, 
-                                username: user.username, 
+                                profileImageUrl: user?.profileImage, 
+                                username: user?.username, 
                                 groupImgUrl: item.groupImgUrl,
                                 groupDescription: item.groupDescription,
                                 groupCreationTime: item.groupCreationTime,   
-                                senderId: user.id,
-                                senderName: user.username, 
+                                senderId: user?.id,
+                                senderName: user?.username, 
                                 name: item.name,
                                 description: item.description, 
 
@@ -122,7 +123,11 @@ const GroupScreen = () => {
                         }}>
                             <UserInfo>
                                 <UserImgWrapper>
-                                    <UserImg source={{ uri: item.groupImgUrl }} />
+                                    <UserImg style={{  width: 40,
+        height: 40,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#D1D5DB',}} source={{ uri: item.groupImgUrl }} />
                                 </UserImgWrapper>
                                 <TextSection>
                                     <UserInfoText>

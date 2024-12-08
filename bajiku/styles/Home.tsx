@@ -84,6 +84,22 @@ export const ContentLeftImg = styled.View`
 `;
 
 
+export const PContentLeftImg = styled.View`
+    position: absolute;
+    padding: 10px;
+    left: 20px;
+    top: 15%;
+    z-index: 99;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+       width: 40px;
+    height: 40px;
+    border-radius: 25px;
+`;
+
+
 export const FullScreen = styled.View`
     position: absolute;
     padding: 10px;
@@ -113,7 +129,7 @@ export const PContentCaption = styled.View`
     position: absolute;
     padding: 10px;
     left: 10px;
-    top: 6%;
+    top: 8%;
     z-index: 1000;
     flex: 1;
     display: flex;
@@ -209,7 +225,7 @@ export const ContentLeftBottomNameUserText = styled.Text`
      position: absolute;
     padding: 10px;
     left: 5px;
-    top: 70%;
+    top: 65%;
     bottom: 20%;
     z-index: 99;
     flex: 1;

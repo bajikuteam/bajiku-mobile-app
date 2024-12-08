@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { DarkTheme, DefaultTheme, NavigationContainer, ThemeProvider as NavigationThemeProvider, useNavigationContainerRef } from '@react-navigation/native';
+import React, { useEffect } from 'react';
+import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { View, Text } from 'react-native';
@@ -8,10 +8,9 @@ import { ThemeProvider, useTheme } from '@/utils/useContext/ThemeContext';
 import { UserProvider } from '@/utils/useContext/UserContext';
 import { ChatProvider } from '@/utils/useContext/ChatContext';
 import { FollowersProvider } from '@/utils/useContext/FollowingContext';
-import Sidebar from '@/components/Sidebar';
+import {usePreventScreenCapture} from 'expo-screen-capture'
 import { VideoProvider } from '@/utils/useContext/VideoContext';
 SplashScreen.preventAutoHideAsync();  
-
 export default function App() {
  
   return (
@@ -31,6 +30,7 @@ export default function App() {
 
 function RootLayout() {
   const { theme } = useTheme();
+  usePreventScreenCapture(); 
   const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
@@ -40,6 +40,7 @@ function RootLayout() {
   useEffect(() => {
     if (fontsLoaded) {
       SplashScreen.hideAsync(); 
+     
     }
   }, [fontsLoaded]);
 
@@ -54,14 +55,16 @@ function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="auth" options={{ headerShown: false }} />
+        <Stack.Screen name="userDetails" options={{ headerShown: false }} />
+
         <Stack.Screen name="NewChat" options={{ headerShown: false }} />
         <Stack.Screen name="PostDetail" options={{ headerShown: false }} />
         <Stack.Screen name="Profile" 
-        options={{ headerShown: true ,    
+        options={{ headerShown: false ,    
      headerTitleAlign: 'center',  
       headerTintColor: '#fff',  
       headerStyle: { backgroundColor: '#000000' },
-       headerLeft: () => <Sidebar />, }} />
+        }} />
         <Stack.Screen name="Followers" options={{ headerShown: false }} />
         <Stack.Screen name="EditProfile" options={{ headerShown: false }} />
         <Stack.Screen name="Following" options={{ headerShown: false }} />
@@ -70,6 +73,7 @@ function RootLayout() {
         <Stack.Screen name="CreateGroup" options={{ headerShown: false }} />
         <Stack.Screen name="PersonGroupChat" options={{ headerShown: false }} />
         <Stack.Screen name="AddPersonGroupChatMember" options={{ headerShown: false }} />
+     
       </Stack>
     </NavigationThemeProvider>
   );

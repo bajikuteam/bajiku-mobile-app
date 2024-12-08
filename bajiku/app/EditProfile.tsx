@@ -42,10 +42,10 @@ const EditProfile = () => {
     useEffect(() => {
         // If the user context changes, update the state variables
         if (user) {
-            setFirstName(user.firstName || '');
-            setLastName(user.lastName || '');
-            setUsername(user.username || '');
-            setImage(user.profileImageUrl || null);
+            setFirstName(user?.firstName || '');
+            setLastName(user?.lastName || '');
+            setUsername(user?.username || '');
+            setImage(user?.profileImageUrl || null);
         }
     }, [user]);
 
@@ -80,7 +80,7 @@ const EditProfile = () => {
 
 
     const editProfile = async (image: string | null, firstName: string, lastName: string, userName: string) => {
-        const userId = user.id
+        const userId = user?.id
         if (!userId) {
             throw new Error('User ID not found');
         }
@@ -233,7 +233,7 @@ const EditProfile = () => {
                                         setFormError(null);  
                                     }}
                                     placeholderTextColor={placeholderColor}
-                                    className='w-[130px]' name={''}
+                                    name={''}
                                 />
                             </View>
                             <Input

@@ -12,8 +12,10 @@ import { router, useNavigation } from 'expo-router';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamListComponent } from '@/services/core/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useIsFocused } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import * as NavigationBar from 'expo-navigation-bar';
+import { formatCount } from '@/services/core/globals';
+import CustomHeader from '@/components/CustomHeader';
 
 type NavigationProp = StackNavigationProp<RootStackParamListComponent>;
 
@@ -156,6 +158,8 @@ interface Post {
   likes?: number | undefined;
   comments: Comment[] | undefined;
   likedBy: string[];
+  price: number
+  createdBy: string
 }
 
 const Profile = () => {
@@ -163,18 +167,91 @@ const Profile = () => {
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'public' | 'private'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'public' | 'private' | 'subscribed' >('all');
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false); 
+  const [subscribedPosts, setSubscribedPosts] = useState<Post[]>([]); 
+  const [personalDetails, setPersonalDetails] = useState<string[]>([]);
+  const [personalDetailsFollowers, setPersonalDetailsFollowers] = useState<string[]>([]);
 
+  // useEffect(() => {
+  //   fetchPosts();
+  //   fetchPostsSubscribe ()
+  // }, []);
+
+
+  const fetchPersonalDetail = async () => {
+    try {
+      const response = await axios.get(
+        `https://backend-server-quhu.onrender.com/users/${user?.id}`
+      );
+      setPersonalDetails(response.data.following || []); 
+      setPersonalDetailsFollowers(response.data.followers || []); 
+    } catch (error) {
+      // console.error('Error fetching personal details:', error);
+    }
+  };
+
+  // useEffect(() => {
+  //   if (user?.id) {
+  //     fetchPersonalDetail();
+  //   }
+  // }, [user?.id]);
+
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Fetch posts
+      fetchPosts();
+      fetchPostsSubscribe();
+  
+      // Fetch personal details if user exists
+      if (user?.id) {
+        fetchPersonalDetail();
+      }
+  
+      // Refresh action
+      onRefresh();
+  
+      return () => {
+      };
+    }, [user?.id]) 
+  );
+  
+
+  const fetchPostsSubscribe = async () => {
+    setLoading(true);
+    const userId = user?.id || await AsyncStorage.getItem('userId');
+    try {
+      const response = await axios.get(`https://backend-server-quhu.onrender.com/content/subscribed-by/${userId}`);
+      const data = response.data;
+  
+      if (data && Array.isArray(data)) {
+        setSubscribedPosts(data); 
+  
+        // Automatically set the filtered posts if the current category is 'subscribed'
+        if (selectedCategory === 'subscribed') {
+          setFilteredPosts(data); 
+        }
+      }
+    } catch (error) {
+      // console.error('Error fetching subscribed posts:', error);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+  
   useEffect(() => {
-    fetchPosts();
-  }, []);
-
+    if (selectedCategory === 'subscribed' && subscribedPosts.length > 0) {
+      setFilteredPosts(subscribedPosts); 
+    }
+  }, [subscribedPosts, selectedCategory]);
+  
 
   const fetchPosts = async () => {
     setLoading(true);
-    const userId = user.id || await AsyncStorage.getItem('userId');;
+    const userId = user?.id || await AsyncStorage.getItem('userId');;
     try {
       const response = await axios.get(`https://backend-server-quhu.onrender.com/content/user/${userId}`);
       const data = response.data;
@@ -197,18 +274,27 @@ const Profile = () => {
   const onRefresh = () => {
     setIsRefreshing(true);
     fetchPosts();
+    fetchPostsSubscribe ()
+    fetchPersonalDetail();
   };
 
-  const handleCategoryChange = (category: 'all' | 'public' | 'private') => {
+  const handleCategoryChange = (category: 'all' | 'public' | 'private' | 'subscribed') => {
     setSelectedCategory(category);
-
+    
     if (category === 'all') {
-      setFilteredPosts(posts);
+      setFilteredPosts(posts); 
+    } else if (category === 'subscribed') {
+      setFilteredPosts(subscribedPosts); 
     } else {
-      const filtered = posts.filter((post: Post) => post.privacy === category);
+      const filtered = posts.filter((post: Post) => post.privacy === category); 
       setFilteredPosts(filtered);
     }
   };
+  
+  
+  
+  
+  
 
   const isFocused = useIsFocused();
   useEffect(() => {
@@ -233,7 +319,9 @@ const Profile = () => {
             caption: item.caption,
             authorProfilePicSrc: item.authorProfilePicSrc,
             comments: item.comments as any,
-            likes: item.likes
+            likes: item.likes,
+            price: item.price,
+            createdBy: item.createdBy
           }
          
           });
@@ -260,53 +348,76 @@ const Profile = () => {
       </TouchableOpacity>
     );
   };
+  const goBack = () => {
+    router.back();
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <><CustomHeader title={'Profile'}   onBackPress={goBack} /><SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#000000" />
-  
-      <View style={styles.profileContainer}>
-        <Image source={{ uri: user.profileImageUrl }} style={styles.profileImage} />
-        <Text style={styles.text}>{user.firstName} {user.lastName}</Text>
-        <Text style={[styles.text, { textTransform: 'lowercase' }]}>@{user.username}</Text>
 
-        <Button text="Edit Profile" variant="secondary" style={styles.button} icon={Icon} iconProps={{ name: 'pencil', size: 14, color: '#ffffff' }} onClick={() => navigation.navigate('EditProfile')}/>
-        
+      <View style={styles.profileContainer}>
+        <Image source={{ uri: user?.profileImageUrl }} style={styles.profileImage} />
+        <Text style={[styles.text, { textTransform: 'capitalize' }]}>{user?.firstName} {user?.lastName}</Text>
+        <Text style={[styles.text, { textTransform: 'lowercase' }]}>@{user?.username}</Text>
+
+        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 8, marginTop: 8 }}>
+
+          <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => navigation.navigate('Following')}>
+            <Icon name="user" size={20} color="#ffffff" />
+            <Text style={styles.allBtn}>
+              {personalDetails?.length === 1 ? '1 Following' : `${formatCount(personalDetails?.length)} Following`}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => navigation.navigate('Followers')}>
+            <MaterialCommunityIcons name="account-group" size={20} color="#ffffff" />
+            <Text style={styles.allBtn}>
+
+              {personalDetailsFollowers?.length === 1 ? '1 Follower' : `${formatCount(personalDetailsFollowers?.length)} Followers`}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <Button text="Edit Profile" variant="secondary" style={styles.button} icon={Icon} iconProps={{ name: 'pencil', size: 14, color: '#ffffff' }} onClick={() => navigation.navigate('EditProfile')} />
+
         <View style={{ flexDirection: 'row', gap: 12, }}>
-          <Button text="Subscribers" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'bell', size: 14, color: '#ffffff' }} />
+          <Button text="Subscribed To" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'bell', size: 14, color: '#ffffff' }} />
           <Button text="Total Earnings" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'credit-card', size: 14, color: '#ffffff' }} />
         </View>
 
-        <View style={{ flexDirection: 'row', gap: 10, marginTop: 15, marginBottom:15,  }}>
+        <View style={{ flexDirection: 'row', gap: 10, marginTop: 15, marginBottom: 15, }}>
           <TouchableOpacity onPress={() => handleCategoryChange('all')} style={{ alignItems: 'center' }}>
             <Feather name="menu" size={20} color="#ffffff" />
-            <Text  style={styles.allBtn}>All Content</Text>
+            <Text style={styles.allBtn}>All Content</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => handleCategoryChange('public')} style={{ alignItems: 'center' }}>
             <Ionicons name="eye" size={20} color="#ffffff" />
-            <Text  style={styles.allBtn} >Public Content</Text>
+            <Text style={styles.allBtn}>Public Content</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => handleCategoryChange('private')} style={{ alignItems: 'center' }}>
             <Ionicons name="eye-off" size={20} color="#ffffff" />
-            <Text  style={styles.allBtn} >Private Content</Text>
+            <Text style={styles.allBtn}>Private Content</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => navigation.navigate('Following')}> 
-            <Icon name="user" size={20} color="#ffffff" />
-            <Text style={styles.allBtn} >Following</Text>
+          <TouchableOpacity
+            style={{ alignItems: 'center' }}
+            onPress={() => {
+              fetchPostsSubscribe();
+              setSelectedCategory('subscribed');
+            } }
+          >
+            <MaterialCommunityIcons name="image-album" size={20} color="#ffffff" />
+            <Text style={styles.allBtn}>Subscribed Content</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={{ alignItems: 'center' }}  onPress={() => navigation.navigate('Followers')}>
-            <MaterialCommunityIcons name="account-group" size={20} color="#ffffff" />
-            <Text style={styles.allBtn} >Followers</Text>
-          </TouchableOpacity>
         </View>
-      {loading ? (
+        {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#075E54" />
-            <Text>Loading posts...</Text>
+            <Text>Loading Contents...</Text>
           </View>
         ) : filteredPosts.length > 0 ? (
           <FlatList
@@ -314,15 +425,14 @@ const Profile = () => {
             renderItem={renderItem}
             keyExtractor={(item) => item._id}
             numColumns={3}
-            columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 10, gap:5}}
+            columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 10, gap: 5 }}
             contentContainerStyle={{ marginTop: 20, paddingHorizontal: 10 }}
-            refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor="#075E54" />}
-          />
+            refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor="#075E54" />} />
         ) : (
           <Text style={styles.noContentText}>No content yet</Text>
         )}
       </View>
-    </SafeAreaView>
+    </SafeAreaView></>
   );
 };
 

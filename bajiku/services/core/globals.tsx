@@ -1,11 +1,32 @@
-export const formatCount = (count: number): string => {
-  if (count >= 1000000) {
-    return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-  } else if (count >= 1000) {
-    return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+// export const formatCount = (count: number): string => {
+//   if (count >= 1000000) {
+//     return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+//   } else if (count >= 1000) {
+//     return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+//   }
+//   return count.toString();
+// };
+
+export const formatCount = (count: string | number | string[]): string => {
+  let numericCount: number;
+
+  if (Array.isArray(count)) {
+    numericCount = parseFloat(count[0]) || 0; 
+  } else if (typeof count === 'string') {
+    numericCount = parseFloat(count) || 0;
+  } else {
+    numericCount = count;
   }
-  return count.toString();
+
+  if (numericCount >= 1000000) {
+    return (numericCount / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  } else if (numericCount >= 1000) {
+    return (numericCount / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+  }
+
+  return numericCount.toString();
 };
+
 
 
 export const formatTime = (lastMessageTime: string) => {
@@ -22,4 +43,8 @@ export const formatTime = (lastMessageTime: string) => {
   } else {
     return messageDate.toLocaleString(); 
   }
+};
+
+export const formatCurrency = (num:any) => {
+  return `₦${new Intl.NumberFormat('en-US').format(num)}`;
 };

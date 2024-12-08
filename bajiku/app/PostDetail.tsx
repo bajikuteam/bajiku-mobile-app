@@ -21,11 +21,11 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import AddComment from "@/components/AddComment";
 import {
   ContentLeft,
-  ContentLeftImg,
   ContentRight,
   PContentCaption,
+  PContentLeftImg,
 } from "@/styles/Home";
-import { formatTime } from "@/services/core/globals";
+import { formatCount, formatCurrency, formatTime } from "@/services/core/globals";
 import { useUser } from "@/utils/useContext/UserContext";
 import { io } from "socket.io-client";
 import { router, useLocalSearchParams } from "expo-router";
@@ -72,9 +72,8 @@ type VideoItem = {
 
 const PostDetail = () => {
   const params = useLocalSearchParams();
-  const { privacy, mediaSrc, caption, id, authorProfilePicSrc, likes , price} = params;
+  const {createdBy, privacy, mediaSrc, caption, id, authorProfilePicSrc, likes , price} = params;
   const postPrice = Array.isArray(price) ? parseFloat(price[0]) : parseFloat(price);
-
   const isVideo = Array.isArray(mediaSrc)
     ? mediaSrc.some(
         (src) =>
@@ -95,31 +94,27 @@ const PostDetail = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const paystackWebViewRef = useRef(paystackProps.PayStackRef);
+  const [loading, setLoading] = useState(false);
 
-
-  const handlePaymentSuccess = (res: any) => {
-  
+  const handlePaymentSuccess = async (res: any) => {
+    setLoading(true);
     const paymentData = {
-      transactionRef: res.data.transactionRef.reference, 
-      userId: user.id, 
-      postId: id, 
-      status: res.data.event, 
+      transactionRef: res.data.transactionRef.reference,
+      userId: user?.id,
+      postId: id,
+      status: res.data.event,
+      amount:postPrice
     };
-    // Send payment data to the backend (NestJS) using axios
-    axios.post('https://backend-server-quhu.onrender.com/payment/track', paymentData)
-      .then((response) => {
-        // console.log('Payment tracking data saved:', response.data);
-      })
-      .catch((error) => {
-        // console.error('Error tracking payment:', error);
-        // Log the error response details
-        if (error.response) {
-          // console.error('Server responded with status:', error.response.status);
-          // console.error('Response body:', error.response.data);
-        } else {
-          // console.error('Network error:', error.message);
-        }
-      });
+  
+    try {
+      await axios.post('https://backend-server-quhu.onrender.com/payment/track', paymentData);
+      // Refresh content
+      await getContent();
+    } catch (error) {
+      console.error('Error tracking payment:', error);
+    } finally {
+      setLoading(false); 
+    }
   };
 
   
@@ -178,9 +173,9 @@ const PostDetail = () => {
 
         // Check if the current user is in the 'likedBy' array
         const likedByUser = data.likedBy || [];
-        const isLikedByUser = likedByUser.includes(user.id);
+        const isLikedByUser = likedByUser.includes(user?.id);
         setIsLiked(isLikedByUser);
-        const isSubscriber = data.subscribers && data.subscribers.includes(user.id);
+        const isSubscriber = data.subscribers && data.subscribers.includes(user?.id);
         setIsSubscriber(isSubscriber); 
   
       } catch (error) {
@@ -217,9 +212,9 @@ const PostDetail = () => {
     try {
       const payload = {
         comment,
-        username: user.username,
-        authorId: user.id,
-        authorProfilePicSrc: user.profileImageUrl,
+        username: user?.username,
+        authorId: user?.id,
+        authorProfilePicSrc: user?.profileImageUrl,
       };
       const response = await fetch(
         `https://backend-server-quhu.onrender.com/content/${mediaId}/comments`,
@@ -282,8 +277,8 @@ const PostDetail = () => {
       const payload = {
         comment,
         username,
-        authorId: user.id,
-        authorProfilePicSrc: user.profileImageUrl,
+        authorId: user?.id,
+        authorProfilePicSrc: user?.profileImageUrl,
         commentId,
         mediaId,
       };
@@ -352,7 +347,7 @@ const PostDetail = () => {
   }, []);
 
   const likeContent = async (mediaId: string) => {
-    const userId = user.id;
+    const userId = user?.id;
 
     try {
       const response = await fetch(
@@ -411,7 +406,7 @@ const PostDetail = () => {
   }, []);
 
   const likeComment = async (commentId: string, mediaId: string) => {
-    const userId = user.id;
+    const userId = user?.id;
 
     try {
       const response = await fetch(
@@ -476,6 +471,7 @@ const PostDetail = () => {
     return caption;
   };
   const isPrivate = privacy === "private";
+const creator = createdBy === user?.id
 
   return (
 
@@ -485,9 +481,13 @@ const PostDetail = () => {
     >
       <View style={styles.mediaContainer}>
         <StatusBar barStyle="light-content" backgroundColor="#000000" />
-        <CustomHeader title={"Content"} onBackPress={goBack} />
-
-        {isPrivate && !isSubscriber ? (
+        <CustomHeader 
+  title={"Content"} 
+  subtitle={user?.id === createdBy ? "This content belongs to you" : "Shared content"} 
+  onBackPress={goBack} 
+/>
+     
+        {isPrivate && !isSubscriber && !creator ? (
           <TouchableWithoutFeedback
             onPress={() => paystackWebViewRef.current.startTransaction()}
             style={{ alignItems: "center" }}
@@ -500,8 +500,7 @@ const PostDetail = () => {
                   textAlign: "center",
                   paddingVertical: 5,
                 }}
-              >
-                Pay {postPrice} to view content!
+              >Click to Pay {formatCurrency(postPrice)} to view this content!
               </Text>
             </BlurView>
           </TouchableWithoutFeedback>
@@ -529,10 +528,10 @@ const PostDetail = () => {
                     />
                   )}
 
-                  {/* Pulse animation */}
+                
                   <Animated.View
                 style={[
-                  // styles.pulseCircle,
+                
                   {
                     transform: [{ scale: pulseAnim }],
                     opacity: pulseAnim.interpolate({
@@ -553,9 +552,8 @@ const PostDetail = () => {
           </>
         )}
         <Paystack
-          // paystackKey="pk_live_922e8a136a4ed0649e4d9741dd6d86a23fbdf567"
           paystackKey="pk_test_6738fce2cbc3ee832e7f7e86ee0e850969e48683"
-          billingEmail={user.email} 
+          billingEmail={user?.email} 
           // billingMobile={user.id}
           billingName="Bajiku"
           activityIndicatorColor="#000"
@@ -567,9 +565,9 @@ const PostDetail = () => {
           ref={paystackWebViewRef}
         />
 
-        <PContentCaption>
+        <PContentCaption >
           <TouchableOpacity onPress={toggleCaption}>
-            <Text className="text-gray-200 text-[12px]">
+            <Text style={{fontWeight:"900"}} className="text-gray-200 text-[12px]">
               {isExpanded ? caption : getTruncatedCaption(caption as string)}
             </Text>
           </TouchableOpacity>
@@ -582,31 +580,51 @@ const PostDetail = () => {
           )}
         </PContentCaption>
 
-        <ContentLeftImg>
+        <PContentLeftImg>
           <Image
             source={{ uri: authorProfilePicSrc as string }}
-            style={{ height: 50, width: 44, borderRadius: 12 }}
+            style={{ height: 50, width: 44, borderRadius: 12,  borderWidth: 2,
+              borderColor: '#D1D5DB',  }}
           />
-        </ContentLeftImg>
+        </PContentLeftImg>
 
         <ContentLeft>
           <TouchableOpacity onPress={openCommentsModal}>
-            <View style={styles.iconContainer}>
-              <Ionicons name="chatbubble-outline" size={30} color="#fff" />
-              <Text style={styles.iconText}>{comments?.length}</Text>
+            <View style={{   flexDirection: 'column',
+    alignItems: 'center',
+    backgroundColor: '#2d2d2d',  
+    borderRadius: 50,             
+    padding: 10,                
+    borderWidth: 1,              
+    borderColor: '#888',                      
+    justifyContent: 'center',    
+    height: 45,                  
+    width: 45,  }}>
+              <Ionicons name="chatbubble-outline" size={25} color="#fff" />
+              {/* <Text style={styles.iconText}>{formatCount(comments?.length)}</Text> */}
             </View>
           </TouchableOpacity>
         </ContentLeft>
 
         <ContentRight>
           <TouchableOpacity onPress={() => likeContent((id as string) || "")}>
-            <View style={styles.iconContainer}>
+            <View style={{   flexDirection: 'column',
+    alignItems: 'center',
+    backgroundColor: '#2d2d2d',  
+    borderRadius: 50,             
+    padding: 10,                
+    borderWidth: 1,              
+    borderColor: '#888',         
+    marginLeft: 10,              
+    justifyContent: 'center',    
+    height: 45,                  
+    width: 45,  }}>
               <Ionicons
                 name="heart"
-                size={40}
+                size={25}
                 color={isLiked ? "red" : "#fff"}
               />
-              <Text style={styles.iconText}>{likes}</Text>
+              {/* <Text style={styles.iconText}>{formatCount(likes)}</Text> */}
             </View>
           </TouchableOpacity>
         </ContentRight>
@@ -623,7 +641,7 @@ const PostDetail = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text className="text-center text-[14px]">
-              {comments.length} Comments
+              {formatCount(comments.length)} Comments
             </Text>
             <TouchableOpacity
               style={styles.closeButton}
@@ -675,10 +693,10 @@ const PostDetail = () => {
                               name="heart"
                               size={30}
                               color={
-                                item.likedBy?.includes(user.id) ? "red" : "gray"
+                                item.likedBy?.includes(user?.id) ? "red" : "gray"
                               }
                             />
-                            <Text style={styles.likeCount}>{item.likes}</Text>
+                            <Text style={styles.likeCount}>{formatCount(item.likes??0)}</Text>
                           </View>
                         </TouchableOpacity>
 
@@ -691,7 +709,7 @@ const PostDetail = () => {
                               ? "Reply"
                               : item.replies?.length === 1
                               ? "1 Reply"
-                              : `${item.replies?.length} Replies`}
+                              : `${formatCount(item.replies?.length ?? 0)} Replies`}
                           </Text>
                         </TouchableOpacity>
                       </View>
@@ -727,7 +745,7 @@ const PostDetail = () => {
             </Text>
             <Text style={styles.commentText}>"{selectedComment?.comment}"</Text>
             <Text className="text-center text-[14px]">
-              {selectedComment?.replies?.length || 0} Replies
+              {formatCount(selectedComment?.replies?.length??0) || 0} Replies
             </Text>
 
             <TouchableOpacity
@@ -978,13 +996,25 @@ const styles = StyleSheet.create({
   },
   blurView: {
     position: "absolute",
-    top: "5%",
+    top: "7%",
     left: 0,
     right: 0,
     bottom: 0,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "black",
+  },
+  ownershipMessageContainer: {
+    padding: 10,
+    backgroundColor: '#000',
+    borderRadius: 5,
+    marginBottom: 15,
+  },
+  ownershipMessage: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
   },
 });
 export default PostDetail;

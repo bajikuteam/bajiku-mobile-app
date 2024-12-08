@@ -18,6 +18,7 @@ export interface ButtonProps {
   style?: React.CSSProperties;
   icon?: React.ElementType;
   iconProps?: object;
+  preventCondition?: boolean;
 }
 
 export interface SocialButtonProps {
@@ -111,6 +112,8 @@ export type RootStackParamList = {
       lastMessage: string;
       lastMessageTime: string;
     };
+    Search: undefined;  
+    UserDetails: { user: User };
 
 };
 
