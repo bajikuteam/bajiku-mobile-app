@@ -39,7 +39,7 @@ const SearchScreen = () => {
   const handleSearch = async (query: string) => {
     // Only trigger search if query has at least 3 characters
     if (!query.trim() || query.length < 3) {
-      setResults([]); // Clear results if query is empty or too short
+      setResults([]); 
       return;
     }
 
@@ -79,7 +79,7 @@ const SearchScreen = () => {
     if (query.trim() && query.length >= 4) {
       debouncedSearch(query); 
     } else if (query.trim() === '') {
-      setResults([]); // Clear results if query is empty
+      setResults([]);
     }
   }, [query]);
 

@@ -334,7 +334,7 @@
 
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, StatusBar, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, StatusBar, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, Keyboard, Modal } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import io from 'socket.io-client';
@@ -619,15 +619,37 @@ const GroupChat: React.FC = () => {
       </View>
     );
   };
-  
 
+
+
+  const [isModalVisible, setModalVisible] = useState(false);
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+
+  const renderModal = () => (
+    <Modal visible={isModalVisible} transparent={true} animationType="fade" onRequestClose={toggleModal}>
+        <View style={styles.modalContent}>
+    
+        <TouchableOpacity onPress={goBack}>
+          <Text style={styles.modalButton}>Leave Group</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={toggleModal}>
+          <Text style={styles.modalCloseButton}>Close</Text>
+        </TouchableOpacity>
+      </View>
+    </Modal>
+  );
 
   return (
-    <><CustomHeader title={name as string} onBackPress={goBack} image={groupImgUrl as string} subtitle={ description as string} /><KeyboardAvoidingView
+    <><CustomHeader title={name as string} onBackPress={goBack} image={groupImgUrl as string} subtitle={ description as string}    onMorePress={toggleModal}  />
+         {renderModal()}
+    <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
         <View style={{ flex: 1, backgroundColor: '#1c1c1e' }}>
           <StatusBar barStyle="light-content" backgroundColor="#000000" />
           <FlatList
@@ -655,7 +677,6 @@ const GroupChat: React.FC = () => {
             </TouchableOpacity>
           </View>
         </View>
-      {/* </TouchableWithoutFeedback> */}
     </KeyboardAvoidingView></>
   );
 };
@@ -731,5 +752,35 @@ const styles = StyleSheet.create({
     color: '#888',  
     marginTop: 10,
     textTransform: 'lowercase',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: 200,              
+    position: 'absolute',    
+    top: "8%",                
+    right: 6,               
+    shadowColor: '#000',    
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.25,     
+    shadowRadius: 4,         
+    zIndex: 1000,      
+  },
+  
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  modalButton: {
+    fontSize: 16,
+    marginVertical: 10,
+    color: '#007BFF',
+  },
+  modalCloseButton: {
+    fontSize: 16,
+    marginTop: 20,
+    color: 'red',
   },
 });

@@ -51,6 +51,19 @@ export const setPassword = async (
   return response.data;
 };
 
+
+export const resetPassword = async (
+  userId: string,
+  password: string,
+  confirmPassword: string,
+) => {
+  const response = await apiPost<{ password: string, confirmPassword:string, userId:string }>(
+    `/api/auth/reset-password/`,
+    { password, confirmPassword, userId },
+  );
+  return response.data;
+};
+
 export const sendRecoveryEmail = async (email: string) => {
   const response = await apiPost<{ message: string }>(
     `/api/auth/recovery/forgot-password`,
@@ -226,8 +239,6 @@ export const uploadContent = async (
     },
   });
 
-
-console.log('Upload response:', response.data);
 
 return response.data;
 

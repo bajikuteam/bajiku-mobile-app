@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, StatusBar, Alert, Image, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import MediaUpload from '@/components/MediaUpload';
 import Button from '@/components/Button';
 import axios from 'axios';
@@ -15,7 +15,6 @@ const App = () => {
     const [mediaType, setMediaType] = useState<string | null>(null);
     const [caption, setCaption] = useState('');
     const [isPublic, setIsPublic] = useState(true);
-    const navigation = useNavigation();
     const [resetImageKey, setResetImageKey] = useState<number>(0);
     const [loading, setLoading] = useState(false);
     const [uploadPercent, setUploadPercent] = useState(0); 
@@ -184,11 +183,12 @@ const styles = StyleSheet.create({
       flexDirection: 'row', 
       alignItems: 'flex-start', 
       width: width - 40, 
+      
     
   },
 
 captionInput: {
-  width: '80%',
+  width: '85%',
   minHeight: 100, 
   borderColor: '#333',
   borderWidth: 1,
@@ -199,6 +199,7 @@ captionInput: {
   backgroundColor: '#222',
   fontSize: 16,
   textAlignVertical: 'top',
+  marginTop: 15,
 },
   
     radioButtonContainer: {
@@ -232,12 +233,13 @@ captionInput: {
         color: '#fff',
     },
     profileImage: {
-      width: 30,
-      height: 30,
+      width: 40,
+      height: 40,
       borderRadius: 12,
       borderWidth: 2,
       borderColor: '#D1D5DB',
       marginRight: 12,
+      marginTop: 15,
     },
 });
 

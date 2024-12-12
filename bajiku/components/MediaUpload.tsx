@@ -79,92 +79,99 @@ const MediaUpload = ({ onMediaSelected }: { onMediaSelected: (uri: string, type:
         onMediaSelected('', ''); 
     };
 
-    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
-    useEffect(() => {
-        // Listen for keyboard events
-        const keyboardDidShowListener = Keyboard.addListener(
-            'keyboardDidShow',
-            () => {
-                setIsKeyboardVisible(true);
-            }
-        );
-        const keyboardDidHideListener = Keyboard.addListener(
-            'keyboardDidHide',
-            () => {
-                setIsKeyboardVisible(false);
-            }
-        );
+    const [buttonWidth, setButtonWidth] = useState(200);
+const [buttonHeight, setButtonHeight] = useState(200); 
+const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
-        // Cleanup the listeners on unmount
-        return () => {
-            keyboardDidHideListener.remove();
-            keyboardDidShowListener.remove();
-        };
-    }, []);
+useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+        // Reduce size when keyboard appears
+        setButtonWidth(70);  
+        setButtonHeight(70);
+        setIsKeyboardVisible(true);
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+        // Reset size when keyboard disappears
+        setButtonWidth(350); 
+        setButtonHeight(300);
+        setIsKeyboardVisible(false);
+    });
+
+    // Clean up listeners when the component is unmounted
+    return () => {
+        keyboardDidHideListener.remove();
+        keyboardDidShowListener.remove();
+    };
+}, []);
     return (
         
         <View style={styles.container}>
-        {/* Conditionally render the uploadButton based on keyboard visibility */}
-        {!isKeyboardVisible && (
-            <TouchableOpacity style={styles.uploadButton} onPress={pickFromGallery}>
-                {mediaUri ? (
-                    mediaType === 'image' ? (
-                        <Image source={{ uri: mediaUri }} style={styles.fullMedia} />
-                    ) : (
-                        <View style={styles.videoContainer}>
-                            <Video
-                                source={{ uri: mediaUri }}
-                                style={styles.fullMedia}
-                                useNativeControls
-                                resizeMode={ResizeMode.COVER}
-                                isLooping
-                                shouldPlay={false}
-                            />
-                                 <TouchableOpacity style={styles.fullScreenButton} onPress={handleFullScreen}>
-                        <MaterialCommunityIcons name="fullscreen" size={30} color="#fff" />
-                    </TouchableOpacity>
-                        </View>
-                    )
-                ) : (
-                    <View style={styles.cameraIconContainer}>
-                        <MaterialCommunityIcons name="image" size={30} color="#000000" />
-                        <Text style={styles.placeholderText}>Select Media</Text>
-                    </View>
-                )}
+    <TouchableOpacity
+        style={[styles.uploadButton, { width: buttonWidth, height: buttonHeight }]}
+        onPress={pickFromGallery}>
+        {mediaUri ? (
+            mediaType === 'image' ? (
+                <Image source={{ uri: mediaUri }} style={styles.fullMedia} />
+            ) : (
+                <View style={styles.videoContainer}>
+                    <Video
+                     ref={videoRef}
 
-                {/* Delete Button positioned at the top of uploadButton */}
-                {mediaUri && (
-                    <TouchableOpacity
-                        style={styles.deleteButton}
-                        onPress={deleteMedia}>
-                        <MaterialCommunityIcons name="delete" size={20} color="#ff0000" />
-                    </TouchableOpacity>
-                )}
+                        source={{ uri: mediaUri }}
+                        style={styles.fullMedia}
+                        useNativeControls
+                        resizeMode={ResizeMode.COVER}
+                        isLooping
+                        shouldPlay={false}
 
-<TouchableOpacity style={styles.galleryButton} onPress={pickFromCamera}>
-            <MaterialCommunityIcons name="camera" size={30} color="#fff" />
-        </TouchableOpacity>
-            </TouchableOpacity>
+                    />
+                        {!isKeyboardVisible && (
+                                                <TouchableOpacity style={styles.fullScreenButton} onPress={handleFullScreen}>
+                                <MaterialCommunityIcons name="fullscreen" size={30} color="#fff" />
+                            </TouchableOpacity>
+                                )}
+                </View>
+            )
+        ) : (
+            <View style={styles.cameraIconContainer}>
+                <MaterialCommunityIcons name="image" size={30} color="#000000" />
+                <Text style={styles.placeholderText}>Select Media</Text>
+            </View>
         )}
 
-        {/* Camera Button */}
-     
-    </View>
+        {/* Delete Button positioned at the top of uploadButton */}
+        {mediaUri && !isKeyboardVisible && (
+            <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={deleteMedia}>
+                <MaterialCommunityIcons name="delete" size={20} color="#ff0000" />
+            </TouchableOpacity>
+        )}
+    </TouchableOpacity>
+
+    {/* Camera Button */}
+    {!isKeyboardVisible && (
+        <TouchableOpacity style={styles.galleryButton} onPress={pickFromCamera}>
+          <MaterialCommunityIcons name="camera" size={30} color="#fff" />
+        </TouchableOpacity>
+      )}
+</View>
+
     
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        // flex: 1,
+        // justifyContent: 'center',
+        // alignItems: 'center',
         backgroundColor: '#000',
     },
     uploadButton: {
-        width: width - 40,
-        height: "80%",
+     
         backgroundColor: '#222',
         borderRadius: 12,
         overflow: 'hidden', 

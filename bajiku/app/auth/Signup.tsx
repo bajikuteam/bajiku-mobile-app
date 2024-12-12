@@ -92,6 +92,7 @@ const SignUpScreen = () => {
         // Store both the token and userId in AsyncStorage
         await AsyncStorage.setItem('token', response.token);
         await AsyncStorage.setItem('userId', response.user?._id); 
+        await AsyncStorage.setItem('email', email); 
   
         // Clear the form fields after successful registration
         setEmail('');

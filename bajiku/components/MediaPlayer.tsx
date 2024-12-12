@@ -116,21 +116,6 @@ export default function PostWithCaption() {
     return caption;
   };
 
-  // const fetchData = async () => {
-  //   setLoading(true); 
-  //   try {
-  //     const response = await fetch('https://backend-server-quhu.onrender.com/content');
-  //     const data = await response.json();
-  //     setVideos(data);
-  //     setIsPlaying(new Array(data.length).fill(false));
-  //     const allComments = data.flatMap((video: VideoItem) => video.comments || []);
-  //     setComments(allComments);
-  //   } catch (error) {
-  //     // console.error("Error fetching video data:", error);
-  //   } finally {
-  //     setLoading(false); 
-  //   }
-  // };
 
   const togglePrivacy = () => {
     setShowPrivateContent(prev => !prev);
@@ -140,9 +125,9 @@ export default function PostWithCaption() {
   const fetchData = async () => {
     setLoading(true); 
     try {
-      const response = await fetch('https://backend-server-quhu.onrender.com/content');
+      const response = await fetch(`https://backend-server-quhu.onrender.com/content/${user?.id}`);
       const data = await response.json();
-      
+    
       // Filter the videos based on the privacy setting
       const filteredVideos = data.filter((video: VideoItem) => 
         showPrivateContent ? video.privacy === 'private' : video.privacy === 'public'
@@ -169,7 +154,7 @@ export default function PostWithCaption() {
         setLoading(false); 
       }, 2000);
       return () => clearTimeout(timeout);
-    }, [showPrivateContent])
+    }, [showPrivateContent, user?.id])
   );
 
   const [refreshing, setRefreshing] = useState(false);
@@ -281,7 +266,8 @@ const openCommentsModal = async (videoItem: VideoItem) => {
   setLoadingComments(true);  
 
   try {
-    const response = await fetch(`https://backend-server-quhu.onrender.com/content/${videoItem._id}`)
+    const response = await fetch(`https://backend-server-quhu.onrender.com/content/single/${videoItem._id}`)
+ 
     if (!response.ok) {
       throw new Error('Failed to fetch content');
     }

@@ -283,10 +283,14 @@ const styles = StyleSheet.create({
     },
     followerName: {
         fontSize: 12,
+        color: '#666',
+           textTransform:'lowercase'
+
     },
     followerUsername: {
         fontSize: 12,
         color: '#666',
+        textTransform:'lowercase'
      
     },
     buttonContainer: {

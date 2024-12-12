@@ -23,11 +23,9 @@ interface ChatContextProps {
 // Create the context
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 
-// Define the ChatProvider component
+
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
-  // const { expoPushToken } = useNotification();
-  // const socket = useRef(io('http://192.168.1.107:5000')); 
   const socket = useRef(io('https://backend-server-quhu.onrender.com')); 
 
 

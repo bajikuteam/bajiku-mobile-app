@@ -3,8 +3,6 @@ import { StyleSheet, View, StatusBar, SafeAreaView } from "react-native";
 import PostWithCaption from "@/components/MediaPlayer";
 import * as NavigationBar from 'expo-navigation-bar';
 import { useIsFocused } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import ChatScreen from "@/components/chat";
 
 export default function HomeScreen() {
  
@@ -24,9 +22,8 @@ export default function HomeScreen() {
     <>
       <StatusBar barStyle="light-content" backgroundColor="#000000" />
       <SafeAreaView style={{ flex: 1, backgroundColor:"#000000" }}>
-        <View style={{marginBottom:100}}>
+        <View style={{marginBottom:50}}>
         <PostWithCaption />
-          {/* <ChatScreen /> */}
         </View>
       </SafeAreaView>
 

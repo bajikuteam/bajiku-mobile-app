@@ -70,18 +70,16 @@ const FollowingScreen = () => {
             });
     
             const data = await response.json();
-            console.log('Unfollow response:', data); 
-    
             if (response.ok && data.message === 'You have unfollowed the user') {
-                console.log('Unfollowed successfully');
+            
                 setFollowers(prevFollowers => prevFollowers.filter(follower => follower._id !== followerId));
                 setFilteredFollowers(prevFilteredFollowers => prevFilteredFollowers.filter(follower => follower._id !== followerId));
     
             } else {
-                console.error('Failed to unfollow:', data);
+                // console.error('Failed to unfollow:', data);
             }
         } catch (error) {
-            console.error('Error unfollowing user:', error);
+            // console.error('Error unfollowing user:', error);
         }
     };
     
@@ -322,6 +320,7 @@ const styles = StyleSheet.create({
     followerUsername: {
         fontSize: 12,
         color: '#666',
+          textTransform:'lowercase'
      
     },
     buttonContainer: {
@@ -344,6 +343,9 @@ const styles = StyleSheet.create({
     },
     followerName: {
         fontSize: 12,
+        color: '#666',
+          textTransform:'lowercase'
+
     },
     profileImage: {
         width: 40,

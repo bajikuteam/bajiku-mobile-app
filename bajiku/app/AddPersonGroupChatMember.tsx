@@ -7,6 +7,8 @@ import Button from '@/components/Button';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import {RootStackParamListComponent } from '@/services/core/types';
 import SearchComponent from '@/components/Search';
+import { router, useLocalSearchParams } from 'expo-router';
+import CustomHeader from '@/components/CustomHeader';
 
 interface Follower {
   id: string;
@@ -22,8 +24,8 @@ const AddPersonGroupChatMemberScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   type AddPersonGroupChatMemberRouteParams = RouteProp<RootStackParamListComponent, 'AddPersonGroupChatMember'>;
   const route = useRoute<AddPersonGroupChatMemberRouteParams>();
-  const navigation = useNavigation()
-  const { roomId } = route.params || { roomId: '' };
+  const params = useLocalSearchParams();
+  const { senderId, senderName, groupImgUrl, room, name, description, roomId } = params;
 
   
   const fetchFollowers = async () => {
@@ -72,6 +74,8 @@ const AddPersonGroupChatMemberScreen: React.FC = () => {
   
       if (response.status === 200 || response.status === 201) {
         Alert.alert(response.data.message);
+
+        router.push('/Chat')
       } else {
         throw new Error(`Unexpected response code: ${response.status}`);
       }
@@ -83,17 +87,23 @@ const AddPersonGroupChatMemberScreen: React.FC = () => {
     }
   };
   
-
+  const goBack = () => {
+    router.back();
+  };
   
   
   return (
-    <><SearchComponent endpoint={''} fieldsToDisplay={[]} />
+    <>
+       <CustomHeader
+      title={name as string}  onBackPress={goBack} image={groupImgUrl as string}  subtitle={ `Add a member to ${name}` as string}
+       
+      />
     <View style={styles.container}>
 
-      <Text style={{ textAlign: 'center', color: 'red', fontWeight: 'bold', fontSize: 20 }}>
+      <Text style={{ textAlign: 'center', color: 'red', fontWeight: 'bold', fontSize: 20,  }}>
         Add Members
       </Text>
-      <Text style={{ textAlign: 'center', color: 'red', fontWeight: 'bold', fontSize: 14 }}>
+      <Text style={{ textAlign: 'center', color: 'red', fontWeight: 'bold', fontSize: 14, marginBottom:10 }}>
         Total Selected: {selectedFollowers.length}
       </Text>
 
@@ -128,7 +138,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000',
   },
   title: {
     fontSize: 20,
@@ -152,7 +162,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e0e0e0',
     borderRadius: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
   },
   selected: {
     backgroundColor: '#DCF8C6', 

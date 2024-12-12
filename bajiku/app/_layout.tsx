@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import { View, Text } from 'react-native';
+import { Text } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { ThemeProvider, useTheme } from '@/utils/useContext/ThemeContext';
 import { UserProvider } from '@/utils/useContext/UserContext';
@@ -67,13 +67,14 @@ function RootLayout() {
         }} />
         <Stack.Screen name="Followers" options={{ headerShown: false }} />
         <Stack.Screen name="EditProfile" options={{ headerShown: false }} />
+        <Stack.Screen name="SubscribedTo" options={{ headerShown: false }} />
         <Stack.Screen name="Following" options={{ headerShown: false }} />
         <Stack.Screen name="message" options={{ headerShown: false }} />
         <Stack.Screen name="groupChat" options={{ headerShown: false }} />
         <Stack.Screen name="CreateGroup" options={{ headerShown: false }} />
         <Stack.Screen name="PersonGroupChat" options={{ headerShown: false }} />
         <Stack.Screen name="AddPersonGroupChatMember" options={{ headerShown: false }} />
-     
+        <Stack.Screen name="TotalEarnings" options={{ headerShown: false }} />  
       </Stack>
     </NavigationThemeProvider>
   );

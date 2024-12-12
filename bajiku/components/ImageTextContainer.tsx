@@ -43,8 +43,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   image: {
-    width: 180,
-    height: 130,
+    width: 300,
+    height: 150,
     marginBottom: 16,
   },
   subHead: {

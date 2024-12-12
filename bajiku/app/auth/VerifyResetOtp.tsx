@@ -7,24 +7,11 @@ import { router } from 'expo-router';
 import { verifyEmail } from '@/services/api/request';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const EmailVerification: React.FC = () => {
+const VeirfyResetOtp: React.FC = () => {
   const inputsRef = useRef<(TextInput | null)[]>([]);
   const [otp, setOtp] = useState<string[]>(Array(6).fill(''));
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [timer, setTimer] = useState<number>(120);
-  const [canResend, setCanResend] = useState(false);
- 
-  useEffect(() => {
-    if (timer > 0) {
-      const countdown = setInterval(() => {
-        setTimer((prevTimer) => prevTimer - 1);
-      }, 1000);
-      return () => clearInterval(countdown);
-    } else {
-      setCanResend(true);
-    }
-  }, [timer]);
 
   const handleSubmit = async () => {
     if (otp.some((val) => val === '')) {
@@ -32,61 +19,45 @@ const EmailVerification: React.FC = () => {
       return;
     }
   
-    const otpString = otp.join('');
     setLoading(true);
   
     try {
       const token = await AsyncStorage.getItem('token');
-  
       if (!token) {
-        setError('No token found. Please try again.');
+        setError('No token found. Please request a new OTP.');
+        setLoading(false);
         return;
       }
   
-      const response = await verifyEmail(token, otpString);
-      AsyncStorage.setItem('userId', response.userId);
-      router.push('/auth/SetPassword');
+      const otpString = otp.join(''); 
+      const response = await fetch('https://backend-server-quhu.onrender.com/api/auth/verify-reset-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ otp: otpString, token }), 
+      });
+  
+      const responseData = await response.json();
+  
+      if (response.ok) {
+
+        AsyncStorage.setItem('userId', responseData.userId);
+        router.push('/auth/ResetPassword');
+      } else {
+        // console.error('Error response:', responseData);
+        setError(responseData.message || 'Invalid OTP');
+      }
     } catch (err) {
-      setError('Invalid OTP. Please try again.');
+    //   console.error('Error verifying OTP:', err);
+      setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
   };
   
-  const handleResendOtp = async () => {
-    try {
-      setTimer(120);
-      setCanResend(false);
-      setOtp(Array(6).fill(''));
-      setError(null);
-      inputsRef.current[0]?.focus();
   
-      const email = await AsyncStorage.getItem('email');
-      const response = await fetch('https://backend-server-quhu.onrender.com/api/auth/resend-otp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-         
-       email:email
-        }),
-      });
-  
-      const textResponse = await response.text();
-  
-      if (response.ok) {
-      } else {
-        setError(textResponse || 'Failed to resend OTP');
-      }
-    } catch (error) {
-      // console.error('Error resending OTP:', error);
-    }
-  };
-  
-  
-  
-
   const handleInputChange = (value: string, index: number) => {
     if (value === '') {
       const newOtp = [...otp];
@@ -110,11 +81,7 @@ const EmailVerification: React.FC = () => {
     setError(null);
   };
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-  };
+
 
   const isFormValid = otp.every((digit) => digit !== '');
 
@@ -122,7 +89,7 @@ const EmailVerification: React.FC = () => {
     <View style={styles.container}>
       <ImageTextContainer
         text="We have sent a verification code to your email"
-        subHead="Verify your email."
+        subHead="Verify Reset OTP."
       />
 
       <View style={styles.otpContainer}>
@@ -146,26 +113,14 @@ const EmailVerification: React.FC = () => {
 
       {error && <Text style={styles.errorText}>{error}</Text>}
 
-      {!canResend ? (
-        <>
+
           <Button
-            text={loading ? 'Verifying...' : 'Verify OTP'}
+            text={loading ? 'Submit...' : 'Submit'}
             onClick={handleSubmit}
             variant="primary"
             disabled={!isFormValid || loading}
           />
-          <Text style={styles.resendText}>
-            Resend Code in {formatTime(timer)}
-          </Text>
-        </>
-      ) : (
-        <Button
-          text="Resend Code"
-          onClick={handleResendOtp}
-          variant="primary"
-          disabled={loading}
-        />
-      )}
+
     </View>
   );
 };
@@ -206,4 +161,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EmailVerification;
+export default VeirfyResetOtp;

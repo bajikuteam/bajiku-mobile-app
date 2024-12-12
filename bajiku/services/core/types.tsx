@@ -212,8 +212,9 @@ export type RootStackParamListComponent = {
   Following:undefined
   Profile: undefined;
   EditProfile: undefined
+  SubscribedTo: undefined
   PostDetail: {id:string, likes:any , privacy:string, mediaSrc:string, caption:string, authorProfilePicSrc:string, comments:any};
-
+  TotalEarnings: undefined
 
 };
 

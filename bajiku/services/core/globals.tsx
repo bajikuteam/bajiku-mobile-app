@@ -48,3 +48,16 @@ export const formatTime = (lastMessageTime: string) => {
 export const formatCurrency = (num:any) => {
   return `₦${new Intl.NumberFormat('en-US').format(num)}`;
 };
+
+ export const getStatusColor = (status: string): string => {
+  switch (status) {
+    case 'approved':
+      return '#28a745'; // Green
+    case 'pending':
+      return '#ffc107'; // Yellow
+    case 'rejected':
+      return '#dc3545'; // Red
+    default:
+      return '#000'; // Default color (black)
+  }
+};

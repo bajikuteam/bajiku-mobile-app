@@ -1,9 +1,9 @@
 import Button from '@/components/Button';
 import ImageTextContainer from '@/components/ImageTextContainer';
-import { setPassword } from '@/services/api/request';
+import { resetPassword} from '@/services/api/request';
 import { useTheme } from '@/utils/useContext/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router, useNavigation } from 'expo-router';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
@@ -22,7 +22,7 @@ import { Input } from 'react-native-elements';
 
 const { height } = Dimensions.get('window');
 
-const SetPassword = () => {
+const ResetPassword = () => {
     const { theme } = useTheme(); 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -32,12 +32,8 @@ const SetPassword = () => {
     const [passwordError, setPasswordError] = useState<string | null>(null);
     const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
     const [formError, setFormError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const textColor = theme === 'dark' ? '#fff' : '#000';
-    const navigation = useNavigation();
-
-
     
     const validatePassword = () => {
         if (!password) {
@@ -92,9 +88,8 @@ const handleSubmit = async () => {
             setFormError('No user found. Please Sign up again.');
             return; 
         }
-        const response = await setPassword(userId, password, confirmPassword); 
-        setSuccessMessage(response.message);
-        router.push('/auth/SetProfile');
+       await resetPassword(userId, password, confirmPassword); 
+        router.push('/auth/Login');
     } catch (err) {
         setFormError('Failed to set password. Please try again.');
     } finally {
@@ -121,8 +116,8 @@ const labelColor = '#FBBC05'
                         <View style={{ marginBottom: 32, marginTop: 16 }}>
                             <ImageTextContainer
                                 imageSrc="https://res.cloudinary.com/dyz7znlj0/image/upload/v1726890693/Lock_1_hsmc82.png"
-                                text="Please set a unique password."
-                                subHead="Set your password?"
+                                text="Please set a unique new password."
+                                subHead="Reset your password?"
                             />
                         </View>
 
@@ -276,5 +271,5 @@ const styles = StyleSheet.create({
     },
 });
 
-export default SetPassword;
+export default ResetPassword;
 

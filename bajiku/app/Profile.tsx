@@ -224,8 +224,7 @@ const Profile = () => {
     const userId = user?.id || await AsyncStorage.getItem('userId');
     try {
       const response = await axios.get(`https://backend-server-quhu.onrender.com/content/subscribed-by/${userId}`);
-      const data = response.data;
-  
+      const data = response.data;  
       if (data && Array.isArray(data)) {
         setSubscribedPosts(data); 
   
@@ -353,7 +352,9 @@ const Profile = () => {
   };
 
   return (
-    <><CustomHeader title={'Profile'}   onBackPress={goBack} /><SafeAreaView style={styles.container}>
+    <>
+    <CustomHeader title={'Profile'}   onBackPress={goBack} />
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#000000" />
 
       <View style={styles.profileContainer}>
@@ -382,8 +383,8 @@ const Profile = () => {
         <Button text="Edit Profile" variant="secondary" style={styles.button} icon={Icon} iconProps={{ name: 'pencil', size: 14, color: '#ffffff' }} onClick={() => navigation.navigate('EditProfile')} />
 
         <View style={{ flexDirection: 'row', gap: 12, }}>
-          <Button text="Subscribed To" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'bell', size: 14, color: '#ffffff' }} />
-          <Button text="Total Earnings" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'credit-card', size: 14, color: '#ffffff' }} />
+          <Button text="Subscribed To" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'bell', size: 14, color: '#ffffff' }} onClick={() => navigation.navigate('SubscribedTo')} />
+          <Button text="Total Earnings" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'credit-card', size: 14, color: '#ffffff' }} onClick={() => router.push('/TotalEarnings')} />
         </View>
 
         <View style={{ flexDirection: 'row', gap: 10, marginTop: 15, marginBottom: 15, }}>

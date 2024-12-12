@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, StatusBar, SafeAreaView, RefreshControl, TextInput } from 'react-native';
 import axios from 'axios';
 import { useUser } from '@/utils/useContext/UserContext'; 
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '@/utils/useContext/ThemeContext';
 import CustomHeader from '@/components/CustomHeader';
 
@@ -16,7 +17,7 @@ interface Follower {
     followerCount?:number
 }
 
-const UsersFollowersScreen = () => {
+const SubToScreen = () => {
     const [followers, setFollowers] = useState<Follower[]>([]);
     const [filteredFollowers, setFilteredFollowers] = useState<Follower[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -26,16 +27,17 @@ const UsersFollowersScreen = () => {
     const [searchQuery, setSearchQuery] = useState<string>(''); 
     const { theme } = useTheme();
     const textColor = theme === 'dark' ? '#fff' : '#000';
-    const params = useLocalSearchParams();
-    const { ExternalUersId} = params;
 
     const fetchFollowers = async () => {
         try {
+            const userId = user?.id || await AsyncStorage.getItem('userId');
             setLoading(true);
             
-            const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${ExternalUersId}/followers`);
-            setFollowers(response.data.followers);
-            setFilteredFollowers(response.data.followers);
+            const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${userId}/subscribedTo`);
+           
+            setFollowers(response.data.subscribedTo);
+            setFilteredFollowers(response.data.subscribedTo);
+
         } catch (error) {
             // console.error('Error fetching followers:', error);
         } finally {
@@ -44,47 +46,26 @@ const UsersFollowersScreen = () => {
         }
     };
 
-    const fetchFollowing = async () => {
-        try {
-            const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${ExternalUersId}/following`);
-            setFollowing(response.data.following || []); 
-        } catch (error) {
-            // console.error('Error fetching following:', error);
-        }
-    };
 
     const onRefresh = async () => {
         setRefreshing(true);
         await fetchFollowers(); 
-        await fetchFollowing(); 
     };
 
     useEffect(() => {
-        fetchFollowers(); 
         onRefresh(); 
     }, []);
 
-    const toggleFollow = async (followerId: string) => {
-        try {
-            const isFollowing = following.some(f => f?._id === followerId); 
-            const url = `https://backend-server-quhu.onrender.com/users/${user?.id}/${isFollowing ? 'unfollow' : 'follow'}/${followerId}`;
-            await axios.post(url);
-            
-            if (isFollowing) {
-                // Remove user from the following list
-                setFollowing(prev => prev.filter(f => f._id !== followerId));
-            } else {
-                // Add user to the following list
-                const newFollower = followers.find(f => f._id === followerId);
-                if (newFollower) {
-                    setFollowing(prev => [...prev, newFollower]);
-                }
-            }
-        } catch (error) {
-            console.error('Error toggling follow:', error);
-        }
+
+    const handleSearch = (text: string) => {
+        setSearchQuery(text);
+        const filtered = followers.filter(follower => 
+            `${follower.firstName} ${follower.lastName} ${follower.username}`
+                .toLowerCase()
+                .includes(text.toLowerCase())
+        );
+        setFilteredFollowers(filtered);
     };
-    
 
 
     const handlePress = (
@@ -128,22 +109,11 @@ const UsersFollowersScreen = () => {
         }
       };
 
-    const handleSearch = (text: string) => {
-        setSearchQuery(text);
-        const filtered = followers.filter(follower => 
-            `${follower.firstName} ${follower.lastName} ${follower.username}`
-                .toLowerCase()
-                .includes(text.toLowerCase())
-        );
-        setFilteredFollowers(filtered);
-    };
-
     const renderFollower = ({ item }: { item: Follower }) => {
         const isFollowing = following.some(f => f._id === item._id); 
-
         return (
             <View style={styles.followerItem}>
-            <TouchableOpacity
+                  <TouchableOpacity
                 onPress={() =>
                     handlePress(
                         item._id,
@@ -164,64 +134,42 @@ const UsersFollowersScreen = () => {
                 ) : (
                     <View style={styles.placeholderImage} />
                 )}
-            </TouchableOpacity>
-        
-            <View style={styles.followerInfo}>
-                <TouchableOpacity
-                    onPress={() =>
-                        handlePress(
-                            item._id,
-                            item.username,
-                            item.firstName,
-                            item.lastName,
-                            item.profileImageUrl as string,
-                            item.followingCount ?? 0,
-                            item.followerCount ?? 0 ,
-                        )
-                    }
-                >
-                    <Text style={styles.followerName}>
-                        {item.firstName} {item.lastName}
-                    </Text>
-                    <Text style={styles.followerUsername}>@{item.username}</Text>
                 </TouchableOpacity>
-            </View>
+
+                <TouchableOpacity
+                onPress={() =>
+                    handlePress(
+                        item._id,
+                        item.username,
+                        item.firstName,
+                        item.lastName,
+                        item.profileImageUrl as string,
+                        item.followingCount ?? 0 ,
+                        item.followerCount ?? 0
+                    )
+                }
+            >
+                <View style={styles.followerInfo}>
+                    <Text style={styles.followerName}>{item.firstName} {item.lastName}</Text>
+                    <Text style={styles.followerUsername}>@{item.username}</Text>
+                </View>
+                </TouchableOpacity>
 
                 <View style={styles.buttonContainer}>
-                {item?._id !== user?.id && ( 
-    <>
-        {/* <TouchableOpacity
-            style={styles.messageButton}
-            onPress={() => {
-                router.push({
-                    pathname: '/message',
-                    params: {
-                        profileImageUrl: item.profileImageUrl || '',
-                        username: item.username,
-                        senderId: user.id,
-                        receiverId: item._id,
-                        senderName: user.username,
-                    },
-                });
-            }}
-        >
-            <Text style={styles.buttonText}>Message</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-            style={[
-                styles.followButton,
-                {
-                    backgroundColor: isFollowing ? 'gray' : '#F90C0C',
-                },
-            ]}
-            onPress={() => toggleFollow(item._id)}
-        >
-            <Text style={styles.buttonText}>
-                {isFollowing ? 'Unfollow' : 'Follow'}
-            </Text>
-        </TouchableOpacity> */}
-    </>
-)}
+                    <TouchableOpacity
+                        style={styles.messageButton}
+                        onPress={() => {
+                            router.push({pathname:'/message', params:{
+                                profileImageUrl: item.profileImageUrl || '', 
+                                username: item.username,
+                                senderId: user?.id, 
+                                receiverId: item?._id, 
+                                senderName: user?.username, 
+                            }});
+                        }}
+                    >
+                        <Text style={styles.buttonText}>Message</Text>
+                    </TouchableOpacity>
 
                 </View>
             </View>
@@ -230,17 +178,18 @@ const UsersFollowersScreen = () => {
 
     return (
         <><CustomHeader
-            title={"Followers"}
+            title={"Subscribed To"}
             onBackPress={() => router.back()} />
             <SafeAreaView style={styles.container}>
                 <StatusBar barStyle="light-content" backgroundColor="#000000" />
                 <TextInput
                     style={styles.searchBar}
-                    placeholder="Search for followers..."
+                    placeholder="Search for users you're subscribed to..."
                     placeholderTextColor="#999"
                     value={searchQuery}
                     onChangeText={handleSearch}
                 />
+              
                 {loading ? (
                     <ActivityIndicator size="large" color="#fff" />
                 ) : (
@@ -250,7 +199,7 @@ const UsersFollowersScreen = () => {
                         renderItem={renderFollower}
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                         ListEmptyComponent={<Text style={[styles.noFollowersText, { color: textColor }]}>
-                            No followers found
+                        You have not Subscribe to any user
                         </Text>} />
                 )}
             </SafeAreaView>
@@ -292,16 +241,15 @@ const styles = StyleSheet.create({
     followerInfo: {
         marginLeft: 10,
     },
-    
     followerName: {
         fontSize: 12,
         color: '#666',
-        textTransform:'capitalize'
+          textTransform:'lowercase'
     },
     followerUsername: {
         fontSize: 12,
         color: '#666',
-        textTransform:'lowercase'
+          textTransform:'lowercase'
      
     },
     buttonContainer: {
@@ -311,7 +259,7 @@ const styles = StyleSheet.create({
         marginLeft: 'auto',
     },
     messageButton: {
-        width: 72,
+        width: 85,
         height: 38,
         borderRadius: 12,
         backgroundColor: 'black',
@@ -349,6 +297,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         marginTop:40
     },
+    totalFollowersText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        textAlign: 'center',
+    },
 });
 
-export default UsersFollowersScreen;
+export default SubToScreen;

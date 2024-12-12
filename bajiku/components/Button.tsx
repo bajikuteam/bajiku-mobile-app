@@ -32,13 +32,14 @@ const buttonStyles = {
     borderRadius: 12,
   } as ViewStyle,
   disabled: {
-    backgroundColor: '#EFA3B5',
+    backgroundColor: '#fff',
     opacity: 0.7,
     justifyContent: 'center',
     alignItems: 'center',
     width: 300,
     height: 38,
     borderRadius: 12,
+    borderBlockColor:'#000'
   } as ViewStyle,
   third: {
     backgroundColor: 'transparent',
@@ -108,7 +109,7 @@ const Button: React.FC<ButtonProps> = ({
     <TouchableOpacity
       onPress={onClick}
       disabled={disabled}
-      style={[buttonStyle, style] as StyleProp<ViewStyle>} // Combine button styles
+      style={[buttonStyle, style] as StyleProp<ViewStyle>} 
     >
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
         <Text style={textStyle}>{text}</Text>

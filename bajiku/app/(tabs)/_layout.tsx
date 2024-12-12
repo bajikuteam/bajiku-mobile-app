@@ -3,20 +3,10 @@ import React, { useEffect, useState } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Feather, FontAwesome } from '@expo/vector-icons';
-import Sidebar from '@/components/Sidebar';
 import { TouchableOpacity, Text, View, Modal, FlatList,  StyleSheet, Image, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import { useUser } from '@/utils/useContext/UserContext';
-import { formatCount } from '@/services/core/globals';
 import { useTheme } from '@/utils/useContext/ThemeContext';
-// interface Notification {
-//   _id: string;       
-//   message: string;  
-
-//   whoInitiatedId:string;
-// profileImageUrl:string;
-// username:string;
-// }
 
 interface Notification {
   IsRead: boolean;
@@ -79,7 +69,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   closeButton: {
-    // marginLeft: 'auto', 
     padding: 10,
   
   },
@@ -162,8 +151,8 @@ const styles = StyleSheet.create({
   },
 
   profileImageTwo: {
-    width: 30,
-    height: 30,
+    width: 40,
+    height: 40,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#D1D5DB',
@@ -246,7 +235,6 @@ const styles = StyleSheet.create({
 
 export default function TabLayout() {
   const headerStatusColor = "#000000";
-
   const [modalVisible, setModalVisible] = useState(false); 
   const [menuModalVisible, setMenuModalVisible] = useState(false);  
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -307,9 +295,6 @@ const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
     
   }) => {
     const { theme } = useTheme();
-  
-    // Determine the text and icon color based on the theme
-    const textColor = "dark" 
     const iconColor = "#000";
   
     // Clone the icon with the appropriate color
@@ -345,15 +330,11 @@ const handlePress = async (
   profileImageUrl: string, 
   message: string, 
 ) => {
-  // try {
-    // Mark the notification as read
     await axios.patch(`https://backend-server-quhu.onrender.com/notifications/${notificationId}/mark-read`);
 
     if (message === "Welcome to Bajiku !. Continuing networking") {
       return; 
     }
-
-    // Navigate only if applicable
     if (userId === user.id) {
       router.push({
         pathname: '/Profile',
@@ -377,52 +358,8 @@ const handlePress = async (
     }
 
     setModalVisible(false);
-  // } catch (error) {
-    // console.error('Error marking notification as read:', error);
-  // }
 };
 
-
-// const handlePress = (
-  // notificationId: string ,
-  // userId: string, 
-  // username: string, 
-  // profileImageUrl: string, 
-  // message: string, 
-
-// ) => {
-//  axios.patch(`https://backend-server-quhu.onrender.com/notifications/${notificationId}/mark-read`)
-//   if (message === "Welcome to Bajiku !. Continuing networking") {
-//     return; 
-//   }
-//   if (userId === user?.id) {
-//     // Navigate to the logged-in user's profile
-//     router.push({
-//       pathname: '/Profile',
-//       params: {
-        // notificationId: notificationId,
-        // userId: userId,
-        // username: username,
-        // profileImageUrl: profileImageUrl,
-   
-  
-//       },
-//     });
-//   } else {
-//     // Navigate to the user details page
-//     router.push({
-//       pathname: '/userDetails/UserDetails',
-//       params: {
-        // notificationId: notificationId,
-        // searchUserId: userId,
-        // username: username,
-        // profileImageUrl: profileImageUrl,
-      
-//       },
-//     });
-//   }
-//   setModalVisible(false);
-// };
 
   return (
     <><Tabs
@@ -633,14 +570,13 @@ const handlePress = async (
       animationType="slide"
     >
         <View style={styles.modalOverlay}>
-          <View style={{  height: '85%',
+          <View style={{  height: '75%',
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 16,
     elevation: 5,
     zIndex: 1000,}}>
-          <Text  style={{color:'#000',fontSize:18, textAlign:'center', marginBottom:40}}></Text>
       <View style={styles.modalHeader}>
   <TouchableOpacity 
     style={styles.closeButton} 
@@ -658,14 +594,7 @@ const handlePress = async (
             />
             </Link>
              </TouchableOpacity>
-             <TouchableOpacity >
-            <SidebarItem
-              icon={<Feather name="user" size={28} />}
-              label="Profile"
-          
-            />
-            </TouchableOpacity>
-          
+
             <SidebarItem
               icon={<Feather name="settings" size={28} />}
               label="Settings"
@@ -687,7 +616,7 @@ const handlePress = async (
             <Text style={[styles.policyText, { color: '#000' }]}>
               Terms and Conditions
             </Text>
-            <Text style={[styles.policyText, { color: '#000000' }]}>FAQ</Text>
+            <Text style={[styles.policyText, { color: '#000' }]}>FAQ</Text>
           </View>
 
           </View>

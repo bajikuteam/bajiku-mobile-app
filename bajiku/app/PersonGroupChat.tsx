@@ -35,12 +35,12 @@
 //     const {senderId, senderName, groupImgUrl, room, name, roomId } = params;
 
 //   const [messages, setMessages] = useState<any[]>([]);
-//   const [isModalVisible, setModalVisible] = useState(false);
+  // const [isModalVisible, setModalVisible] = useState(false);
 
 //   const { user } = useUser();
-//   const toggleModal = () => {
-//     setModalVisible(!isModalVisible);
-//   };
+  // const toggleModal = () => {
+  //   setModalVisible(!isModalVisible);
+  // };
  
 //   const isFocused = useIsFocused();
 
@@ -167,33 +167,33 @@
 //     </TouchableOpacity>
 //   );
 
-//   // const renderModal = () => (
-//   //   <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
-//   //     <View style={styles.modalContent}>
-//   //     <TouchableOpacity>
-//   //         <Text style={styles.modalButton}>Group Info</Text>
-//   //       </TouchableOpacity>
-//   //       <TouchableOpacity>
-//   //         <Text style={styles.modalButton}>Group Members</Text>
-//   //       </TouchableOpacity>
-//   //       <TouchableOpacity onPress={() => navigations.navigate('AddPersonGroupChatMember', { roomId:roomId,  })}>
-//   //         <Text style={styles.modalButton}>Add Member</Text>
-//   //       </TouchableOpacity>
-//   //       <TouchableOpacity onPress={() => handleRemoveUser("user_to_remove")}>
-//   //         <Text style={styles.modalButton}>Remove User</Text>
-//   //       </TouchableOpacity>
-//   //       <TouchableOpacity>
-//   //         <Text style={styles.modalButton}>Exit Group</Text>
-//   //       </TouchableOpacity>
-//   //       <TouchableOpacity>
-//   //         <Text style={styles.modalButton}>Delete Group </Text>
-//   //       </TouchableOpacity>
-//   //       <TouchableOpacity onPress={toggleModal}>
-//   //         <Text style={styles.modalCloseButton}>Close</Text>
-//   //       </TouchableOpacity>
-//   //     </View>
-//   //   </Modal>
-//   // );
+  // const renderModal = () => (
+  //   <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
+      // <View style={styles.modalContent}>
+      // <TouchableOpacity>
+      //     <Text style={styles.modalButton}>Group Info</Text>
+      //   </TouchableOpacity>
+      //   <TouchableOpacity>
+      //     <Text style={styles.modalButton}>Group Members</Text>
+      //   </TouchableOpacity>
+      //   <TouchableOpacity onPress={() => navigations.navigate('AddPersonGroupChatMember', { roomId:roomId,  })}>
+      //     <Text style={styles.modalButton}>Add Member</Text>
+      //   </TouchableOpacity>
+      //   <TouchableOpacity onPress={() => handleRemoveUser("user_to_remove")}>
+      //     <Text style={styles.modalButton}>Remove User</Text>
+      //   </TouchableOpacity>
+      //   <TouchableOpacity>
+      //     <Text style={styles.modalButton}>Exit Group</Text>
+      //   </TouchableOpacity>
+      //   <TouchableOpacity>
+      //     <Text style={styles.modalButton}>Delete Group </Text>
+      //   </TouchableOpacity>
+      //   <TouchableOpacity onPress={toggleModal}>
+      //     <Text style={styles.modalCloseButton}>Close</Text>
+      //   </TouchableOpacity>
+      // </View>
+  //   </Modal>
+  // );
 
 //   const handleAddUser = (username: string) => {
 //     console.log(`Adding user: ${username}`);
@@ -287,75 +287,75 @@
 //     flex: 1,
 //     backgroundColor: '#E5DDD5',
 //   },
-//   headerTitle: {
-//     fontSize: 18,
-//     fontWeight: 'bold',
-//     color: '#fff',
-//   },
-//   headerLeft: {
-//     flexDirection: 'row',
-//     alignItems: 'flex-start',
-//   },
-//   groupImage: {
-//     width: 36,
-//     height: 36,
-//     borderRadius: 12,
-//     marginRight: 10,
-//   },
-//   adminButton: {
-//     marginRight: 10,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-//   modalContent: {
-//     backgroundColor: 'white',
-//     padding: 20,
-//     borderRadius: 10,
-//     width: 200,              
-//     position: 'absolute',    
-//     top: "8%",                
-//     right: 6,               
-//     shadowColor: '#000',    
-//     shadowOffset: { width: 0, height: 2 }, 
-//     shadowOpacity: 0.25,     
-//     shadowRadius: 4,         
-//     zIndex: 1000,      
-//   },
+  // headerTitle: {
+  //   fontSize: 18,
+  //   fontWeight: 'bold',
+  //   color: '#fff',
+  // },
+  // headerLeft: {
+  //   flexDirection: 'row',
+  //   alignItems: 'flex-start',
+  // },
+  // groupImage: {
+  //   width: 36,
+  //   height: 36,
+  //   borderRadius: 12,
+  //   marginRight: 10,
+  // },
+  // adminButton: {
+  //   marginRight: 10,
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  // },
+  // modalContent: {
+  //   backgroundColor: 'white',
+  //   padding: 20,
+  //   borderRadius: 10,
+  //   width: 200,              
+  //   position: 'absolute',    
+  //   top: "8%",                
+  //   right: 6,               
+  //   shadowColor: '#000',    
+  //   shadowOffset: { width: 0, height: 2 }, 
+  //   shadowOpacity: 0.25,     
+  //   shadowRadius: 4,         
+  //   zIndex: 1000,      
+  // },
   
-//   modalTitle: {
-//     fontSize: 18,
-//     fontWeight: 'bold',
-//     marginBottom: 20,
-//   },
-//   modalButton: {
-//     fontSize: 16,
-//     marginVertical: 10,
-//     color: '#007BFF',
-//   },
-//   modalCloseButton: {
-//     fontSize: 16,
-//     marginTop: 20,
-//     color: 'red',
-//   },
-//   sendButton: {
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginBottom: 5,
-//     marginRight: 5,
-//   },
-//   senderName: {
-//     fontSize: 12,
-//     fontWeight: 'bold',
-//     marginLeft: 5,
-//     marginBottom: 3,
-//   },
+  // modalTitle: {
+  //   fontSize: 18,
+  //   fontWeight: 'bold',
+  //   marginBottom: 20,
+  // },
+  // modalButton: {
+  //   fontSize: 16,
+  //   marginVertical: 10,
+  //   color: '#007BFF',
+  // },
+  // modalCloseButton: {
+  //   fontSize: 16,
+  //   marginTop: 20,
+  //   color: 'red',
+  // },
+  // sendButton: {
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   marginBottom: 5,
+  //   marginRight: 5,
+  // },
+  // senderName: {
+  //   fontSize: 12,
+  //   fontWeight: 'bold',
+  //   marginLeft: 5,
+  //   marginBottom: 3,
+  // },
 // });
 
 
 
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, StatusBar, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, StatusBar, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, Keyboard, Modal, Alert, ActivityIndicator, Image } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import io from 'socket.io-client';
@@ -363,7 +363,7 @@ import { useUser } from '@/utils/useContext/UserContext';
 import CustomHeader from '@/components/CustomHeader';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as NavigationBar from 'expo-navigation-bar';
-import { formatTime } from '@/services/core/globals';
+import { formatCount, formatTime } from '@/services/core/globals';
 
 const socket = io('https://backend-server-quhu.onrender.com');
 
@@ -380,15 +380,33 @@ interface Message {
 }
 
 
+interface GroupMember {
+  id: string; 
+  username: string; 
+  profileImageUrl: string; 
+}
+
+
 const PersonGroupChatScreen: React.FC = () => {
   const params = useLocalSearchParams();
-  const { senderId, senderName, groupImgUrl, room, name,   description } = params;
+  const { senderId, senderName, groupImgUrl, room, name, description, roomId } = params;
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState('');
   const [userColors, setUserColors] = useState<{ [key: string]: string }>({});
   const { user } = useUser();
   const flatListRef = useRef<FlatList>(null);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [isMembersModalVisible, setMembersModalVisible] = useState(false);
+  const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [isLeaveModalVisible, setLeaveModalVisible] = useState(false);
+  const [groupMembers, setGroupMembers] = useState<GroupMember[]>([]);
+  const [loadingMembers, setLoadingMembers] = useState(false);
+  const [creator, setCreator] = useState<string>('');
+  const [createdAt, setCreatedAt] = useState<string>('');
 
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
   useEffect(() => {
     if (flatListRef.current) {
       flatListRef.current.scrollToEnd({ animated: true });
@@ -546,6 +564,301 @@ const PersonGroupChatScreen: React.FC = () => {
   }, [messageInput, senderId, senderName, name]);
 
 
+
+  const toggleDeleteModal = () => {
+    setDeleteModalVisible(!isDeleteModalVisible);
+  };
+
+  const handleDeleteGroup = async () => {
+    try {
+      // Replace with your delete endpoint
+      const response = await fetch(`https://backend-server-quhu.onrender.com/personal-group-chat/${roomId}/delete/${user?.id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        Alert.alert('Success', 'Group has been deleted successfully.');
+        toggleDeleteModal();
+        goBack(); // Navigate back after deletion
+      } else {
+        const errorData = await response.json();
+        Alert.alert('Error', errorData.message || 'Failed to delete group.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An error occurred while deleting the group.');
+    }
+  };
+
+
+
+  const toggleLeaveModal = () => {
+    setLeaveModalVisible(!isLeaveModalVisible);
+  };
+  const handleLeaveGroup = async () => {
+    try {
+      const response = await fetch(`https://backend-server-quhu.onrender.com/personal-group-chat/${roomId}/exit/${user?.id}`, {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        Alert.alert('Successfully exited the room');
+        // toggleLeaveModal();
+        goBack();
+      } else {
+        const errorData = await response.json();
+        Alert.alert('Error', errorData.message || 'Failed to delete group.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An error occurred while deleting the group.');
+    }
+  };
+
+
+
+  const toggleMembersModal = () => {
+    setMembersModalVisible(!isMembersModalVisible);
+    
+  };
+
+
+  const fetchGroupMembers = async () => {
+    try {
+      setLoadingMembers(true);
+  
+      const response = await fetch(
+        `https://backend-server-quhu.onrender.com/personal-group-chat/${roomId}/members`
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setGroupMembers(data.members || []);
+        
+        // Assume the first member is the creator
+        if (data.members && data.members.length > 0) {
+          setCreator(data.members[0].username || 'Unknown');
+        } else {
+          setCreator('Unknown');
+        }
+  
+        setCreatedAt(data.members[0].roomCreatedAt || 'Unknown');
+      } else {
+        Alert.alert('Error', data.message || 'Failed to fetch group members.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An error occurred while fetching group members.');
+    } finally {
+      setLoadingMembers(false);
+    }
+  };
+  
+
+  useEffect(() => {
+    if (isMembersModalVisible) {
+      fetchGroupMembers();
+    }
+  }, [isMembersModalVisible]);
+
+
+
+
+  const handlePress = (
+    userId: string, 
+    username: string, 
+    profileImageUrl: string,
+
+  ) => {
+    // Check if the pressed user is the logged-in user
+    if (userId === user?.id) {
+      // Navigate to the logged-in user's profile
+      router.push({
+        pathname: '/Profile',
+        params: {
+          userId: userId,
+          username: username,
+          profileImageUrl: profileImageUrl,
+      
+        },
+      });
+    } else {
+      // Navigate to the user details page
+      router.push({
+        pathname: '/userDetails/UserDetails',
+        params: {
+          searchUserId: userId,
+          username: username,
+    
+          profileImageUrl: profileImageUrl,
+       
+        },
+      });
+    }
+  };
+
+  const renderModal = () => (
+    <Modal visible={isModalVisible} transparent={true} animationType="fade" onRequestClose={toggleModal}>
+        <View style={styles.modalContent}>
+        <TouchableOpacity   onPress={() => {
+        
+          toggleMembersModal();
+          
+        }}>
+          <Text style={styles.modalButton}>Group Info</Text>
+        </TouchableOpacity>
+        {/* <TouchableOpacity>
+          <Text style={styles.modalButton}>Edit Group</Text>
+        </TouchableOpacity> */}
+        <TouchableOpacity 
+          onPress={() => {
+            router.push({pathname:'/AddPersonGroupChatMember', params:{
+              roomId: roomId, 
+              groupImgUrl: groupImgUrl,
+              name:name
+          
+            }});
+        }}
+         >
+          <Text style={styles.modalButton}>Add Member</Text>
+        </TouchableOpacity>
+        {/* <TouchableOpacity>
+          <Text style={styles.modalButton}>Remove User</Text>
+        </TouchableOpacity> */}
+        <TouchableOpacity onPress={goBack}>
+          <Text style={styles.modalButton}>Exit Group</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={toggleLeaveModal}>
+          <Text style={styles.modalButton}>Leave Group</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={toggleDeleteModal}>
+          <Text style={styles.modalButton}>Delete Group </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={toggleModal}>
+          <Text style={styles.modalCloseButton}>Close</Text>
+        </TouchableOpacity>
+      </View>
+    </Modal>
+  );
+
+
+
+  const renderMembersModal = () => (
+    <Modal visible={isMembersModalVisible} transparent={true} animationType="fade" onRequestClose={toggleMembersModal}>
+      <View style={styles.modalOverlay}>
+        
+      <View style={{  height: '75%',
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 16,
+    elevation: 5,
+    zIndex: 1000,}}>
+            <View style={styles.modalHeader}>
+  <TouchableOpacity 
+    style={styles.closeButton} 
+    onPress={toggleMembersModal}>
+    <Text style={styles.closeButtonText}>X</Text>
+  </TouchableOpacity>
+</View>
+         <Text  style={{ color: '#000', fontSize: 18, textAlign: 'center', marginTop:5, fontWeight:"bold"}}>Group Info</Text>
+
+         
+         <View
+  style={{
+    justifyContent: 'center', 
+    alignItems: 'center', 
+  }}
+>
+  <Image
+    source={{ uri: groupImgUrl as string }}
+    style={{
+      width: 100,
+      height: 100,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: '#000',
+      marginTop:10
+    }}
+  />
+           <Text style={{ color: '#000', fontSize: 18, textAlign: 'center', marginTop:7, fontWeight:"bold" }}>Group Name: {name}</Text>
+           <Text style={{ color: '#000', fontSize: 18, textAlign: 'center',marginTop:5,fontWeight:"bold" }}>Created at: {formatTime(createdAt)}</Text>
+           {/* <Text style={{ color: '#000', fontSize: 18, textAlign: 'center' }}>Description: {description}</Text> */}
+           <Text style={{ color: '#000', fontSize: 18, textAlign: 'center',marginTop:5, textTransform:"lowercase", fontWeight:"bold" }}>Created by: @{creator}</Text>
+        
+         </View>
+    
+          {loadingMembers ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+          ) : (
+            <><Text style={{ color: '#000', fontSize: 18, textAlign: 'center',marginTop:5,fontWeight:"bold" }}>Group members: {formatCount(groupMembers.length)} </Text><FlatList
+                data={groupMembers}
+                keyExtractor={(item, index) => item.username + index}
+                renderItem={({ item }) => (
+                  <TouchableOpacity onPress={() => handlePress(item.id, item.username, item.profileImageUrl,  
+                   )}>
+                  <View style={styles.memberItem}>
+                    <Image
+                      source={{ uri: item.profileImageUrl }}
+                      style={styles.profileImage} />
+                    <Text style={styles.memberName}>@{item.username}</Text>
+
+                  </View>
+                  </TouchableOpacity>
+                )}
+                ListEmptyComponent={<Text style={styles.emptyMessage}>No members in this group.</Text>} /></>
+          
+          )}
+          {/* <TouchableOpacity onPress={toggleMembersModal} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity> */}
+        </View>
+      </View>
+    </Modal>
+  );
+
+  
+
+  const renderDeleteModal = () => (
+    <Modal visible={isDeleteModalVisible} transparent={true} animationType="fade" onRequestClose={toggleDeleteModal}>
+      <View style={{    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+}}>
+        <View style={styles.confirmationBox}>
+          <Text style={styles.confirmationText}>Are you sure you want to delete this group?</Text>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.confirmButton} onPress={handleDeleteGroup}>
+              <Text style={styles.buttonText}>Yes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cancelButton} onPress={toggleDeleteModal}>
+              <Text style={styles.buttonText}>No</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+
+  const renderLeaveModal = () => (
+    <Modal visible={isLeaveModalVisible} transparent={true} animationType="fade" onRequestClose={toggleLeaveModal}>
+      <View style={{    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+}}>
+        <View style={styles.confirmationBox}>
+          <Text style={styles.confirmationText}>Are you sure you want to Leave this group?</Text>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.confirmButton} onPress={handleLeaveGroup}>
+              <Text style={styles.buttonText}>Yes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cancelButton} onPress={toggleLeaveModal}>
+              <Text style={styles.buttonText}>No</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+
   const renderMessage = ({ item }: any) => {
     const isSentByUser = String(item.user._id) === String(user.id);
     const isSystemMessage = item.system; 
@@ -631,7 +944,16 @@ const PersonGroupChatScreen: React.FC = () => {
 
 
   return (
-    <><CustomHeader title={name as string} onBackPress={goBack} image={groupImgUrl as string} subtitle={ description as string} /><KeyboardAvoidingView
+    <>
+       <CustomHeader
+      title={name as string} onBackPress={goBack} image={groupImgUrl as string} subtitle={ description as string} 
+        onMorePress={toggleModal} 
+      />
+      {renderModal()}
+      {renderDeleteModal()}
+      {renderMembersModal()}
+      {renderLeaveModal()}
+    <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
@@ -738,4 +1060,151 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textTransform: 'lowercase',
   },
+
+
+
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  groupImage: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    marginRight: 10,
+  },
+  adminButton: {
+    marginRight: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: 200,              
+    position: 'absolute',    
+    top: "8%",                
+    right: 6,               
+    shadowColor: '#000',    
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.25,     
+    shadowRadius: 4,         
+    zIndex: 1000,      
+  },
+  
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  modalButton: {
+    fontSize: 16,
+    marginVertical: 10,
+    color: '#007BFF',
+  },
+  modalCloseButton: {
+    fontSize: 16,
+    marginTop: 20,
+    color: 'red',
+  },
+
+
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end', 
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  confirmationBox: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+  },
+  confirmationText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  confirmButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+  },
+  cancelButton: {
+    backgroundColor: 'gray',
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: '#fff',
+    textAlign: 'center',
+  },
+
+
+
+
+  membersModalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    maxHeight: '70%',
+  },
+  memberItem: {
+    flexDirection: 'row',
+    // justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    gap:8
+  },
+  memberName: {
+    fontSize: 16,
+    marginTop: 10,
+    textTransform:"lowercase", fontWeight:"bold"
+  },
+  memberRole: {
+    fontSize: 14,
+    color: '#888',
+  },
+  emptyMessage: {
+    textAlign: 'center',
+    color: '#888',
+    marginVertical: 20,
+  },
+  closeButton: {
+    marginTop: 20,
+    // backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+},
+modalHeader: {
+  flexDirection: 'row', 
+  justifyContent: 'flex-end', 
+  paddingHorizontal: 15,
+  paddingVertical: 10, 
+},
 });

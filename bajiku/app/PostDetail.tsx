@@ -160,7 +160,7 @@ const PostDetail = () => {
     const getContent = async () => {
       try {
         const response = await fetch(
-          `https://backend-server-quhu.onrender.com/content/${id}`
+          `https://backend-server-quhu.onrender.com/content/single/${id}`
         );
 
         if (!response.ok) {
@@ -193,7 +193,7 @@ const PostDetail = () => {
 
     try {
       const response = await fetch(
-        `https://backend-server-quhu.onrender.com/content/${id}`
+        `https://backend-server-quhu.onrender.com/content/single/${id}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch content");
@@ -487,7 +487,7 @@ const creator = createdBy === user?.id
   onBackPress={goBack} 
 />
      
-        {isPrivate && !isSubscriber && !creator ? (
+        {isPrivate && !isSubscriber && !creator  ? (
           <TouchableWithoutFeedback
             onPress={() => paystackWebViewRef.current.startTransaction()}
             style={{ alignItems: "center" }}

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, StatusBar, Image, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, GestureResponderEvent, TouchableWithoutFeedback } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, Image, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, GestureResponderEvent, TouchableWithoutFeedback, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Feather } from '@expo/vector-icons';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useUser } from '@/utils/useContext/UserContext';
 import Button from '@/components/Button';
 import { Video as ExpoVideo, ResizeMode } from 'expo-av'; 
@@ -14,6 +14,7 @@ import * as NavigationBar from 'expo-navigation-bar';
 import CustomHeader from '@/components/CustomHeader';
 import { formatCount } from '@/services/core/globals';
 import { BlurView } from 'expo-blur';
+import { Paystack, paystackProps } from 'react-native-paystack-webview';
 
 const styles = StyleSheet.create({
   container: {
@@ -214,8 +215,6 @@ interface Follower {
 }
 
 const UserDetails = () => {
-  // const { user } = useUser();
-const [filteredFollowers, setFilteredFollowers] = useState<Follower[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'public' | 'private'>('all');
@@ -223,7 +222,6 @@ const [filteredFollowers, setFilteredFollowers] = useState<Follower[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false); 
   const params = useLocalSearchParams();
   const { searchUserId, profileImageUrl} = params;
-  console.log('id...',searchUserId)
   const [isFollowing, setIsFollowing] = useState(false);
   const { user } = useUser();
   const [followers, setFollowers] = useState<Follower[]>([]);
@@ -231,6 +229,9 @@ const [filteredFollowers, setFilteredFollowers] = useState<Follower[]>([]);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [username, setUserName] = useState('');
+  const paystackWebViewRef = useRef(paystackProps.PayStackRef);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
 
   useEffect(() => {
     fetchPosts();
@@ -248,17 +249,17 @@ const [filteredFollowers, setFilteredFollowers] = useState<Follower[]>([]);
   const UserDetails = async () => {
     try {
       const url = `https://backend-server-quhu.onrender.com/users/${searchUserId}`;
-      console.log('id...1',searchUserId)
-      console.log('url...',url)
       const response = await axios.get(url);
-      // console.log('alll',response)
         if (response.status === 200 || response.status === 201) {
        setFirstName( response.data.firstName)
       setLastName(response.data.lastName)
       setFollowers(response.data.followers)
       setFollowing(response.data.following)
       setUserName(response.data.username)
-      console.log('last name',response.data.lastName)
+      const currentUserId = user.id;  
+      const isSubscribed = response.data.subscribers.includes(currentUserId);
+      setIsSubscribed(isSubscribed); 
+
       }
     } catch (error:any) {
       // console.error('Error fetching user details:', error.message);
@@ -287,9 +288,8 @@ const [filteredFollowers, setFilteredFollowers] = useState<Follower[]>([]);
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`https://backend-server-quhu.onrender.com/content/user/${searchUserId}`);
+      const response = await axios.get(`https://backend-server-quhu.onrender.com/content/${searchUserId}/${user?.id}`);
       const data = response.data;
-
       if (data && Array.isArray(data)) {
         setPosts(data);
         setFilteredPosts(data);
@@ -304,11 +304,6 @@ const [filteredFollowers, setFilteredFollowers] = useState<Follower[]>([]);
     }
   };
 
-
-  // const onRefresh = () => {
-  //   setIsRefreshing(true);
-  //   fetchPosts();
-  // };
 
   const handleCategoryChange = (category: 'all' | 'public' | 'private') => {
     setSelectedCategory(category);
@@ -329,13 +324,9 @@ const [filteredFollowers, setFilteredFollowers] = useState<Follower[]>([]);
     }
   }, [isFocused]);
 
-//   const navigation = useNavigation<NavigationProp>();
-
-
 
 
   const renderItem = ({ item }: { item: Post }) => {
-    const isVideo = item.mediaSrc.endsWith('.mp4') || item.mediaSrc.endsWith('.mov')
     const isPrivate = item.privacy === 'private';
     const isSubscribed = user && item.subscribers && item.subscribers.includes(user?.id);
 
@@ -436,44 +427,6 @@ const [filteredFollowers, setFilteredFollowers] = useState<Follower[]>([]);
 
   
 
-//   const fetchFollowers = async () => {
-//     try {
-  
-//         setLoading(true);
-        
-//         const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${searchUserId}/followers`);
-//         setFollowers(response.data.followers);
-//         setFilteredFollowers(response.data.followers);
-//     } catch (error) {
-//         // console.error('Error fetching followers:', error);
-//     } finally {
-//         setLoading(false);
-//         setIsRefreshing(false);
-//     }
-// };
-// const fetchFollowings = async () => {
-//   try {
-//     const response = await axios.get(
-//       `https://backend-server-quhu.onrender.com/users/${searchUserId}/following`
-//     );
-//     setFollowing(response.data.following);
-//     // Ensure that 'following' is an array before setting it
-//     if (Array.isArray(response.data.following)) {
-//       setFollowing(response.data.following);
-//       setFilteredFollowers(response.data.following);
-
-//     } else {
-//       // console.error('Expected "following" to be an array, but got:', response.data.following);
-//       setFollowing([]); 
-//     }
-  
-//   } catch (error) {
-//     // console.error('Error fetching followings:', error);
-//     setFollowing([]); 
-//   }
-// };
-
-
 const onRefresh = async () => {
   setIsRefreshing(true);
   await fetchPosts();
@@ -498,6 +451,50 @@ useFocusEffect(
   const goBack = () => {
     router.back();
   };
+
+
+  const handlePaymentSuccess = async (res: any) => {
+    setLoading(true);
+    const paymentData = {
+      transactionRef: res.data.transactionRef?.reference,
+      userId: user?.id,
+      subscribedUserId: searchUserId,
+      status: res.data.event,
+      amount: 20000,
+    };  
+    try {
+      const response = await axios.post('https://backend-server-quhu.onrender.com/payment/track', paymentData);
+      await UserDetails();
+      await fetchPosts()
+
+    } catch (error) {
+      // if (error instanceof AxiosError) 
+      // console.error('Error tracking payment:', error.response?.data || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handlePaymentCancel = () => {
+    // console.log('Payment cancelled');
+    // You can add additional logic for handling cancellations
+  }; 
+
+
+  const [isModalVisible, setModalVisible] = useState(false);
+  const showModal = () => {
+    setModalVisible(true);
+  };
+
+  const hideModal = () => {
+    setModalVisible(false);
+  };
+
+  const handleConfirmPayment = () => {
+    setModalVisible(false);
+    paystackWebViewRef.current.startTransaction(); 
+  };
+
 
   
   return (
@@ -539,10 +536,55 @@ useFocusEffect(
               } } />
           </View>
 
-          <View>
+<View>
+      <Paystack
+        paystackKey="pk_test_6738fce2cbc3ee832e7f7e86ee0e850969e48683"
+        billingEmail={user?.email}
+        billingName="Bajiku"
+        activityIndicatorColor="#000"
+        amount={20000}
+        channels={["card", "bank", "ussd", "qr", "mobile_money"]}
+        onCancel={handlePaymentCancel}
+        onSuccess={handlePaymentSuccess}
+        autoStart={false}
+        ref={paystackWebViewRef}
+      />
+    
+      <Button
+        text={isSubscribed ? "Subscribed" : "Subscribe"}
+        variant="secondary"
+        style={{ width: 340, height: 40, marginTop: 10 }}
+        icon={isSubscribed ? Icon : Icon} 
+        iconProps={{ name: isSubscribed ? 'check' : 'bell', size: 14, color: '#ffffff' }}
+        onClick={isSubscribed ? undefined : showModal}  
+        disabled={isSubscribed}
+      />
 
-            <Button text="Subscribe" variant="secondary" style={styles.button} icon={Icon} iconProps={{ name: 'bell', size: 14, color: '#ffffff' }} />
+      {/* Modal for Confirmation */}
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={hideModal}
+      >
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <View style={{ width: 300, padding: 20, backgroundColor: 'white', borderRadius: 10 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 20 }}>
+              Continue to Subscribe?
+            </Text>
+            <Text style={{ fontSize: 16, marginBottom: 20, textTransform:"lowercase" }}>
+              You are about to subscribe to @{username} for a monthly service fee of ₦20,000 and all their private content becomes public to you automatic for the next one month.
+            </Text>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Button text="Cancel" onClick={hideModal} variant='secondary'  style={{ width: 90, height: 40, marginTop: 10 }} />
+              <Button text="Continue" onClick={handleConfirmPayment} variant='secondary'  style={{ width: 90, height: 40, marginTop: 10 }} />
+            </View>
           </View>
+        </View>
+      </Modal>
+    </View>
+
 
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 15, marginBottom: 15, }}>
             <TouchableOpacity onPress={() => handleCategoryChange('all')} style={{ alignItems: 'center' }}>

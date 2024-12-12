@@ -6,6 +6,7 @@ const UsersDetailsLayout = () => {
          <Stack.Screen name="usersFollowers" options={{ headerShown: false }} />
           <Stack.Screen name="usersFollowings" options={{ headerShown: false }} />
           <Stack.Screen name="UserDetails" options={{ headerShown: false }} />
+       
     </Stack>
   );
 };

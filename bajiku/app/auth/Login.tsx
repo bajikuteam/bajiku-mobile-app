@@ -146,6 +146,14 @@ const LoginScreen = () => {
                 style={styles.button}
                 disabled={loading}
               />
+
+<View style={{marginTop:5}}>
+              <Link href={"/auth/ForgetPassword"}>
+               
+                  <Text style={{textAlign: 'center', fontSize: 15, color:'red'}}>Forgot Password?</Text>
+            
+              </Link>
+            </View>
               
               <View style={styles.separator}>
                 <View style={styles.line} />
@@ -187,12 +195,12 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    justifyContent: 'center', // Center vertically
+    justifyContent: 'center', 
     alignItems: 'center',
   },
   scrollViewContainer: {
     flexGrow: 1,
-    justifyContent: 'center', // Center vertically
+    justifyContent: 'center',
     alignItems: 'center',
   },
   safeArea: {
@@ -211,7 +219,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
-    justifyContent: 'center', // Center items vertically
+    justifyContent: 'center', 
     alignItems: 'center',
   },
   modalTitle: {

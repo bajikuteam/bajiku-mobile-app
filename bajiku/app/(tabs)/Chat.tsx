@@ -17,8 +17,7 @@ import { router } from 'expo-router';
 const ChatListScreen = () => {
 
   const [viewMode, setViewMode] = useState<'contacts' | 'groups' | 'all'>('all');
-
-  const { user } = useUser();
+const { user } = useUser();
   const { sendNotificationToServer } = useChat();
   const [loading, setLoading] = useState<boolean>(true);
   const [data, setData] = useState<any[]>([]);
@@ -256,8 +255,8 @@ const ChatListScreen = () => {
 
   const handleImagePress = (imageUrl: string | null) => {
     // Provide a fallback image URL if imageUrl is null
-    setSelectedImage(imageUrl || 'https://via.placeholder.com/150'); // Use a placeholder image if null
-    setModalVisible(true); // Show the modal
+    setSelectedImage(imageUrl || 'https://via.placeholder.com/150');
+    setModalVisible(true); 
   };
 
   if (loading) {
@@ -267,8 +266,6 @@ const ChatListScreen = () => {
       </View>
     );
   }
-
-  // const sidebarStyles = theme === 'dark' ? styles.sidebarDark : styles.sidebarLight;
 
   const renderItem = ({ item }: { item: any }) => {
     const lastMessageTime = item.lastMessageTime || (item.type === 'group' ? item.lastMessage?.createdAt : item.createdAt);

@@ -11,7 +11,6 @@ import {
   UserName,
   TextSection,
   MessageText,
-  PostTime,
 } from '@/styles/MessageStyles';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamLists } from '@/services/core/types';
@@ -34,7 +33,6 @@ interface Group {
 }
 
 const GroupScreen = () => {
-    const navigation = useNavigation<StackNavigationProp<RootStackParamLists>>();
     const [groups, setGroups] = useState<Group[]>([]);
     const [loading, setLoading] = useState(true);
     const { user } = useUser();
@@ -132,7 +130,7 @@ const GroupScreen = () => {
                                 <TextSection>
                                     <UserInfoText>
                                         <UserName style={{textTransform:'capitalize'}}>{item.name}</UserName>
-                                        {/* <PostTime >{item.description}</PostTime> */}
+                                       
                                     </UserInfoText>
                                     <MessageText >{item.description}</MessageText>
                                 </TextSection>

@@ -82,7 +82,7 @@ const UsersFollowingScreen = () => {
                 }
             }
         } catch (error) {
-            console.error('Error toggling follow:', error);
+            // console.error('Error toggling follow:', error);
         }
     };
     

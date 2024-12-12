@@ -1,18 +1,25 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ImageSourcePropType } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  Image, 
+  ImageSourcePropType 
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 
 import { useNavigation } from '@react-navigation/native'; 
 import { SafeAreaView } from 'react-native-safe-area-context'; 
-
 
 interface CustomHeaderProps {
   title: string;
   subtitle?: string;
   onBackPress?: () => void;
   image?: ImageSourcePropType | string;  
+  onMorePress?: () => void; // Add a prop for handling the three-dot icon press
 }
 
-const CustomHeader: React.FC<CustomHeaderProps> = ({ title, subtitle, onBackPress, image }) => {
+const CustomHeader: React.FC<CustomHeaderProps> = ({ title, subtitle, onBackPress, image, onMorePress }) => {
   const navigation = useNavigation();  
 
   const handleBackPress = () => {
@@ -28,11 +35,9 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, subtitle, onBackPres
       <View style={styles.headerContainer}>
         {onBackPress && (
           <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-            {/* Use Ionicons for the back button */}
             <Ionicons name="arrow-back" size={24} color="#ffffff" />
           </TouchableOpacity>
         )}
-        {/* Conditionally render the image, check if it's a string (URL) or ImageSourcePropType */}
         {image && (
           <Image
             source={typeof image === 'string' ? { uri: image } : image}
@@ -43,6 +48,12 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, subtitle, onBackPres
           <Text style={styles.title}>{title}</Text>
           {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
         </View>
+        {/* Three-dot icon */}
+        {onMorePress && (
+          <TouchableOpacity onPress={onMorePress} style={styles.moreButton}>
+            <Ionicons name="ellipsis-vertical" size={24} color="#ffffff" />
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -82,7 +93,9 @@ const styles = StyleSheet.create({
     color: '#444',
     fontSize: 12,
   },
+  moreButton: {
+    padding: 8,
+  },
 });
 
 export default CustomHeader;
-
