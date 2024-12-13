@@ -33,6 +33,12 @@
           "resizeMode": "contain",
           "backgroundColor": "#000"
         }
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.447373894859-38d2ev07f0obb5a3f6usf0ja8l6g4v81"
+        }
       ]
     ],
     "experiments": {
@@ -45,7 +51,8 @@
       "eas": {
         "projectId": "559330c8-1e7e-4570-ac98-691b7db786e1"
       }
-    },
+    }
+    ,
     "owner": "eehimuebru"
   }
 }
