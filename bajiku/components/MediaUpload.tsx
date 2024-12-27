@@ -80,8 +80,8 @@ const MediaUpload = ({ onMediaSelected }: { onMediaSelected: (uri: string, type:
     };
 
 
-    const [buttonWidth, setButtonWidth] = useState(200);
-const [buttonHeight, setButtonHeight] = useState(200); 
+    const [buttonWidth, setButtonWidth] = useState(350);
+const [buttonHeight, setButtonHeight] = useState(300); 
 const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
 useEffect(() => {
@@ -190,6 +190,9 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         resizeMode: 'cover', 
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#D1D5DB',
     },
     videoContainer: {
         width: '100%',

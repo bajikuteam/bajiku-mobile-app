@@ -13,6 +13,7 @@ import {
   Pressable,
   TextInput,
   Alert,
+  Modal,
 } from 'react-native';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
@@ -23,6 +24,7 @@ import { registerUser } from '@/services/api/request';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
+import axios from 'axios';
 
 const { height } = Dimensions.get('window');
 
@@ -80,20 +82,20 @@ const SignUpScreen = () => {
       return;
     }
   
-    setLoading(true);
+    setLoading(true);  
     setError('');
+    
   
     try {
       // Assuming registerUser returns both the token and user object
-      const response = await registerUser(email, dob);
-  
+      const response = await registerUser(email, dob); 
       // Check if the response contains both token and user object
       if (response.token && response.user && response.user?._id) {
         // Store both the token and userId in AsyncStorage
         await AsyncStorage.setItem('token', response.token);
         await AsyncStorage.setItem('userId', response.user?._id); 
         await AsyncStorage.setItem('email', email); 
-  
+        console.log('res...!',response)
         // Clear the form fields after successful registration
         setEmail('');
         setDob('');
@@ -101,8 +103,7 @@ const SignUpScreen = () => {
         setEmailError(null);
         setDateOfBirthError(null);
   
-        // Navigate to email verification screen
-        router.push('/auth/EmailVerification');
+       router.push('/auth/DisclaimerAccept')
       } else {
         setError('Registration failed');
         Alert.alert('Error', 'Registration failed');
@@ -110,10 +111,14 @@ const SignUpScreen = () => {
     } catch (err) {
       if (isAxiosError(err)) {
         // Axios error handling
-        if (err.response && err.response.status === 409 && err.response.data?.message) {
+        if(err.response && (err.response.status === 409 || err.response.status === 400) && err.response.data?.message)
+        
+          {
           Alert.alert('Error', err.response.data.message); 
-        } else {
-          Alert.alert('Error', 'An unexpected error occurred');
+          console.log(err.response.data)
+        } else  {
+          
+          Alert.alert('Error', 'An unexpected error occurred',);
         }
       } else if (isErrorWithMessage(err)) {
         Alert.alert('Error', err.message); 
@@ -147,10 +152,10 @@ const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
       setShowDatePicker(false);
       toggleDatePicker();
       setSelectedDate(currentDate);
-      setDob(currentDate.toLocaleDateString());
+     setDob(currentDate.toISOString().split('T')[0]);
     } else {
       setSelectedDate(currentDate);
-      setDob(currentDate.toLocaleDateString());
+      setDob(currentDate.toISOString().split('T')[0]);
     }
   } else {
     toggleDatePicker();
@@ -171,6 +176,45 @@ const confirmIOSDate = () => {
   toggleDatePicker()
 }
 
+
+const [isDisclaimerModalVisible, setDisclaimerModalVisible] = useState(false);
+const [userId, setUserId] = useState<string | null>(null);
+React.useEffect(() => {
+  const getUserIdFromStorage = async () => {
+    const storedUserId = await AsyncStorage.getItem('userId');
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
+  };
+  getUserIdFromStorage();
+}, []);
+
+const handleDisclaimerAccept = async () => {
+  if (userId) {
+    try {
+      const response = await axios.post(`https://backend-server-quhu.onrender.com/api/auth/${userId}/accept-disclaimer`, {
+        disclaimerAccepted: true,
+      });
+
+      console.log('res....!!',response);
+      console.log('res....!!',response.data);
+      setDisclaimerModalVisible(false);
+      router.push('/auth/EmailVerification');
+      return response.data; 
+       
+    } catch (error) {
+      console.error("Failed to accept disclaimer:", error);
+      throw error;
+    }
+  } else {
+    Alert.alert('Error', 'User ID not found. Please try again later.');
+  }
+};
+
+const handleDisclaimerDecline = () => {
+  setDisclaimerModalVisible(false);
+};
+
   return (
      
       <KeyboardAvoidingView
@@ -180,11 +224,7 @@ const confirmIOSDate = () => {
         <SafeAreaView style={styles.safeArea}>
           <ScrollView contentContainerStyle={styles.scrollViewContainer}>
             <View style={[styles.loginModal, theme === 'dark' ? styles.darkModal : styles.lightModal]}>
-            {/* <View className='absolute right-6 top-2'>
-                <TouchableOpacity>
-                <Link href={"/"}><Text className='text-2xl'>X</Text></Link>
-                </TouchableOpacity>
-              </View> */}
+         
 
               <Text style={styles.modalTitle} className='text-[#FBBC05]'>
                 Sign up to get started
@@ -320,6 +360,27 @@ const confirmIOSDate = () => {
             </View>
           </ScrollView>
         </SafeAreaView>
+
+        <Modal
+        transparent={true}
+        animationType="fade"
+        visible={isDisclaimerModalVisible}
+        onRequestClose={handleDisclaimerDecline}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContent}>
+            <Text style={styles.disclaimerText}>By continuing, you accept the terms and conditions.</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity onPress={handleDisclaimerDecline} style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>Decline</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleDisclaimerAccept} style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>Accept</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       </KeyboardAvoidingView>
    
   );
@@ -461,6 +522,40 @@ marginTop: -10,
     textDecorationLine: 'underline',
   },
 
+
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  disclaimerText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    padding: 10,
+    backgroundColor: '#075985',
+    borderRadius: 5,
+    marginHorizontal: 10,
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontSize: 14,
+  }
 });
 
 export default SignUpScreen;

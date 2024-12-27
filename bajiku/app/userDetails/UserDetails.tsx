@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, StatusBar, Image, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, GestureResponderEvent, TouchableWithoutFeedback, Modal } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, Image, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, GestureResponderEvent, TouchableWithoutFeedback, Modal, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Feather } from '@expo/vector-icons';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { useUser } from '@/utils/useContext/UserContext';
 import Button from '@/components/Button';
 import { Video as ExpoVideo, ResizeMode } from 'expo-av'; 
@@ -15,6 +15,7 @@ import CustomHeader from '@/components/CustomHeader';
 import { formatCount } from '@/services/core/globals';
 import { BlurView } from 'expo-blur';
 import { Paystack, paystackProps } from 'react-native-paystack-webview';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const styles = StyleSheet.create({
   container: {
@@ -32,11 +33,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     paddingHorizontal: 20,
     marginTop: 30,
+
   },
   profileImage: {
     width: 100,
     height: 100,
     borderRadius: 15,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
   },
   text: {
     fontSize: 14,
@@ -176,9 +180,28 @@ blurView: {
   justifyContent: "center",
   backgroundColor: "black",
 },
+modalContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+},
+modalImage: {
+   height: 300,
+   width: '80%',
+  resizeMode: 'contain',
+  borderRadius: 15,
+  borderWidth: 2,
+  borderColor: '#D1D5DB',
+  
+},
 });
 
-
+interface Subscriber {
+  userId: string;
+  expiryDate: string;
+  isActive: boolean;
+}
 interface Comment {
   _id?: string;
   username: string;
@@ -205,6 +228,8 @@ interface Post {
   createdBy: string;
   isVideo?: boolean;
   price?: number
+  authorName: string
+  createdAt: string
 }
 interface Follower {
     _id: string;
@@ -229,9 +254,14 @@ const UserDetails = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [username, setUserName] = useState('');
+  const [expiryDate, setExpiryDate] = useState<Date | null>(null); 
+const [userImage, setUserImage] = useState('')
   const paystackWebViewRef = useRef(paystackProps.PayStackRef);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
+  const handleImagePress = () => {
+    setImgModalVisible(true); 
+  };
 
   useEffect(() => {
     fetchPosts();
@@ -248,28 +278,52 @@ const UserDetails = () => {
 
   const UserDetails = async () => {
     try {
-      const url = `https://backend-server-quhu.onrender.com/users/${searchUserId}`;
+      const url = `https://backend-server-quhu.onrender.com/users/userDetails/${searchUserId}`;
+  
       const response = await axios.get(url);
-        if (response.status === 200 || response.status === 201) {
-       setFirstName( response.data.firstName)
-      setLastName(response.data.lastName)
-      setFollowers(response.data.followers)
-      setFollowing(response.data.following)
-      setUserName(response.data.username)
-      const currentUserId = user.id;  
-      const isSubscribed = response.data.subscribers.includes(currentUserId);
-      setIsSubscribed(isSubscribed); 
-
+    
+      if (response.status === 200 || response.status === 201) {
+        // Set other details
+        setFirstName(response?.data?.firstName);
+        setLastName(response?.data?.lastName);
+        setFollowers(response?.data?.followers);
+        setFollowing(response?.data?.following);
+        setUserName(response?.data?.username);
+        setUserImage(response?.data?.profileImageUrl)
+  
+        // Get the current user ID (assumed logged-in user)
+        const userId = user?.id  || await AsyncStorage.getItem('userId'); 
+        const currentUserId = userId ;
+  
+        // Check if the current user is subscribed and if the subscription is active
+        const currentUserSubscription = response?.data?.subscribers.find(
+          (subscriber: Subscriber) => 
+            subscriber?.userId === currentUserId && subscriber?.isActive === true
+        );
+  
+        if (currentUserSubscription) {
+          // Extract the expiry date from the subscriber object and set it
+          const expiryDate = new Date(currentUserSubscription?.expiryDate);
+          setExpiryDate(expiryDate);
+        } else {
+          setExpiryDate(null);
+        }
+  
+        // Set the subscription status
+        setIsSubscribed(!!currentUserSubscription);
       }
-    } catch (error:any) {
+    } catch (error: any) {
+      // Handle error
       // console.error('Error fetching user details:', error.message);
     }
   };
+  
 
 
   const toggleFollow = async () => {
+    const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     try {
-      const url = `https://backend-server-quhu.onrender.com/users/${user?.id}/${isFollowing ? 'unfollow' : 'follow'}`;
+      const url = `https://backend-server-quhu.onrender.com/users/${userId}/${isFollowing ? 'unfollow' : 'follow'}`;
       const body = isFollowing ? { userIdToUnfollow: searchUserId } : { userIdToFollow: searchUserId };
   
       const response = await axios.post(url, body);
@@ -286,9 +340,10 @@ const UserDetails = () => {
   };
   
   const fetchPosts = async () => {
+    const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     setLoading(true);
     try {
-      const response = await axios.get(`https://backend-server-quhu.onrender.com/content/${searchUserId}/${user?.id}`);
+      const response = await axios.get(`https://backend-server-quhu.onrender.com/content/${searchUserId}/${userId}`);
       const data = response.data;
       if (data && Array.isArray(data)) {
         setPosts(data);
@@ -325,14 +380,30 @@ const UserDetails = () => {
   }, [isFocused]);
 
 
+  const [userId, setUserId] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  
+
+  // Fetch userId from AsyncStorage
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const storedUserId = user?.id || await AsyncStorage.getItem('userId');
+      const storedUserEmail = user?.email || await AsyncStorage.getItem('email')
+      setUserId(storedUserId);
+      setUserEmail(storedUserEmail)
+    };
+    fetchUserId();
+  }, []);
+
 
   const renderItem = ({ item }: { item: Post }) => {
+    
     const isPrivate = item.privacy === 'private';
-    const isSubscribed = user && item.subscribers && item.subscribers.includes(user?.id);
+    const isSubscribed = user && item.subscribers && item.subscribers.includes(userId as string ?? null);
 
 
     const handleNavigateToPostDetails = () => {
-      router.push( {pathname:'/PostDetail', params:{
+      router.push( {pathname:'/content/contentDetails', params:{
         id: item._id,
         privacy: item.privacy,
         mediaSrc: item.mediaSrc,
@@ -341,7 +412,9 @@ const UserDetails = () => {
         comments: item.comments as any,
         likes: item.likes,
         price: item.price,
-        createdBy: item.createdBy
+        createdBy: item.createdBy,
+        authorName: item.authorName,
+        createdAt: item.createdAt
       }
      } )
   }
@@ -351,7 +424,7 @@ const UserDetails = () => {
       onPress={() => {
         if (!isPrivate || isSubscribed) {
           router.push({
-            pathname: '/PostDetail',
+            pathname: '/content/contentDetails',
             params: {
               id: item._id,
               privacy: item.privacy,
@@ -362,6 +435,8 @@ const UserDetails = () => {
               likes: item.likes,
               price: item.price,
               createdBy: item.createdBy,
+              authorName: item.authorName,
+              createdAt: item.createdAt
             },
           });
         }
@@ -409,9 +484,10 @@ const UserDetails = () => {
 
 
   const fetchFollowing = async () => {
+    const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     try {
       const response = await axios.get(
-        `https://backend-server-quhu.onrender.com/users/${user?.id}/following`
+        `https://backend-server-quhu.onrender.com/users/${userId}/following`
       );
       // Define the type for the array of followed users
       const followingList: Follower[] = response.data.following || [];
@@ -455,9 +531,10 @@ useFocusEffect(
 
   const handlePaymentSuccess = async (res: any) => {
     setLoading(true);
+    const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     const paymentData = {
       transactionRef: res.data.transactionRef?.reference,
-      userId: user?.id,
+      userId: userId,
       subscribedUserId: searchUserId,
       status: res.data.event,
       amount: 20000,
@@ -479,7 +556,7 @@ useFocusEffect(
     // console.log('Payment cancelled');
     // You can add additional logic for handling cancellations
   }; 
-
+  const [imgModalVisible, setImgModalVisible] = useState(false);
 
   const [isModalVisible, setModalVisible] = useState(false);
   const showModal = () => {
@@ -504,9 +581,11 @@ useFocusEffect(
         <StatusBar barStyle="light-content" backgroundColor="#000000" />
 
         <View style={styles.profileContainer}>
+        <TouchableOpacity onPress={() => handleImagePress()}>
           <Image
             source={{ uri: typeof profileImageUrl === 'string' ? profileImageUrl : '' }}
             style={styles.profileImage} />
+            </TouchableOpacity>
 
           <Text style={[styles.text, { textTransform: 'capitalize', }]}>{firstName} {lastName}</Text>
           <Text style={[styles.text, { textTransform: 'lowercase' }]}>@{username}</Text>
@@ -523,14 +602,15 @@ useFocusEffect(
               }}
               onClick={toggleFollow} />
             <Button text="Message" variant="secondary" style={styles.senbuttonM}
+            
               onClick={() => {
                 router.push({
-                  pathname: '/message', params: {
+                  pathname: '/chat/message', params: {
                     profileImageUrl: profileImageUrl || '',
                     username: username,
-                    senderId: user?.id,
+                    senderId: userId,
                     receiverId: searchUserId,
-                    senderName: user?.username,
+                    senderName: username,
                   }
                 });
               } } />
@@ -539,7 +619,7 @@ useFocusEffect(
 <View>
       <Paystack
         paystackKey="pk_test_6738fce2cbc3ee832e7f7e86ee0e850969e48683"
-        billingEmail={user?.email}
+        billingEmail={userEmail as string}
         billingName="Bajiku"
         activityIndicatorColor="#000"
         amount={20000}
@@ -560,6 +640,12 @@ useFocusEffect(
         disabled={isSubscribed}
       />
 
+{expiryDate && (
+  <Text style={{color: 'red', textAlign: 'center'}}>
+    Subscription Expiry Date: {expiryDate.toLocaleDateString()}
+  </Text>
+)}
+
       {/* Modal for Confirmation */}
       <Modal
         visible={isModalVisible}
@@ -578,7 +664,7 @@ useFocusEffect(
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Button text="Cancel" onClick={hideModal} variant='secondary'  style={{ width: 90, height: 40, marginTop: 10 }} />
-              <Button text="Continue" onClick={handleConfirmPayment} variant='secondary'  style={{ width: 90, height: 40, marginTop: 10 }} />
+              <Button text="Continue" onClick={handleConfirmPayment} variant='primary'  style={{ width: 90, height: 40, marginTop: 10 }} />
             </View>
           </View>
         </View>
@@ -645,6 +731,18 @@ useFocusEffect(
             <Text style={styles.noContentText}>No content yet</Text>
           )}
         </View>
+
+
+        <Modal 
+        visible={imgModalVisible} 
+        transparent={true} 
+        animationType="fade" 
+        onRequestClose={() => setImgModalVisible(false)}
+      >
+          <Pressable style={styles.modalContainer} onPress={() => setImgModalVisible(false)}>
+          <Image source={{ uri: userImage  as string}} style={styles.modalImage} />
+        </Pressable>
+      </Modal>
       </SafeAreaView></>
   );
 };

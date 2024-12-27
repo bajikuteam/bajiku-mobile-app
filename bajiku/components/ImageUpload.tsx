@@ -37,7 +37,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelected, currentImage
 
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
+            allowsEditing: false,
             aspect: [1, 1], 
             quality: 1,
         });
@@ -116,6 +116,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         position: 'relative',
+        borderWidth: 2,
+        borderColor: '#D1D5DB',
     },
     cameraIconContainer: {
         position: 'absolute',

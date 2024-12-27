@@ -167,6 +167,7 @@ const LoginScreen = () => {
                 image="https://res.cloudinary.com/dyz7znlj0/image/upload/v1726888095/Vector_ef0eca.png"
                 style={styles.button}
               />
+              
               <View style={{marginTop:30}}>
               <SocialButton
                 text="Continue with Facebook"
@@ -175,6 +176,7 @@ const LoginScreen = () => {
           
               />
               </View>
+              
             </View>
 
             <View style={styles.signupLink}>

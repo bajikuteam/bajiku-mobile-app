@@ -5,6 +5,7 @@ import { useUser } from '@/utils/useContext/UserContext';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/utils/useContext/ThemeContext';
 import CustomHeader from '@/components/CustomHeader';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Follower {
     _id: string;
@@ -81,34 +82,35 @@ const UsersFollowersScreen = () => {
                 }
             }
         } catch (error) {
-            console.error('Error toggling follow:', error);
+            // console.error('Error toggling follow:', error);
         }
     };
     
 
-
-    const handlePress = (
+    const handlePress = async (
         userId: string, 
         username: string, 
         firstName: string, 
         lastName: string, 
         profileImageUrl: string,
         followingCount: number, 
-        followerCount: number,
+        followerCount: number
       ) => {
-        // Check if the pressed user is the logged-in user
-        if (userId === user?.id) {
+        // Get the logged-in user's ID
+        const loggedInUserId = user?.id || await AsyncStorage.getItem('userId');
+      
+        if (loggedInUserId === userId) {
           // Navigate to the logged-in user's profile
           router.push({
             pathname: '/Profile',
             params: {
-              userId: userId,
-              username: username,
-              firstName: firstName,
-              lastName: lastName,
-              profileImageUrl: profileImageUrl,
-              followingCount:followingCount,
-              followerCount:followerCount
+              userId: loggedInUserId,
+              username,
+              firstName,
+              lastName,
+              profileImageUrl,
+              followingCount,
+              followerCount,
             },
           });
         } else {
@@ -117,12 +119,12 @@ const UsersFollowersScreen = () => {
             pathname: '/userDetails/UserDetails',
             params: {
               searchUserId: userId,
-              username: username,
-              firstName: firstName,
-              lastName: lastName,
-              profileImageUrl: profileImageUrl,
-              followingCount:followingCount,
-              followerCount:followerCount
+              username,
+              firstName,
+              lastName,
+              profileImageUrl,
+              followingCount,
+              followerCount,
             },
           });
         }

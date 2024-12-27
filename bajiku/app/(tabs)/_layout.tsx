@@ -1,5 +1,5 @@
 import { Link, router, Tabs } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Feather, FontAwesome } from '@expo/vector-icons';
@@ -7,6 +7,8 @@ import { TouchableOpacity, Text, View, Modal, FlatList,  StyleSheet, Image, Acti
 import axios from 'axios';
 import { useUser } from '@/utils/useContext/UserContext';
 import { useTheme } from '@/utils/useContext/ThemeContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface Notification {
   IsRead: boolean;
@@ -17,6 +19,9 @@ interface Notification {
   _id: string;
   whoInitiatedId:string;
   username:string;
+  commentId:string;
+  contentId:string;
+  replyId:string;
 }
 
 
@@ -151,8 +156,8 @@ const styles = StyleSheet.create({
   },
 
   profileImageTwo: {
-    width: 40,
-    height: 40,
+    width: 35,
+    height: 35,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#D1D5DB',
@@ -235,22 +240,33 @@ const styles = StyleSheet.create({
 
 export default function TabLayout() {
   const headerStatusColor = "#000000";
-  const [modalVisible, setModalVisible] = useState(false); 
-  const [menuModalVisible, setMenuModalVisible] = useState(false);  
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false); 
-const {user, handleLogout} = useUser()
+const {user} = useUser()
 const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+
+
+useFocusEffect(
+  useCallback(() => {
+    setLoading(true);
+    fetchNotifications ();
+    const timeout = setTimeout(() => {
+      setLoading(false); 
+    }, 2000);
+    return () => clearTimeout(timeout);
+  }, [ user?.id])
+);
+
+
 
 
   const fetchNotifications = async () => {
     setLoading(true);
+    const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     try {
-      const response = await axios.get(`https://backend-server-quhu.onrender.com/notifications/${user?.id}`);
+      const response = await axios.get(`https://backend-server-quhu.onrender.com/notifications/${userId}`);
       const allNotifications: Notification[] = response.data;
-
       const unreadCount = allNotifications.filter((notification: Notification) => !notification.IsRead).length;
-  
       setNotifications(allNotifications);
       setUnreadNotificationsCount(unreadCount); 
     } catch (error) {
@@ -264,101 +280,17 @@ const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
       fetchNotifications();
     }
   }, [user]);
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-    if (!modalVisible && user) {
-      fetchNotifications(); 
-      intervalId = setInterval(() => {
-        fetchNotifications();  
-      }, 30000);
-    }
-
-    return () => clearInterval(intervalId);  
-  }, [modalVisible, user]); 
 
 
-  const handleBellPress = () => {
-    fetchNotifications();  
-    setModalVisible(true);  
-  };
-
-  const handleMenuPress = () => {
-    setMenuModalVisible(true);  
-  };
 
   const handleProfilePress = () => {
-    router.push('/Profile'); 
-  };
-  const SidebarItem: React.FC<{ icon: JSX.Element; label: string }> = ({
-    icon,
-    label,
-    
-  }) => {
-    const { theme } = useTheme();
-    const iconColor = "#000";
-  
-    // Clone the icon with the appropriate color
-    const coloredIcon = React.cloneElement(icon, { color: iconColor });
-  
-    return (
-      <View style={styles.sidebarItem}>
-        <View style={styles.icon}>{coloredIcon}</View>
-        <Text style={{ color: '#000', marginTop:8 }}>{label}</Text>
-      </View>
-    );
+    router.push('/profile/Profile'); 
   };
 
-  const handleLogoutFromApp = () => {
-    handleLogout(); 
-    setMenuModalVisible(false); 
+  const handleNotification = () => {
+    router.push('/system/notifications'); 
+    fetchNotifications();  
   };
-
-const markAllAsRead = async () => {
-  try {
-    await axios.patch(`https://backend-server-quhu.onrender.com/notifications/${user?.id}/mark-all-read`);
-    fetchNotifications(); 
-  } catch (error) {
-    console.error('Error marking all notifications as read:', error);
-  }
-};
-
-
-const handlePress = async (
-  notificationId: string ,
-  userId: string, 
-  username: string, 
-  profileImageUrl: string, 
-  message: string, 
-) => {
-    await axios.patch(`https://backend-server-quhu.onrender.com/notifications/${notificationId}/mark-read`);
-
-    if (message === "Welcome to Bajiku !. Continuing networking") {
-      return; 
-    }
-    if (userId === user.id) {
-      router.push({
-        pathname: '/Profile',
-        params: {
-          notificationId: notificationId,
-          userId: userId,
-          username: username,
-          profileImageUrl: profileImageUrl,
-        },
-      });
-    } else {
-      router.push({
-        pathname: '/userDetails/UserDetails',
-        params: {
-          notificationId: notificationId,
-          searchUserId: userId,
-          username: username,
-          profileImageUrl: profileImageUrl,
-        },
-      });
-    }
-
-    setModalVisible(false);
-};
 
 
   return (
@@ -398,7 +330,7 @@ const handlePress = async (
           headerRight: () => (
             <>
 
-    <TouchableOpacity onPress={handleBellPress} style={{ marginRight: 15 }}>
+    <TouchableOpacity onPress={handleNotification} style={{ marginRight: 15 }}>
   <FontAwesome name="bell" size={20} color="#fff" />
   {unreadNotificationsCount > 0 && (
     <View style={styles.notificationBadge}>
@@ -411,7 +343,7 @@ const handlePress = async (
 
   
               <TouchableOpacity
-                 onPress={handleMenuPress}
+                 onPress={() =>router.push('/system/menu')}
                 style={{ marginRight: 15 }}
               >
                   <MaterialCommunityIcons name="dots-vertical" size={24} color="#fff" />
@@ -433,6 +365,39 @@ const handlePress = async (
           headerTitle: 'Search For Users',
           headerStyle: { backgroundColor: headerStatusColor },
           headerTintColor: '#fff',
+          headerTitleAlign: 'center',
+          headerLeft: () => (
+            <TouchableOpacity onPress={handleProfilePress} style={{ marginLeft: 15 }}>
+               <Image
+                    source={{ uri: user?.profileImageUrl }}
+                    style={styles.profileImageTwo}
+                  />
+            </TouchableOpacity>
+          ),
+          headerRight: () => (
+            <>
+
+    <TouchableOpacity onPress={handleNotification} style={{ marginRight: 15 }}>
+  <FontAwesome name="bell" size={20} color="#fff" />
+  {unreadNotificationsCount > 0 && (
+    <View style={styles.notificationBadge}>
+      <Text style={styles.notificationText}>
+        {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
+      </Text>
+    </View>
+  )}
+</TouchableOpacity>
+
+  
+              <TouchableOpacity
+                 onPress={() =>router.push('/system/menu')}
+                style={{ marginRight: 15 }}
+              >
+                  <MaterialCommunityIcons name="dots-vertical" size={24} color="#fff" />
+              </TouchableOpacity>
+            </>
+          ),
+
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'search' : 'search-outline'} color={color} />
           ),
@@ -459,6 +424,38 @@ const handlePress = async (
           headerShown: true,
           headerStyle: { backgroundColor: headerStatusColor },
           headerTintColor: '#fff',
+          headerTitleAlign: 'center',
+          headerLeft: () => (
+            <TouchableOpacity onPress={handleProfilePress} style={{ marginLeft: 15 }}>
+               <Image
+                    source={{ uri: user?.profileImageUrl }}
+                    style={styles.profileImageTwo}
+                  />
+            </TouchableOpacity>
+          ),
+          headerRight: () => (
+            <>
+
+    <TouchableOpacity onPress={handleNotification} style={{ marginRight: 15 }}>
+  <FontAwesome name="bell" size={20} color="#fff" />
+  {unreadNotificationsCount > 0 && (
+    <View style={styles.notificationBadge}>
+      <Text style={styles.notificationText}>
+        {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
+      </Text>
+    </View>
+  )}
+</TouchableOpacity>
+
+  
+              <TouchableOpacity
+                 onPress={() =>router.push('/system/menu')}
+                style={{ marginRight: 15 }}
+              >
+                  <MaterialCommunityIcons name="dots-vertical" size={24} color="#fff" />
+              </TouchableOpacity>
+            </>
+          ),
           tabBarIcon: ({ color, focused }) => (
             <MaterialCommunityIcons
               name={focused ? 'message' : 'message-outline'}
@@ -473,6 +470,39 @@ const handlePress = async (
           headerShown: true,
           headerStyle: { backgroundColor: headerStatusColor },
           headerTintColor: '#fff',
+          headerTitleAlign: 'center',
+          headerLeft: () => (
+            <TouchableOpacity onPress={handleProfilePress} style={{ marginLeft: 15 }}>
+               <Image
+                    source={{ uri: user?.profileImageUrl }}
+                    style={styles.profileImageTwo}
+                  />
+            </TouchableOpacity>
+          ),
+          headerRight: () => (
+            <>
+
+    <TouchableOpacity onPress={handleNotification} style={{ marginRight: 15 }}>
+  <FontAwesome name="bell" size={20} color="#fff" />
+  {unreadNotificationsCount > 0 && (
+    <View style={styles.notificationBadge}>
+      <Text style={styles.notificationText}>
+        {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
+      </Text>
+    </View>
+  )}
+</TouchableOpacity>
+
+  
+              <TouchableOpacity
+                 onPress={() =>router.push('/system/menu')}
+                style={{ marginRight: 15 }}
+              >
+                  <MaterialCommunityIcons name="dots-vertical" size={24} color="#fff" />
+              </TouchableOpacity>
+            </>
+          ),
+
           tabBarIcon: ({ color, focused }) => (
             <MaterialCommunityIcons
               name={focused ? 'account-group' : 'account-group-outline'}
@@ -481,147 +511,8 @@ const handlePress = async (
           ),
         }} />
     </Tabs>
-    <Modal
-      visible={modalVisible}
-      onRequestClose={() => setModalVisible(false)}
-      transparent={true}
-      animationType="slide"
-    >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-          <Text  style={{color:'#000',fontSize:18, textAlign:'center', marginBottom:40}}>Notifications</Text>
-
-      <View style={styles.buttonContainer}>
-  <TouchableOpacity style={styles.markAllButton} onPress={markAllAsRead}>
-    <Text style={styles.markAllButtonText}>Mark All As Read</Text>
-  </TouchableOpacity>
-  <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-    <Text style={styles.closeButtonText}>X</Text>
-  </TouchableOpacity>
-
-</View>
-
-            {loading ? (
-                <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#075E54" />
-                <Text>Loading Notifications</Text>
-              </View>
-            ) : (
-              <FlatList
-              data={notifications} 
-              keyExtractor={(item) => item?._id.toString()}
-              renderItem={({ item }: { item: Notification }) => ( 
-         
-              <TouchableOpacity
-  onPress={() =>
-    handlePress(
-      item._id,
-      item.whoInitiatedId,
-      item.username,
-      item.profileImageUrl,
-      item.message
-    )
-  }
->
-  <View
-    style={[
-      styles.commentContainer,
-      !item.IsRead && { backgroundColor: '#f0f8ff' }, 
-    ]}
-  >
-    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <Image
-        source={{ uri: item.profileImageUrl }}
-        style={styles.commentUserImage}
-      />
-      <Text style={{ marginLeft: 10, color: '#000', textTransform: 'lowercase' }}>
-        {item.message}
-      </Text>
-
-      {/* Unread Indicator */}
-      {!item.IsRead && (
-        <View
-          style={{
-            width: 10,
-            height: 10,
-            backgroundColor: '#ff0000', 
-            borderRadius: 5,
-            marginLeft: 5,
-          }}
-        />
-      )}
-    </View>
-  </View>
-</TouchableOpacity>
-
-              )}
-            />
-          )}
-
-          </View>
-        </View>
-      </Modal>
 
 
-      <Modal
-      visible={menuModalVisible}
-      onRequestClose={() => setMenuModalVisible(false)}
-      transparent={true}
-      animationType="slide"
-    >
-        <View style={styles.modalOverlay}>
-          <View style={{  height: '75%',
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 16,
-    elevation: 5,
-    zIndex: 1000,}}>
-      <View style={styles.modalHeader}>
-  <TouchableOpacity 
-    style={styles.closeButton} 
-    onPress={() => setMenuModalVisible(false)}>
-    <Text style={styles.closeButtonText}>X</Text>
-  </TouchableOpacity>
-</View>
-
-      <View style={styles.items}>
-          <TouchableOpacity>
-          <Link href="/(tabs)" >
-            <SidebarItem
-              icon={<Feather name="home" size={28} />}
-              label="Home"
-            />
-            </Link>
-             </TouchableOpacity>
-
-            <SidebarItem
-              icon={<Feather name="settings" size={28} />}
-              label="Settings"
-            />
-
-              <TouchableOpacity onPress={handleLogoutFromApp}   style={styles.logoutButton}>
-                <Text style={styles.logoutText}>Logout</Text>
-              </TouchableOpacity>
-          </View>
-
-          <View style={styles.policySection}>
-            <Text style={[styles.policyText, { color:'#000' }]}>About</Text>
-            <Text style={[styles.policyText, { color: '#000' }]}>
-              Policy
-            </Text>
-            <Text style={[styles.policyText, { color: '#000' }]}>
-              Community Guidelines
-            </Text>
-            <Text style={[styles.policyText, { color: '#000' }]}>
-              Terms and Conditions
-            </Text>
-            <Text style={[styles.policyText, { color: '#000' }]}>FAQ</Text>
-          </View>
-
-          </View>
-        </View>
-      </Modal>
       </>
   );
 }

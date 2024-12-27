@@ -230,7 +230,7 @@ const Sidebar: React.FC = () => {
                     paddingVertical: 30,
                   }}
                 >
-                  <Link href="/Followers" onPress={handleClose}>
+                  <Link href="/profile/Profile" onPress={handleClose}>
                     <Text style={{
                  textTransform:"capitalize",
                  fontSize:12,
@@ -239,7 +239,7 @@ const Sidebar: React.FC = () => {
                          {personalDetailsFollowers?.length=== 1 ? '1 Follower' : `${formatCount(personalDetailsFollowers?.length)} Followers`} | {" "}
                     </Text>
                   </Link>
-                  <Link href="/Following" onPress={handleClose}>
+                  <Link href="/profile/Profile" onPress={handleClose}>
                     <Text   style={{
                  textTransform:"capitalize",
                  fontSize:12,

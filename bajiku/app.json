@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/welcome.jpg",
+        "foregroundImage": "./assets/images/bajiku.png",
         "backgroundColor": "#000"
       },
       "package": "com.eehimuebru.bajikurevamp"
@@ -28,7 +28,7 @@
       [
         "expo-splash-screen",
         {
-         "image": "./assets/images/welcome.jpg",
+         "image": "./assets/images/bajiku.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#000"

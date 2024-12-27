@@ -5,7 +5,7 @@ import { FontAwesome } from '@expo/vector-icons';
 // import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamListComponent } from '@/services/core/types';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useNavigation } from "expo-router";
 type NavigationProp = StackNavigationProp<RootStackParamListComponent>;
 
@@ -31,7 +31,7 @@ const RoundButton: React.FC = () => {
       {isOpen && (
         <View style={styles.popup}>
              {/* <Link href="/contact/Followers" > */}
-            <TouchableOpacity style={styles.popupItem}     onPress={() => navigation.navigate('NewChat')}>
+            <TouchableOpacity style={styles.popupItem}     onPress={() => router.push('/chat/NewChat')}>
            
             <View style={styles.popupTextContainer} >
               <Text style={styles.popupText}>New Chat</Text>
@@ -45,7 +45,7 @@ const RoundButton: React.FC = () => {
          
           <TouchableOpacity 
             style={styles.popupItem} 
-            onPress={() => navigation.navigate('CreateGroup')}
+            onPress={() => router.push('/chat/CreateGroup')}
           >
             <View style={styles.popupTextContainer}>
               <Text style={styles.popupText}>Create Private Room</Text>
