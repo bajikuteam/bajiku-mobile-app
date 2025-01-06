@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, StatusBar, Image, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, Image, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Modal, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -40,6 +40,8 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 15,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
   },
   text: {
     fontSize: 14,
@@ -133,6 +135,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  },
+  modalImage: {
+     height: 300,
+     width: '80%',
+    resizeMode: 'contain',
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    
+  },
 });
 
 
@@ -174,17 +191,32 @@ const Profile = () => {
   const [personalDetails, setPersonalDetails] = useState<string[]>([]);
   const [personalDetailsFollowers, setPersonalDetailsFollowers] = useState<string[]>([]);
 
-  // useEffect(() => {
-  //   fetchPosts();
-  //   fetchPostsSubscribe ()
-  // }, []);
+ 
+  const [userId, setUserId] = React.useState<string | null>(null);
+
+
+  const [imgModalVisible, setImgModalVisible] = useState(false);
+  const handleImagePress = () => {
+    setImgModalVisible(true); 
+  };
+
+  React.useEffect(() => {
+    const fetchUserId = async () => {
+      const userId = user?.id  || await AsyncStorage.getItem('userId'); 
+      const storedUserId = userId;
+      setUserId(storedUserId);
+    };
+    fetchUserId();
+  }, []);
 
 
   const fetchPersonalDetail = async () => {
+    const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     try {
       const response = await axios.get(
-        `https://backend-server-quhu.onrender.com/users/${user?.id}`
+        `https://backend-server-quhu.onrender.com/users/userDetails/${userId}`
       );
+
       setPersonalDetails(response.data.following || []); 
       setPersonalDetailsFollowers(response.data.followers || []); 
     } catch (error) {
@@ -192,11 +224,7 @@ const Profile = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (user?.id) {
-  //     fetchPersonalDetail();
-  //   }
-  // }, [user?.id]);
+
 
 
   useFocusEffect(
@@ -206,7 +234,7 @@ const Profile = () => {
       fetchPostsSubscribe();
   
       // Fetch personal details if user exists
-      if (user?.id) {
+      if (user || userId) {
         fetchPersonalDetail();
       }
   
@@ -215,7 +243,7 @@ const Profile = () => {
   
       return () => {
       };
-    }, [user?.id]) 
+    }, [userId]) 
   );
   
 
@@ -311,7 +339,7 @@ const Profile = () => {
     return (
       <TouchableOpacity
         onPress={() => {
-          router.push( {pathname:'/PostDetail', params:{
+          router.push( {pathname:'/content/contentDetails', params:{
             id: item._id,
             privacy: item.privacy,
             mediaSrc: item.mediaSrc,
@@ -358,7 +386,9 @@ const Profile = () => {
       <StatusBar barStyle="light-content" backgroundColor="#000000" />
 
       <View style={styles.profileContainer}>
+      <TouchableOpacity onPress={() => handleImagePress()}>
         <Image source={{ uri: user?.profileImageUrl }} style={styles.profileImage} />
+        </TouchableOpacity>
         <Text style={[styles.text, { textTransform: 'capitalize' }]}>{user?.firstName} {user?.lastName}</Text>
         <Text style={[styles.text, { textTransform: 'lowercase' }]}>@{user?.username}</Text>
 
@@ -384,7 +414,7 @@ const Profile = () => {
 
         <View style={{ flexDirection: 'row', gap: 12, }}>
           <Button text="Subscribed To" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'bell', size: 14, color: '#ffffff' }} onClick={() => navigation.navigate('SubscribedTo')} />
-          <Button text="Total Earnings" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'credit-card', size: 14, color: '#ffffff' }} onClick={() => router.push('/TotalEarnings')} />
+          <Button text="Total Earnings" variant="secondary" style={styles.senbutton} icon={Icon} iconProps={{ name: 'credit-card', size: 14, color: '#ffffff' }} onClick={() => router.push('/profile/TotalEarnings')} />
         </View>
 
         <View style={{ flexDirection: 'row', gap: 10, marginTop: 15, marginBottom: 15, }}>
@@ -433,7 +463,20 @@ const Profile = () => {
           <Text style={styles.noContentText}>No content yet</Text>
         )}
       </View>
+
+
+      <Modal 
+        visible={imgModalVisible} 
+        transparent={true} 
+        animationType="fade" 
+        onRequestClose={() => setImgModalVisible(false)}
+      >
+          <Pressable style={styles.modalContainer} onPress={() => setImgModalVisible(false)}>
+          <Image source={{ uri: user?.profileImageUrl  as string}} style={styles.modalImage} />
+        </Pressable>
+      </Modal>
     </SafeAreaView></>
+
   );
 };
 

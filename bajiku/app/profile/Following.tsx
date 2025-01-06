@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, StatusBar, SafeAreaView, RefreshControl, TextInput } from 'react-native';
 import axios from 'axios';
-import { useUser } from '@/utils/useContext/UserContext'; 
-import { router } from 'expo-router';
+import { useUser } from '@/utils/useContext/UserContext';
+import { router} from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '@/utils/useContext/ThemeContext';
 import CustomHeader from '@/components/CustomHeader';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface Follower {
     _id: string;
@@ -17,73 +18,77 @@ interface Follower {
     followerCount?:number
 }
 
-const FollowersScreen = () => {
+const FollowingScreen = () => {
     const [followers, setFollowers] = useState<Follower[]>([]);
-    const [filteredFollowers, setFilteredFollowers] = useState<Follower[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [refreshing, setRefreshing] = useState<boolean>(false);
     const { user } = useUser();
-    const [following, setFollowing] = useState<Follower[]>([]); 
-    const [refreshing, setRefreshing] = useState<boolean>(false); 
-    const [searchQuery, setSearchQuery] = useState<string>(''); 
-    const { theme } = useTheme();
-    const textColor = theme === 'dark' ? '#fff' : '#000';
 
-    const fetchFollowers = async () => {
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [totalFollowers, setTotalFollowers] = useState(0);
+    const { theme } = useTheme();
+    // const sidebarStyles = theme === 'dark' ? styles.sidebarDark : styles.sidebarLight;
+
+    const goBack = () => {
+        router.back();
+      };
+  const textColor = theme === 'dark' ? '#fff' : '#000';
+    const fetchFollowing = async () => {
         try {
-            const userId = user?.id || await AsyncStorage.getItem('userId');
+            const userId = user?.id || await AsyncStorage.getItem('userId');;
             setLoading(true);
             
-            const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${userId}/followers`);
-            setFollowers(response.data.followers);
-            setFilteredFollowers(response.data.followers);
+            const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${userId}/following`, {
+
+            });
+            setFollowers(response.data.following);
+            setTotalFollowers(response.data.totalFollowing);
+            setFilteredFollowers(response.data.following);
         } catch (error) {
             // console.error('Error fetching followers:', error);
         } finally {
             setLoading(false);
-            setRefreshing(false);
         }
-    };
-
-    const fetchFollowing = async () => {
-        try {
-            const userId = user?.id;
-            const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${userId}/following`);
-            setFollowing(response.data.following || []); 
-        } catch (error) {
-            // console.error('Error fetching following:', error);
-        }
-    };
-
-    const onRefresh = async () => {
-        setRefreshing(true);
-        await fetchFollowers(); 
-        await fetchFollowing(); 
     };
 
     useEffect(() => {
-        onRefresh(); 
-    }, []);
+        fetchFollowing();
+    }, [page]);
 
-    const toggleFollow = async (followerId: string) => {
+
+    const handleUnfollow = async (followerId: string) => {
+        const userId = user?.id  || await AsyncStorage.getItem('userId'); 
         try {
-            const isFollowing = following.some(f => f._id === followerId); 
-          const url = `https://backend-server-quhu.onrender.com/users/${user?.id}/${isFollowing ? 'unfollow' : 'follow'}`;
-          const body = isFollowing ? { userIdToUnfollow: followerId } : { userIdToFollow: followerId };
-         await axios.post(url, body);
-      
-          if (isFollowing) {
-            setFollowing(prev => prev.filter(f => f._id !== followerId));
-        } else {
-            const newFollower = followers.find(f => f._id === followerId);
-            if (newFollower) {
-                setFollowing(prev => [...prev, newFollower]); 
+            const response = await fetch(`https://backend-server-quhu.onrender.com/users/${userId}/unfollow`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userIdToUnfollow: followerId,
+                }),
+            });
+    
+            const data = await response.json();
+            if (response.ok && data.message === 'You have unfollowed the user') {
+            
+                setFollowers(prevFollowers => prevFollowers.filter(follower => follower._id !== followerId));
+                setFilteredFollowers(prevFilteredFollowers => prevFilteredFollowers.filter(follower => follower._id !== followerId));
+    
+            } else {
+                // console.error('Failed to unfollow:', data);
             }
+        } catch (error) {
+            // console.error('Error unfollowing user:', error);
         }
-    } catch (error) {
-        // console.error('Error toggling follow:', error);
-    }
-      };
+    };
+    
+    
+      
 
+    const [searchQuery, setSearchQuery] = useState<string>(''); 
+    const [filteredFollowers, setFilteredFollowers] = useState<Follower[]>([]);
     const handleSearch = (text: string) => {
         setSearchQuery(text);
         const filtered = followers.filter(follower => 
@@ -95,28 +100,30 @@ const FollowersScreen = () => {
     };
 
 
-    const handlePress = (
+    const handlePress = async (
         userId: string, 
         username: string, 
         firstName: string, 
         lastName: string, 
         profileImageUrl: string,
         followingCount: number, 
-        followerCount: number,
+        followerCount: number
       ) => {
-        // Check if the pressed user is the logged-in user
-        if (userId === user?.id) {
+        // Get the logged-in user's ID
+        const loggedInUserId = user?.id || await AsyncStorage.getItem('userId');
+      
+        if (loggedInUserId === userId) {
           // Navigate to the logged-in user's profile
           router.push({
-            pathname: '/Profile',
+            pathname: '/profile/Profile',
             params: {
-              userId: userId,
-              username: username,
-              firstName: firstName,
-              lastName: lastName,
-              profileImageUrl: profileImageUrl,
-              followingCount:followingCount,
-              followerCount:followerCount
+              userId: loggedInUserId,
+              username,
+              firstName,
+              lastName,
+              profileImageUrl,
+              followingCount,
+              followerCount,
             },
           });
         } else {
@@ -125,22 +132,32 @@ const FollowersScreen = () => {
             pathname: '/userDetails/UserDetails',
             params: {
               searchUserId: userId,
-              username: username,
-              firstName: firstName,
-              lastName: lastName,
-              profileImageUrl: profileImageUrl,
-              followingCount:followingCount,
-              followerCount:followerCount
+              username,
+              firstName,
+              lastName,
+              profileImageUrl,
+              followingCount,
+              followerCount,
             },
           });
         }
       };
+      
 
-    const renderFollower = ({ item }: { item: Follower }) => {
-        const isFollowing = following.some(f => f._id === item._id); 
-        return (
-            <View style={styles.followerItem}>
-                  <TouchableOpacity
+      const [userId, setUserId] = React.useState<string | null>(null);
+
+      React.useEffect(() => {
+        const fetchUserId = async () => {
+          const userId = user?.id  || await AsyncStorage.getItem('userId'); 
+          const storedUserId = userId;
+          setUserId(storedUserId);
+        };
+        fetchUserId();
+      }, []);
+
+    const renderFollower = ({ item }: { item: Follower }) => (
+        <View style={styles.followerItem}>
+             <TouchableOpacity
                 onPress={() =>
                     handlePress(
                         item._id,
@@ -186,64 +203,74 @@ const FollowersScreen = () => {
                     <TouchableOpacity
                         style={styles.messageButton}
                         onPress={() => {
-                            router.push({pathname:'/message', params:{
+                            router.push({pathname:'/chat/message', params:{
                                 profileImageUrl: item.profileImageUrl || '', 
                                 username: item.username,
-                                senderId: user?.id, 
+                                senderId: userId, 
                                 receiverId: item?._id, 
                                 senderName: user?.username, 
-                            }});
+                            }
+                             
+                            });
                         }}
                     >
                         <Text style={styles.buttonText}>Message</Text>
                     </TouchableOpacity>
-
                     <TouchableOpacity
-                        style={[
-                            styles.followButton,
-                            {
-                                backgroundColor: isFollowing ? 'gray' : '#F90C0C',
-                            },
-                        ]}
-                        onPress={() => toggleFollow(item._id)}
-                    >
-                        <Text style={styles.buttonText}>
-                            {isFollowing ? 'Unfollow' : 'Follow'}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
+    style={[styles.followButton, { backgroundColor: '#F90C0C' }]}
+    onPress={() => handleUnfollow(item._id)}
+    disabled={!followers.some(follower => follower._id === item._id)} 
+>
+    <Text style={styles.buttonText}>Unfollow</Text>
+</TouchableOpacity>
+
             </View>
-        );
-    };
+        </View>
+    );
+
+
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await fetchFollowing();
+        setRefreshing(false);
+      };
+      
+      
+      useFocusEffect(
+        React.useCallback(() => {
+          onRefresh(); 
+      
+          return () => {
+          
+          };
+        }, [])
+      );
 
     return (
         <><CustomHeader
-            title={"Followers"}
-            onBackPress={() => router.back()} />
-            <SafeAreaView style={styles.container}>
+            title={"Following"}
+            onBackPress={goBack} /><SafeAreaView style={styles.container}>
                 <StatusBar barStyle="light-content" backgroundColor="#000000" />
                 <TextInput
                     style={styles.searchBar}
-                    placeholder="Search for followers..."
+                    placeholder="Search for followings..."
                     placeholderTextColor="#999"
                     value={searchQuery}
                     onChangeText={handleSearch}
                 />
-              
+
                 {loading ? (
                     <ActivityIndicator size="large" color="#fff" />
                 ) : (
                     <FlatList
-                        data={filteredFollowers}
+                    data={filteredFollowers}
                         keyExtractor={(item) => item._id}
                         renderItem={renderFollower}
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-                        ListEmptyComponent={<Text style={[styles.noFollowersText, { color: textColor }]}>
-                            No followers found
-                        </Text>} />
+                        ListEmptyComponent={<Text style={[styles.noFollowersText, { color: textColor }]}>No followings found</Text>} />
                 )}
-            </SafeAreaView>
-        </>
+            </SafeAreaView></>
     );
 };
 
@@ -265,13 +292,6 @@ const styles = StyleSheet.create({
         borderBottomColor: '#ccc',
         padding: 15,
     },
-    profileImage: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        borderWidth: 2,
-        borderColor: '#D1D5DB',
-    },
     placeholderImage: {
         width: 50,
         height: 50,
@@ -281,16 +301,40 @@ const styles = StyleSheet.create({
     followerInfo: {
         marginLeft: 10,
     },
-    followerName: {
+    buttonText: {
+        color: '#fff',
         fontSize: 12,
-        color: '#666',
-           textTransform:'lowercase'
-
+        borderBlockColor:'#fff',
+    },
+    noFollowersText: {
+        textAlign: 'center',
+        marginTop: 20,
+        fontSize: 16,
+    },
+    followButton: {
+        width: 72,
+        height: 38,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
+        marginRight: 5,
+    },
+    loadMoreButton: {
+        marginVertical: 20,
+        padding: 10,
+        backgroundColor: '#007BFF',
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    loadMoreText: {
+        color: '#fff',
+        fontSize: 16,
     },
     followerUsername: {
         fontSize: 12,
         color: '#666',
-        textTransform:'lowercase'
+          textTransform:'lowercase'
      
     },
     buttonContainer: {
@@ -298,6 +342,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         alignItems: 'center',
         marginLeft: 'auto',
+        gap:5
     },
     messageButton: {
         width: 72,
@@ -310,22 +355,18 @@ const styles = StyleSheet.create({
         borderWidth: 2,       
         borderColor: '#ffffff',
     },
-    followButton: {
-        width: 72,
-        height: 38,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginLeft: 10,
-    },
-    buttonText: {
-        color: '#fff',
+    followerName: {
         fontSize: 12,
+        color: '#666',
+          textTransform:'lowercase'
+
     },
-    noFollowersText: {
-        textAlign: 'center',
-        marginTop: 20,
-        fontSize: 16,
+    profileImage: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#D1D5DB',
     },
     searchBar: {
         height: 40,
@@ -336,14 +377,10 @@ const styles = StyleSheet.create({
         marginBottom: 40,
         color: '#000',
         backgroundColor: '#fff',
-        marginTop:40
-    },
-    totalFollowersText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        textAlign: 'center',
+        marginTop:40,
+       
+        
     },
 });
 
-export default FollowersScreen;
+export default FollowingScreen;

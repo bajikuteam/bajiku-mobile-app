@@ -137,7 +137,7 @@ const { user } = useUser();
   const handleCardPress = (item:any) => {
     
     if (item.type === 'contact') {
-      router.push({pathname:'/message',
+      router.push({pathname:'/chat/message',
         params:{
           username: item.userInfo.username,
           senderId: user?.id,
@@ -150,7 +150,7 @@ const { user } = useUser();
      
       });
     } else if (item.type === 'group') {
-      router.push({pathname:'/PersonGroupChat',
+      router.push({pathname:'/chat/PersonGroupChat',
         params:{
           roomId: item._id,
           room: item.room,

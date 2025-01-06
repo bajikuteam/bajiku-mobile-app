@@ -7,7 +7,7 @@ interface UserContextType {
   setUser: React.Dispatch<React.SetStateAction<any>>;
   handleLogin: (userData: any) => Promise<void>; 
   handleLogout: () => Promise<void>;
-  updateFollowerCount: (userId: string, countChange: number, isFollower: boolean) => void; 
+usersId: any
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -18,15 +18,38 @@ interface UserProviderProps {
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [user, setUser] = useState<any>(null); 
+  const [usersId, setUserId] = useState<string | null>(null);
+
+  // useEffect(() => {
+  //   const loadUserData = async () => {
+  //     const userData = await AsyncStorage.getItem('user');
+  //     const userId =  await AsyncStorage.getItem('userId')
+  //     if (userData) {
+  //       setUser(JSON.parse(userData));
+  //     }
+  //   };
+
+  //   loadUserData();
+  // }, []);
 
   useEffect(() => {
     const loadUserData = async () => {
-      const userData = await AsyncStorage.getItem('user');
-      if (userData) {
-        setUser(JSON.parse(userData));
+      try {
+        const userData = await AsyncStorage.getItem('user');
+        const storedUserId = await AsyncStorage.getItem('userId');
+        
+        if (userData) {
+          setUser(JSON.parse(userData));
+        }
+        
+        if (storedUserId) {
+          setUserId(storedUserId);
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
       }
     };
-
+  
     loadUserData();
   }, []);
   
@@ -39,31 +62,14 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const handleLogout = async () => {
     router.push("/");
-    await AsyncStorage.removeItem('user');
-    await AsyncStorage.removeItem('id');
-    setUser(null); 
-   
+    await AsyncStorage.clear();
+    setUser(null);
   };
 
-
-
-  const updateFollowerCount = (userId: string, countChange: number, isFollower: boolean) => {
-    if (user && user.id === userId) {
-      setUser((prev: any | null) => {
-        if (!prev) return null;
-
-        return {
-          ...prev,
-          followingCount: prev.followingCount + (isFollower ? 0 : countChange),
-          followerCount: prev.followerCount + (isFollower ? countChange : 0),
-        };
-      });
-    }
-  };
 
 
   return (
-    <UserContext.Provider value={{ user, setUser, handleLogin, handleLogout, updateFollowerCount }}>
+    <UserContext.Provider value={{ user, setUser, handleLogin, handleLogout, usersId }}>
       {children}
     </UserContext.Provider>
   );

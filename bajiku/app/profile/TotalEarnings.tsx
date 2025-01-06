@@ -2,13 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, StatusBar, TouchableOpacity, RefreshControl, Modal, TextInput} from 'react-native';
 import CustomHeader from '@/components/CustomHeader';
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { formatCurrency, formatTime, getStatusColor } from '@/services/core/globals';
 import axios from 'axios';
 import { useUser } from '@/utils/useContext/UserContext';
 import Button from '@/components/Button';
-import DropdownPicker from 'react-native-dropdown-picker';
 import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const styles = StyleSheet.create({
@@ -172,7 +172,8 @@ const TotalEarnings = () => {
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<any>(null);
-
+    const params = useLocalSearchParams();
+  const { whoInitiatedId} = params;
 
   useEffect(() => {
     fetchTotalEarnings();
@@ -194,11 +195,12 @@ const TotalEarnings = () => {
 
   const fetchTotalEarnings = async () => {
     setLoading(true);
+    const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     try {
-      const response = await axios.get(`https://backend-server-quhu.onrender.com/withdrawal/withdrawals/${user?.id}`);
-      const data = response.data;
-      setWithdrawals(data.withdrawals);
-      setTotalEarnings(data.totalEarnings)
+      const response = await axios.get(`https://backend-server-quhu.onrender.com/withdrawal/withdrawals/${userId}`);
+      const data = response?.data;
+      setWithdrawals(data?.withdrawals);
+      setTotalEarnings(data?.totalEarnings)
     } catch (error) {
     //   console.error('Error fetching total earnings:', error);
     }finally {
@@ -214,7 +216,7 @@ const TotalEarnings = () => {
 
   const filteredWithdrawals = withdrawals.filter((withdrawal) => {
     if (statusFilter === 'all') return true;
-    return withdrawal.withdrawStatus === statusFilter;
+    return withdrawal?.withdrawStatus === statusFilter;
   });
 
   // Calculate pagination
@@ -363,18 +365,17 @@ const TotalEarnings = () => {
           'Content-Type': 'application/json',
         },
       });
-  
-      if (!response.data) {
+      if (!response?.data) {
         throw new Error('API response is undefined.');
       }
   
-      if (!response.data.account_name) {
+      if (!response?.data?.account_name) {
         alert('No account found for the selected bank and account number.');
       } else {
-        setAccountName(response.data.account_name);
+        setAccountName(response?.data?.account_name);
         // Check for bank_name in response and update state if available
-        if (response.data.Bank_name) {
-          setBank_name(response.data.Bank_name);
+        if (response?.data?.Bank_name) {
+          setBank_name(response?.data?.Bank_name);
         }
       }
     } catch (error) {
@@ -387,14 +388,15 @@ const TotalEarnings = () => {
 
 const handleModalConfirm = async () => {
   setLoading(true);
+  const userId = user?.id  || await AsyncStorage.getItem('userId'); 
   try {
-    const response = await fetch(`https://backend-server-quhu.onrender.com/withdrawal/withdraw/${user?.id}`, {
+    const response = await fetch(`https://backend-server-quhu.onrender.com/withdrawal/withdraw/${userId}`, {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        userId:user?.id,
+        userId:userId,
           amount: amount,
           accountDetails:{
             accountNumber: accountNumber,
@@ -408,7 +410,8 @@ const handleModalConfirm = async () => {
 
   });
     if (response.ok) { 
-      alert(`${formatCurrency(amount)} have successfully been transferred into your back account`);
+      const data = await response.json();
+      alert(data?.message);
       fetchTotalEarnings();
       setShowModal(false);
       setModalVisible(false);
@@ -443,6 +446,22 @@ const handleModalCancel = () => {
   setShowModal(false); 
 };
 
+
+useEffect(() => {
+  if (whoInitiatedId) {
+    // Replace with your actual API call or data fetch logic
+    fetch(`https://backend-server-quhu.onrender.com/withdrawal/withdrawal/${whoInitiatedId}`)
+      .then(response => response.json())
+      .then(data => setSelectedWithdrawal(data))
+      .catch();
+  }
+}, [whoInitiatedId]);
+
+useEffect(() => {
+  if (selectedWithdrawal && whoInitiatedId === selectedWithdrawal?._id) {
+    setIsModalVisible(true);
+  }
+}, [whoInitiatedId, selectedWithdrawal]);
 
   return (
     <>
@@ -642,57 +661,62 @@ const handleModalCancel = () => {
 
         {/* Modal for Withdrawal Details */}
         <Modal
-          visible={isModalVisible}
-          transparent={true}
-          animationType="slide"
-          onRequestClose={closeModal}
-        >
+  visible={isModalVisible}
+  transparent={true}
+  animationType="slide"
+  onRequestClose={closeModal}
+>
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+    <View style={{ backgroundColor: '#fff', padding: 20, borderRadius: 8, width: '80%' }}>
+      {selectedWithdrawal && (
+        <>
+          <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Withdrawal Details</Text>
+          <Text>
+            <Text style={{ color: '#000', fontWeight: 'bold' }}>Type: </Text>
+            <Text> {selectedWithdrawal?.type}</Text>
+          </Text>
+          <Text>
+            <Text style={{ color: '#000', fontWeight: 'bold' }}>Amount: </Text>
+            <Text> {formatCurrency(selectedWithdrawal?.amount)}</Text>
+          </Text>
+          <Text>
+            <Text style={{ color: '#000', fontWeight: 'bold' }}>Status: </Text>
+            <Text style={{ color: getStatusColor(selectedWithdrawal?.withdrawStatus), fontWeight: 'bold' }}>
+              {selectedWithdrawal?.withdrawStatus}
+            </Text>
+          </Text>
+          <Text>Date: {formatTime(selectedWithdrawal?.createdAt)}</Text>
+        
+         
           
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-            <View style={{ backgroundColor: '#fff', padding: 20, borderRadius: 8, width: '80%' }}>
-              {selectedWithdrawal && (
-                <>
 
-                  <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>
-                    Withdrawal Details
-                  </Text>
-                  <Text>
-                  <Text style={{ color: '#000', fontWeight: 'bold' }}>Type: </Text>
-                  <Text> {selectedWithdrawal?.type}</Text>
-                  </Text>
-                  <Text>
-                  <Text style={{ color: '#000', fontWeight: 'bold' }}>Amount: </Text>
-                  <Text> {formatCurrency(selectedWithdrawal?.amount)}</Text>
-                  </Text>
-                  <Text>
-  <Text style={{ color: '#000', fontWeight: 'bold' }}>Status: </Text>
-  <Text style={{ color: getStatusColor(selectedWithdrawal?.withdrawStatus), fontWeight: 'bold' }}>
-    {selectedWithdrawal?.withdrawStatus}
+          <View>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, marginTop: 10 }}>Account Details</Text>
+            <Text>Account Number: {selectedWithdrawal?.accountDetails?.accountNumber}</Text>
+            <Text>Account Name: {selectedWithdrawal?.accountDetails?.accountName}</Text>
+            <Text>Bank: {selectedWithdrawal?.accountDetails?.bank}</Text>
+            {selectedWithdrawal?.accountDetails?.remark ? (
+  <Text style={{color: 'red', fontWeight: 'bold', marginTop:4}}>
+    Remark: {selectedWithdrawal.accountDetails.remark}
   </Text>
-</Text>
+) : null}
 
-                  <Text>Date: {formatTime(selectedWithdrawal?.createdAt)}</Text>
-                </>
-              )}
-
-              <View>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, marginTop:10 }}>Account Details</Text>
-                <Text>Account Number: {selectedWithdrawal?.accountDetails.accountNumber}</Text>
-                <Text>Account Name: {selectedWithdrawal?.accountDetails.accountName}</Text>
-                <Text>Bank: {selectedWithdrawal?.accountDetails.bank}</Text>
-                <Text>Remark: {selectedWithdrawal?.accountDetails.remark}</Text>
-              </View>
-             <View style={{ alignItems: 'center', marginTop: 15 }}>
-    <Button
-      text="Close"
-      variant="secondary"
-      style={{ width: 150, height: 40 }}
-      onClick={closeModal}
-    />
-  </View>
-            </View>
           </View>
-        </Modal>
+
+          <View style={{ alignItems: 'center', marginTop: 15 }}>
+            <Button
+              text="Close"
+              variant="secondary"
+              style={{ width: 150, height: 40 }}
+              onClick={closeModal}
+            />
+          </View>
+        </>
+      )}
+    </View>
+  </View>
+</Modal>
+
       </View>
     </>
   );

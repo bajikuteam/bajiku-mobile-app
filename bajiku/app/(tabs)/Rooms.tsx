@@ -80,7 +80,7 @@ const GroupScreen = () => {
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         onPress={() => {
-                            router.push({pathname:'/groupChat', params:{
+                            router.push({pathname:'/chat/groupChat', params:{
                                 id: item._id,
                                 room: item.room,
                                 groupName: item.groupName,
@@ -102,7 +102,7 @@ const GroupScreen = () => {
                         <Card key={item._id}
                            onPress={() => {
                             router.push({
-                                pathname:'/groupChat', params:{
+                                pathname:'/chat/groupChat', params:{
                                 id: item._id,
                                 room: item.room,
                                 groupName: item.groupName,

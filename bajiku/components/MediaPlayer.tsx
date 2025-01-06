@@ -13,6 +13,8 @@ import { io } from 'socket.io-client';
 import {  router, usePathname } from 'expo-router';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Button from './Button';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import styles from '@/styles/MediaPlayer';
 const socket = io('https://backend-server-quhu.onrender.com'); 
 
 
@@ -45,6 +47,7 @@ type VideoItem = {
   price: number;
   subscribers:string[]
   createdBy: string;
+  createdAt: string;
 };
 
 interface Reply {
@@ -74,14 +77,6 @@ export default function PostWithCaption() {
   const scrollY = useRef(new Animated.Value(0)).current;
   const pulseAnimation = useRef(new Animated.Value(1)).current;
   const [expandedComments, setExpandedComments] = useState<{ [key: string]: boolean }>({});
-
-
-  const toggleReplies = (commentId: string) => {
-    setExpandedComments((prev) => ({
-      ...prev,
-      [commentId]: !prev[commentId],
-    }));
-  };
 
 
   useEffect(() => {
@@ -117,15 +112,13 @@ export default function PostWithCaption() {
   };
 
 
-  const togglePrivacy = () => {
-    setShowPrivateContent(prev => !prev);
-  };
-
 
   const fetchData = async () => {
+
+    const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     setLoading(true); 
     try {
-      const response = await fetch(`https://backend-server-quhu.onrender.com/content/${user?.id}`);
+      const response = await fetch(`https://backend-server-quhu.onrender.com/content/${userId}`);
       const data = await response.json();
     
       // Filter the videos based on the privacy setting
@@ -149,6 +142,7 @@ export default function PostWithCaption() {
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
+      handleRefresh()
       fetchData();
       const timeout = setTimeout(() => {
         setLoading(false); 
@@ -171,12 +165,12 @@ export default function PostWithCaption() {
   };
   
   const pathname = usePathname();
-  const isTabScreen = pathname === '/';  
-
-
+  const isTabScreen = pathname === '/';
+  
   useFocusEffect(
     React.useCallback(() => {
       if (!isTabScreen) {
+        // Pause video when navigating away from the tab screen
         if (isPlaying[activeVideoIndex] && videoRefs.current[activeVideoIndex]) {
           videoRefs.current[activeVideoIndex]?.pauseAsync();
           setIsPlaying(prev => {
@@ -185,7 +179,18 @@ export default function PostWithCaption() {
             return newState;
           });
         }
+      } else {
+        // Automatically play the video when the tab screen is focused
+        if (videoRefs.current[activeVideoIndex]) {
+          videoRefs.current[activeVideoIndex]?.playAsync();
+          setIsPlaying(prev => {
+            const newState = [...prev];
+            newState[activeVideoIndex] = true;
+            return newState;
+          });
+        }
       }
+  
       return () => {
         videoRefs.current.forEach((videoRef, idx) => {
           if (videoRef) {
@@ -201,7 +206,7 @@ export default function PostWithCaption() {
     }, [activeVideoIndex, isTabScreen])
   );
   
-
+  // Scroll handler to update the active video index and automatically play the new video
   const handleScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
     {
@@ -210,6 +215,7 @@ export default function PostWithCaption() {
         const index = Math.floor(event.nativeEvent.contentOffset.y / 566);
         if (index !== activeVideoIndex) {
           if (videoRefs.current[activeVideoIndex]) {
+            // Pause the previous video
             videoRefs.current[activeVideoIndex]?.pauseAsync();
             setIsPlaying(prev => {
               const newState = [...prev];
@@ -218,11 +224,21 @@ export default function PostWithCaption() {
             });
           }
           setActiveVideoIndex(index);
+  
+          // Play the new video
+          if (videoRefs.current[index]) {
+            videoRefs.current[index]?.playAsync().catch();
+            setIsPlaying(prev => {
+              const newState = [...prev];
+              newState[index] = true;
+              return newState;
+            });
+          }
         }
       }
     }
   );
-
+  
   const handleVideoClick = () => {
     const currentPlaying = isPlaying[activeVideoIndex];
     if (currentPlaying) {
@@ -308,11 +324,11 @@ const openCommentsModal = async (videoItem: VideoItem) => {
     try {
       const payload = {
         comment,
-        username: user.username,
-        authorId: user.id,
-        authorProfilePicSrc: user.profileImageUrl
+        username: user?.username,
+        authorId: user?.id,
+        authorProfilePicSrc: user?.profileImageUrl
       };
-        const response = await fetch(`https://backend-server-quhu.onrender.com/content/${mediaId}/comments`, {
+        const response = await fetch(`https://backend-server-quhu.onrender.com/content/${mediaId}/comments/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -331,16 +347,17 @@ const openCommentsModal = async (videoItem: VideoItem) => {
     }
   };
   const sendReplyToComment = async (comment:string, mediaId:string, commentId:string, username:string) => {
+    const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     try {
       const payload = {
         comment,
         username,
-        authorId: user.id,
-        authorProfilePicSrc: user.profileImageUrl,
+        authorId: userId,
+        authorProfilePicSrc: user?.profileImageUrl,
         commentId, 
         mediaId
       };  
-        const response = await fetch(`https://backend-server-quhu.onrender.com/content/${mediaId}/comments/${commentId}/reply`, {
+        const response = await fetch(`https://backend-server-quhu.onrender.com/content/${mediaId}/comments/${commentId}/reply/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -396,7 +413,7 @@ const openCommentsModal = async (videoItem: VideoItem) => {
   }, []);
 
   const likeContent = async (mediaId: string) => {
-    const userId = user?.id;
+    const userId = user?.id  || await AsyncStorage.getItem('userId'); 
   
     try {
       const response = await fetch(`https://backend-server-quhu.onrender.com/content/${mediaId}/like/${userId}`, {
@@ -456,7 +473,7 @@ const openCommentsModal = async (videoItem: VideoItem) => {
   
 
 const likeComment = async (commentId: string, mediaId:string) => {
-  const userId = user.id;
+  const userId = user?.id  || await AsyncStorage.getItem('userId'); 
 
   try {
     const response = await fetch(`https://backend-server-quhu.onrender.com/content/comments/${mediaId}/${commentId}/like/${userId}`, {
@@ -488,12 +505,26 @@ const likeComment = async (commentId: string, mediaId:string) => {
   }
 };
 
+
+const [userId, setUserId] = React.useState<string | null>(null);
+
+React.useEffect(() => {
+  const fetchUserId = async () => {
+    const userId = user?.id  || await AsyncStorage.getItem('userId'); 
+    const storedUserId = userId;
+    setUserId(storedUserId);
+  };
+  fetchUserId();
+}, []);
+
+
   const renderItem = ({ item, index }: { item: VideoItem; index: number }) => {
     const isPrivate = item.privacy === 'private';
-    const isLikedByUser = item.likedBy.includes(user && user.id);
+    
+    const isLikedByUser = item.likedBy.includes(user && user?.id || userId);
     
   const handleNavigateToPostDetails = () => {
-    router.push( {pathname:'/PostDetail', params:{
+    router.push( {pathname:'/content/contentDetails', params:{
       id: item._id,
       privacy: item.privacy,
       mediaSrc: item.mediaSrc,
@@ -502,25 +533,32 @@ const likeComment = async (commentId: string, mediaId:string) => {
       comments: item.comments as any,
       likes: item.likes,
       price: item.price,
-      createdBy: item.createdBy
+      createdBy: item.createdBy,
+      createdAt: item.createdAt,
+      likedBy: item.likedBy,
+      authorName: item.authorName
     }
    } )
 }
 
-const handlePress = (
+const handlePress = async (
   userId: string, 
   username: string, 
   profileImageUrl: string,
+
 ) => {
-  // Check if the pressed user is the logged-in user
-  if (userId === user.id) {
+  // Get the logged-in user's ID
+  const loggedInUserId = user?.id || await AsyncStorage.getItem('userId');
+
+  if (loggedInUserId === userId) {
     // Navigate to the logged-in user's profile
     router.push({
-      pathname: '/Profile',
+      pathname: '/profile/Profile',
       params: {
-        userId: userId,
+        userId: loggedInUserId,
         username: username,
         profileImageUrl: profileImageUrl,
+     
       },
     });
   } else {
@@ -529,18 +567,21 @@ const handlePress = (
       pathname: '/userDetails/UserDetails',
       params: {
         searchUserId: userId,
+     
         username: username,
         profileImageUrl: profileImageUrl,
+      
       },
     });
   }
 };
 
+
   return (
     <View style={{ width: '100%', backgroundColor: '#010101', paddingBottom: 20 }}>
         <View>
 {isVideo(item.mediaSrc) ? (
-  isPrivate && (!item.subscribers || !item.subscribers.includes(user?.id)) ? (
+  isPrivate && (!item.subscribers || !item.subscribers.includes(userId as string)) ? (
     // Private content locked
     <View style={styles.privateContent}>
       <Image
@@ -582,7 +623,7 @@ const handlePress = (
       source={{ uri: item.mediaSrc }}
       style={{ height: 500, width: '100%'}}
     />
-    {isPrivate && (!item.subscribers || !item.subscribers.includes(user?.id)) && (
+    {isPrivate && (!item.subscribers || !item.subscribers.includes(userId as string)) && (
       <BlurView style={styles.blurView}>
         <TouchableOpacity onPress={handleNavigateToPostDetails} style={{ alignItems: 'center' }}>
           <Ionicons name="lock-closed" size={50} color="#fff" />
@@ -602,7 +643,7 @@ const handlePress = (
 
           <ContentCaption>
             <TouchableOpacity onPress={toggleCaption}>
-              <Text style={styles.expandBtn}>
+              <Text style={styles.captionText}>
                 {isExpanded ? item.caption : getTruncatedCaption(item.caption)}
               </Text>
             </TouchableOpacity>
@@ -626,8 +667,12 @@ const handlePress = (
             </TouchableOpacity>
           </ContentLeftImg>
 
-          <ContentLeftBottomNameUserText style={{ textTransform: 'lowercase' }}>
+          <ContentLeftBottomNameUserText style={[styles.captionText,{ textTransform:'lowercase'}]}>
             @{item.authorName}
+          </ContentLeftBottomNameUserText>
+          <ContentLeftBottomNameUserText style={[styles.captionText, { marginTop: 20 }]}
+          >
+            {formatTime(item.createdAt)}
           </ContentLeftBottomNameUserText>
 
 
@@ -771,7 +816,7 @@ if (loading) {
 > 
   <View style={styles.modalOverlay}>
     <View style={styles.modalContainer}>
-      <Text  style={{color:'#000',fontSize:14, textAlign:'center'}}>{formatCount(comments.length)} Comments</Text>
+      <Text  style={{color:'#fff',fontSize:14, textAlign:'center', marginBottom:30}}>{formatCount(comments.length)} Comments</Text>
       <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
         <Text style={styles.closeButtonText}>X</Text>
       </TouchableOpacity>
@@ -849,9 +894,9 @@ if (loading) {
 >
   <View style={styles.modalOverlay}>
     <View style={styles.modalContainer}>
-      <Text  style={{fontSize:14, textAlign:'center', textTransform:"lowercase"}} className='text-center text-[14px] lowercase'>Reply to: @{selectedComment?.username} comment:</Text>
+      <Text  style={{fontSize:14,color:'#fff', textTransform:"lowercase"}} >Reply to: @{selectedComment?.username} comment:</Text>
       <Text style={styles.commentText}>"{selectedComment?.comment}"</Text> 
-      <Text style={{fontSize:14, textAlign:'center'}}  className='text-center text-[14px]'>{formatCount(selectedComment?.replies?.length ?? 0) || 0} Replies</Text>
+      <Text style={{fontSize:14, textAlign:'center', color:'#fff', marginBottom:30}} >{formatCount(selectedComment?.replies?.length ?? 0) || 0} Replies</Text>
   
       <TouchableOpacity style={styles.closeButton} onPress={() => setReplyModalVisible(false)}>
         <Text style={styles.closeButtonText}>X</Text>
@@ -895,227 +940,4 @@ if (loading) {
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: -30 }, { translateY: -30 }],
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1,
-  },
-  toggleButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    padding: 10,
-    textAlign: 'center',
-    fontWeight: 'bold',
-    borderRadius: 25,
-    marginBottom: 10,
-    marginTop: 10,
-  },
-  privateContent: {
-    position: 'relative',
-    height: 500,
-    width: '100%',
-  },
-  blurView: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'black',
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end', 
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContainer: {
-    height: '70%',
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 16,
-    elevation: 5,
-    zIndex: 1000,
-     },
-  commentContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 15,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: 'gray',
-  },
-  commentUserImage: {
-    height: 38,
-    width: 38,
-    borderRadius: 12,
-    marginRight: 10,
-  },
-  commentContent: {
-    flex: 1,
-  },
-  commentUsername: {
-    color: 'black',
-    textTransform:'lowercase'
-  },
-  commentText: {
-    color: '#ccc',
-    marginVertical: 2,
-  },
-  commentTime: {
-    color: 'gray',
-    fontSize: 12,
-  },
-  closeButton: {
-    marginLeft: 'auto', 
-    padding: 10,
-  },
-  closeButtonText: {
-    fontSize: 18,
-    color: 'black',
-  },
-  noCommentsText: {
-    textAlign: 'center',
-    marginVertical: 20,
-    fontSize: 16,
-    color: '#777', 
-  },
-  replySection: {
-    marginTop: 8, 
-    paddingLeft: 48, 
-  },
-  replyContainer: {
-    flexDirection : 'row',
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    padding: 8,
-    marginTop: 4,
-    elevation: 1,
-  },
-  replyUsername: {
-    fontWeight: 'bold',
-     textTransform:"lowercase"
-  },
-  replyText: {
-    marginVertical: 2,
-  },
-  replyTime: {
-    color: '#888',
-    fontSize: 10,
-  },
-  replyList: {
-    maxHeight: 100, 
-    marginTop: 4,
-  },
-  iconContainer: {
-    alignItems: 'center',
-  },
-  iconText: {
-    color: 'gray', 
-    fontSize: 12,
-    marginTop: 2, 
-    fontWeight: 'bold',
-  },
-  likeCount: {
-    marginLeft: 5,
-    color: 'gray',
-    fontSize: 14,
-  },
-  commentActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between', 
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  likeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  replyButton: {
-    backgroundColor: '#D84773', 
-    borderRadius: 5,
-    padding: 5,
-    paddingHorizontal: 10,
-  },
-  replyButtonText: {
-    color: 'white',
-    fontSize: 14,
-  },
-  repliesContainer: { 
-    marginLeft: 50,
-    marginTop: 10,
-  },
-  replyContent: { 
-    flex: 1,
-  },
-  toggleRepliesText: {
-    color: 'blue',
-    marginTop: 5,
-    textDecorationLine: 'underline', 
-  },
-  replyUserImage: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    marginRight: 8,
-    
-  },
-  emptyText: {
-    textAlign: 'center',
-    marginTop: 20,
-    color: '#888',
-  },
-  expandBtn:{
-    color:'#fff', 
-    fontSize:14,
-    textTransform:"capitalize",
-    fontWeight:'bold'
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor:'#000000',
-    top:30
-  },
-  likeButtonContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    backgroundColor: '#2d2d2d',  
-    borderRadius: 50,             
-    padding: 10,                
-    borderWidth: 1,              
-    borderColor: '#888',         
-    marginLeft: 10,              
-    justifyContent: 'center',    
-    height: 45,                  
-    width: 45,                   
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 10,
-  },
-  toggleContainerBtn:{
-    width: '40%'
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-  },
-  activeButton: {
-    textDecorationLine: 'underline',  
-  },
- 
 
-});

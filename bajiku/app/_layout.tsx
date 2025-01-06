@@ -56,25 +56,10 @@ function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="auth" options={{ headerShown: false }} />
         <Stack.Screen name="userDetails" options={{ headerShown: false }} />
-
-        <Stack.Screen name="NewChat" options={{ headerShown: false }} />
-        <Stack.Screen name="PostDetail" options={{ headerShown: false }} />
-        <Stack.Screen name="Profile" 
-        options={{ headerShown: false ,    
-     headerTitleAlign: 'center',  
-      headerTintColor: '#fff',  
-      headerStyle: { backgroundColor: '#000000' },
-        }} />
-        <Stack.Screen name="Followers" options={{ headerShown: false }} />
-        <Stack.Screen name="EditProfile" options={{ headerShown: false }} />
-        <Stack.Screen name="SubscribedTo" options={{ headerShown: false }} />
-        <Stack.Screen name="Following" options={{ headerShown: false }} />
-        <Stack.Screen name="message" options={{ headerShown: false }} />
-        <Stack.Screen name="groupChat" options={{ headerShown: false }} />
-        <Stack.Screen name="CreateGroup" options={{ headerShown: false }} />
-        <Stack.Screen name="PersonGroupChat" options={{ headerShown: false }} />
-        <Stack.Screen name="AddPersonGroupChatMember" options={{ headerShown: false }} />
-        <Stack.Screen name="TotalEarnings" options={{ headerShown: false }} />  
+        <Stack.Screen name="system" options={{ headerShown: false }} />
+        <Stack.Screen name="content" options={{ headerShown: false }} />
+        <Stack.Screen name="chat" options={{ headerShown: false }} />
+        <Stack.Screen name="profile" options={{ headerShown: false }} />
       </Stack>
     </NavigationThemeProvider>
   );

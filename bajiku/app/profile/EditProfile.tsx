@@ -22,6 +22,7 @@ import { useUser } from '@/utils/useContext/UserContext';
 import { debounce } from 'lodash';
 import CustomHeader from '@/components/CustomHeader';
 import * as FileSystem from 'expo-file-system';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const { height } = Dimensions.get('window');
 
 const EditProfile = () => {
@@ -80,7 +81,7 @@ const EditProfile = () => {
 
 
     const editProfile = async (image: string | null, firstName: string, lastName: string, userName: string) => {
-        const userId = user?.id
+        const userId = user?.id  || await AsyncStorage.getItem('userId'); 
         if (!userId) {
             throw new Error('User ID not found');
         }
@@ -99,10 +100,10 @@ const EditProfile = () => {
                         type: 'image/jpeg',
                     }as any);
                 } else {
-                    console.log("Image file not found at", image);
+                    // console.log("Image file not found at", image);
                 }
             } catch (error) {
-                console.error('Error processing image:', error);
+                // console.error('Error processing image:', error);
             }
         }
       
@@ -110,6 +111,7 @@ const EditProfile = () => {
         formData.append('firstName', firstName);
         formData.append('lastName', lastName);
         formData.append('userName', userName);
+     
       
         // API endpoint URL
         const apiUrl = `https://backend-server-quhu.onrender.com/api/auth/profile/edit/${userId}`;
@@ -153,7 +155,7 @@ const EditProfile = () => {
                 setUsernameAvailable(null);
                 const updatedProfileData = response.updateProfile;
                 await handleLogin(updatedProfileData);
-                router.push('/Profile');
+                router.push('/profile/Profile');
             }
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -198,11 +200,6 @@ const EditProfile = () => {
             <SafeAreaView style={styles.safeArea}>
                 <ScrollView contentContainerStyle={styles.scrollViewContainer}>
                     <View style={[styles.loginModal, theme === 'dark' ? styles.darkModal : styles.lightModal]}>
-                        <View className='absolute right-6 top-2'>
-                            <TouchableOpacity>
-                                <Link href={"/Profile"}><Text className='text-2xl'>X</Text></Link>
-                            </TouchableOpacity>
-                        </View>
 
                         <View style={{ marginBottom: 20, alignItems: 'center' }}>
                             <ImageUpload onImageSelected={handleImageUpload} currentImage={image} />

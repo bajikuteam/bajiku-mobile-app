@@ -88,28 +88,30 @@ const UsersFollowingScreen = () => {
     
 
 
-    const handlePress = (
+    const handlePress = async (
         userId: string, 
         username: string, 
         firstName: string, 
         lastName: string, 
         profileImageUrl: string,
         followingCount: number, 
-        followerCount: number,
+        followerCount: number
       ) => {
-        // Check if the pressed user is the logged-in user
-        if (userId === user?.id) {
+        // Get the logged-in user's ID
+        const loggedInUserId = user?.id || await AsyncStorage.getItem('userId');
+      
+        if (loggedInUserId === userId) {
           // Navigate to the logged-in user's profile
           router.push({
-            pathname: '/Profile',
+            pathname: '/profile/Profile',
             params: {
-              userId: userId,
-              username: username,
-              firstName: firstName,
-              lastName: lastName,
-              profileImageUrl: profileImageUrl,
-              followingCount:followingCount,
-              followerCount:followerCount
+              userId: loggedInUserId,
+              username,
+              firstName,
+              lastName,
+              profileImageUrl,
+              followingCount,
+              followerCount,
             },
           });
         } else {
@@ -118,17 +120,16 @@ const UsersFollowingScreen = () => {
             pathname: '/userDetails/UserDetails',
             params: {
               searchUserId: userId,
-              username: username,
-              firstName: firstName,
-              lastName: lastName,
-              profileImageUrl: profileImageUrl,
-              followingCount:followingCount,
-              followerCount:followerCount
+              username,
+              firstName,
+              lastName,
+              profileImageUrl,
+              followingCount,
+              followerCount,
             },
           });
         }
       };
-
     const handleSearch = (text: string) => {
         setSearchQuery(text);
         const filtered = followers.filter(follower => 

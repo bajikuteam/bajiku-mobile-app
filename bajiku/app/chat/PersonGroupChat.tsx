@@ -364,6 +364,8 @@ import CustomHeader from '@/components/CustomHeader';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as NavigationBar from 'expo-navigation-bar';
 import { formatCount, formatTime } from '@/services/core/globals';
+import Button from '@/components/Button';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const socket = io('https://backend-server-quhu.onrender.com');
 
@@ -660,19 +662,21 @@ const PersonGroupChatScreen: React.FC = () => {
 
 
 
-  const handlePress = (
+
+  const handlePress = async (
     userId: string, 
     username: string, 
     profileImageUrl: string,
-
   ) => {
-    // Check if the pressed user is the logged-in user
-    if (userId === user?.id) {
+    // Get the logged-in user's ID
+    const loggedInUserId = user?.id || await AsyncStorage.getItem('userId');
+  
+    if (loggedInUserId === userId) {
       // Navigate to the logged-in user's profile
       router.push({
-        pathname: '/Profile',
+        pathname: '/profile/Profile',
         params: {
-          userId: userId,
+          userId: loggedInUserId,
           username: username,
           profileImageUrl: profileImageUrl,
       
@@ -687,11 +691,13 @@ const PersonGroupChatScreen: React.FC = () => {
           username: username,
     
           profileImageUrl: profileImageUrl,
-       
+      
         },
       });
     }
   };
+
+;
 
   const renderModal = () => (
     <Modal visible={isModalVisible} transparent={true} animationType="fade" onRequestClose={toggleModal}>
@@ -708,7 +714,7 @@ const PersonGroupChatScreen: React.FC = () => {
         </TouchableOpacity> */}
         <TouchableOpacity 
           onPress={() => {
-            router.push({pathname:'/AddPersonGroupChatMember', params:{
+            router.push({pathname:'/chat/AddPersonGroupChatMember', params:{
               roomId: roomId, 
               groupImgUrl: groupImgUrl,
               name:name
@@ -805,9 +811,6 @@ const PersonGroupChatScreen: React.FC = () => {
                 ListEmptyComponent={<Text style={styles.emptyMessage}>No members in this group.</Text>} /></>
           
           )}
-          {/* <TouchableOpacity onPress={toggleMembersModal} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity> */}
         </View>
       </View>
     </Modal>
@@ -824,14 +827,10 @@ const PersonGroupChatScreen: React.FC = () => {
 }}>
         <View style={styles.confirmationBox}>
           <Text style={styles.confirmationText}>Are you sure you want to delete this group?</Text>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.confirmButton} onPress={handleDeleteGroup}>
-              <Text style={styles.buttonText}>Yes</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={toggleDeleteModal}>
-              <Text style={styles.buttonText}>No</Text>
-            </TouchableOpacity>
-          </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Button text="Cancel" onClick={toggleDeleteModal} variant='secondary'  style={{ width: 90, height: 40, marginTop: 10 }} />
+              <Button text="Continue" onClick={handleDeleteGroup} variant='primary'  style={{ width: 90, height: 40, marginTop: 10 }} />
+            </View>
         </View>
       </View>
     </Modal>
@@ -846,21 +845,29 @@ const PersonGroupChatScreen: React.FC = () => {
 }}>
         <View style={styles.confirmationBox}>
           <Text style={styles.confirmationText}>Are you sure you want to Leave this group?</Text>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.confirmButton} onPress={handleLeaveGroup}>
-              <Text style={styles.buttonText}>Yes</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={toggleLeaveModal}>
-              <Text style={styles.buttonText}>No</Text>
-            </TouchableOpacity>
-          </View>
+       
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Button text="Cancel" onClick={toggleLeaveModal} variant='secondary'  style={{ width: 90, height: 40, marginTop: 10 }} />
+              <Button text="Continue" onClick={handleLeaveGroup} variant='primary'  style={{ width: 90, height: 40, marginTop: 10 }} />
+            </View>
         </View>
       </View>
     </Modal>
   );
+  const [userId, setUserId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const fetchUserId = async () => {
+      const userId = user?.id  || await AsyncStorage.getItem('userId') || senderId; 
+      const storedUserId = userId;
+      setUserId(storedUserId);
+    
+    };
+    fetchUserId();
+  }, []);
 
   const renderMessage = ({ item }: any) => {
-    const isSentByUser = String(item.user._id) === String(user.id);
+    const isSentByUser = String(item.user?._id) === (userId as string ?? null);
     const isSystemMessage = item.system; 
     
     return (

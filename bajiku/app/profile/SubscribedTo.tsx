@@ -67,29 +67,30 @@ const SubToScreen = () => {
         setFilteredFollowers(filtered);
     };
 
-
-    const handlePress = (
+    const handlePress = async (
         userId: string, 
         username: string, 
         firstName: string, 
         lastName: string, 
         profileImageUrl: string,
         followingCount: number, 
-        followerCount: number,
+        followerCount: number
       ) => {
-        // Check if the pressed user is the logged-in user
-        if (userId === user?.id) {
+        // Get the logged-in user's ID
+        const loggedInUserId = user?.id || await AsyncStorage.getItem('userId');
+      
+        if (loggedInUserId === userId) {
           // Navigate to the logged-in user's profile
           router.push({
-            pathname: '/Profile',
+            pathname: '/profile/Profile',
             params: {
-              userId: userId,
-              username: username,
-              firstName: firstName,
-              lastName: lastName,
-              profileImageUrl: profileImageUrl,
-              followingCount:followingCount,
-              followerCount:followerCount
+              userId: loggedInUserId,
+              username,
+              firstName,
+              lastName,
+              profileImageUrl,
+              followingCount,
+              followerCount,
             },
           });
         } else {
@@ -98,16 +99,28 @@ const SubToScreen = () => {
             pathname: '/userDetails/UserDetails',
             params: {
               searchUserId: userId,
-              username: username,
-              firstName: firstName,
-              lastName: lastName,
-              profileImageUrl: profileImageUrl,
-              followingCount:followingCount,
-              followerCount:followerCount
+              username,
+              firstName,
+              lastName,
+              profileImageUrl,
+              followingCount,
+              followerCount,
             },
           });
         }
       };
+      
+
+      const [userId, setUserId] = React.useState<string | null>(null);
+
+      React.useEffect(() => {
+        const fetchUserId = async () => {
+          const userId = user?.id  || await AsyncStorage.getItem('userId'); 
+          const storedUserId = userId;
+          setUserId(storedUserId);
+        };
+        fetchUserId();
+      }, []);
 
     const renderFollower = ({ item }: { item: Follower }) => {
         const isFollowing = following.some(f => f._id === item._id); 
@@ -139,19 +152,19 @@ const SubToScreen = () => {
                 <TouchableOpacity
                 onPress={() =>
                     handlePress(
-                        item._id,
-                        item.username,
-                        item.firstName,
-                        item.lastName,
-                        item.profileImageUrl as string,
-                        item.followingCount ?? 0 ,
-                        item.followerCount ?? 0
+                        item?._id,
+                        item?.username,
+                        item?.firstName,
+                        item?.lastName,
+                        item?.profileImageUrl as string,
+                        item?.followingCount ?? 0 ,
+                        item?.followerCount ?? 0
                     )
                 }
             >
                 <View style={styles.followerInfo}>
-                    <Text style={styles.followerName}>{item.firstName} {item.lastName}</Text>
-                    <Text style={styles.followerUsername}>@{item.username}</Text>
+                    <Text style={styles.followerName}>{item?.firstName} {item?.lastName}</Text>
+                    <Text style={styles.followerUsername}>@{item?.username}</Text>
                 </View>
                 </TouchableOpacity>
 
@@ -159,10 +172,10 @@ const SubToScreen = () => {
                     <TouchableOpacity
                         style={styles.messageButton}
                         onPress={() => {
-                            router.push({pathname:'/message', params:{
-                                profileImageUrl: item.profileImageUrl || '', 
-                                username: item.username,
-                                senderId: user?.id, 
+                            router.push({pathname:'/chat/message', params:{
+                                profileImageUrl: item?.profileImageUrl || '', 
+                                username: item?.username,
+                                senderId: userId, 
                                 receiverId: item?._id, 
                                 senderName: user?.username, 
                             }});

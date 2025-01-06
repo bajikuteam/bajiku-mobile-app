@@ -12,10 +12,34 @@ export const registerUser = async (email: string, dateOfBirth: string) => {
 };
 
 
+// export const acceptDisclaimer = async (userId: string) => {
+//   try {
+//     const response = await axios.post(`/api/auth/${userId}/accept-disclaimer`, {
+//       disclaimerAccepted: true,
+//     });
+//     return response.data;  
+//   } catch (error) {
+//     console.error("Failed to accept disclaimer:", error);
+//     throw error;
+//   }
+// };
+
+
+export const acceptDisclaimerAPI = async (userId: string, disclaimerAccepted: boolean) => {
+  try {
+    const response = await apiPost(`/api/auth/${userId}/accept-disclaimer`, {
+      disclaimerAccepted,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to accept disclaimer');
+  }
+}
+
+
 export const loginUser = async (email: string, password: string) => {
 
   const response = await fetch(`https://backend-server-quhu.onrender.com/api/auth/signin`, {
-    // const response = await fetch('http://192.168.1.107:5000/api/auth/signin', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -121,7 +145,6 @@ export const setNewPassword = async ( password:string, confirmPassword:string,  
     formData.append('firstName', firstName);
     formData.append('lastName', lastName);
     formData.append('userName', userName);
-    // const apiUrl = `http://192.168.1.107:5000/api/auth/profile/edit/${userId}`;
     const apiUrl = `https://backend-server-quhu.onrender.com/api/auth/profile/edit/${userId}`;
     const response = await axios.put(apiUrl, formData, {
         headers: {
@@ -174,7 +197,6 @@ export const createGroup = async (
     });
     
     const apiUrl = `https://backend-server-quhu.onrender.com/personal-group-chat/create/${createdBy}`;
-    // const apiUrl = `http://192.168.1.107:5000/personal-group-chat/create/${createdBy}`;
      const response = await axios.post(apiUrl, formData, {
         headers: {
             'Content-Type': 'multipart/form-data',

@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     },
     loginModal: {
         backgroundColor: '#fff',
-        padding: 20,
+       
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         height: height * 0.8,
@@ -221,14 +221,14 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.8,
         shadowRadius: 2,
         elevation: 5,
-        paddingTop:"20%",
+     
        
     },
     input: {
         borderWidth: 1,
         borderColor: '#ddd',
         borderRadius: 12,
-        width: 140,
+        width: 125,
     },
     inputUser: {
         borderWidth: 1,

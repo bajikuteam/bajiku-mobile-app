@@ -88,7 +88,7 @@ export const PContentLeftImg = styled.View`
     position: absolute;
     padding: 10px;
     left: 20px;
-    top: 15%;
+    top: 8%;
     z-index: 99;
     flex: 1;
     display: flex;
@@ -129,7 +129,7 @@ export const PContentCaption = styled.View`
     position: absolute;
     padding: 10px;
     left: 10px;
-    top: 8%;
+    top: 0%;
     z-index: 1000;
     flex: 1;
     display: flex;

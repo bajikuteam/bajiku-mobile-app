@@ -251,7 +251,6 @@
 
 // export default ChatScreen;
 
-
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -263,8 +262,6 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
 } from 'react-native';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -275,6 +272,7 @@ import * as NavigationBar from 'expo-navigation-bar';
 import axios from 'axios';
 import { formatTime } from '@/services/core/globals';
 import { useUser } from '@/utils/useContext/UserContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let socket: any;
 
@@ -295,12 +293,11 @@ const ChatScreen: React.FC = () => {
   const params = useLocalSearchParams();
   const { profileImageUrl, username, senderId, receiverId, senderName } = params;
   const { user } = useUser();
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const [messageInput, setMessageInput] = useState<string>('');
   const isFocused = useIsFocused();
-
   
-
+  // Hide/Show the navigation bar when focused
   useEffect(() => {
     if (isFocused) {
       NavigationBar.setVisibilityAsync('hidden');
@@ -313,10 +310,12 @@ const ChatScreen: React.FC = () => {
     router.back();
   };
 
+  // Fetch messages from the server
   const fetchMessages = async () => {
+    const userId = await AsyncStorage.getItem('userId') || user?.id;
     try {
       const response = await axios.get(
-        `https://backend-server-quhu.onrender.com/chat/messages/${String(senderId)}/${String(receiverId)}`
+        `https://backend-server-quhu.onrender.com/chat/messages/${userId}/${receiverId}`
       );
       const fetchedMessages = response.data.map((message: Record<string, any>) => ({
         _id: message._id || `${message.senderId}-${Date.now()}`,
@@ -328,27 +327,24 @@ const ChatScreen: React.FC = () => {
         },
       }));
 
-      // Add system messages for date changes
-      const messagesWithDates: any[] = [];
+      // Filter out system messages and handle date change logic
+      const messagesWithDates: IMessage[] = [];
       let lastDate: string | null = null;
 
-      fetchedMessages.forEach((message:any) => {
+      fetchedMessages.forEach((message: IMessage) => {
         const messageDate = new Date(message.createdAt).toDateString();
         if (messageDate !== lastDate) {
-          messagesWithDates.push({
-            _id: `system-${messageDate}`,
-            text: messageDate,
-            createdAt: message.createdAt,
-            user: { _id: 'system', name: 'System' },
-            isSystem: true,
-          });
+          // Optional: you can add date separators here if needed, but for now, they are excluded
           lastDate = messageDate;
         }
         messagesWithDates.push(message);
       });
 
+      // Filter out system messages (those with isSystem: true)
+      const filteredMessages = messagesWithDates.filter((msg) => !msg.isSystem);
+
       setMessages(
-        messagesWithDates.sort(
+        filteredMessages.sort(
           (a: IMessage, b: IMessage) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )
       );
@@ -357,12 +353,14 @@ const ChatScreen: React.FC = () => {
     }
   };
 
+  // Fetch messages on focus
   useFocusEffect(
     useCallback(() => {
       fetchMessages();
     }, [senderId, receiverId])
   );
 
+  // Send a new message
   const onSend = useCallback(
     (message: string) => {
       const newMessage = {
@@ -381,13 +379,14 @@ const ChatScreen: React.FC = () => {
       };
 
       socket.emit('sendMessage', newMessage);
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setMessages((prevMessages) => [...prevMessages, newMessage as any]);
       fetchMessages();
       setMessageInput('');
     },
     [senderId, receiverId, senderName]
   );
 
+  // Initialize socket connection
   useEffect(() => {
     if (isFocused) {
       socket = io('https://backend-server-quhu.onrender.com', {
@@ -403,17 +402,13 @@ const ChatScreen: React.FC = () => {
         const lastMessageDate = lastMessage ? new Date(lastMessage.createdAt).toDateString() : null;
 
         const newMessages = [...messages];
-        if (messageDate !== lastMessageDate) {
-          newMessages.push({
-            _id: `system-${messageDate}`,
-            text: messageDate,
-            createdAt: message.createdAt,
-            user: { _id: 'system', name: 'System' },
-            isSystem: true,
-          });
-        }
+        // Only add the new message, and don't add date separators (system messages)
         newMessages.push(message);
-        setMessages(newMessages);
+
+        // Filter out system messages before updating the state
+        const filteredMessages = newMessages.filter((msg) => !msg.isSystem);
+
+        setMessages(filteredMessages);
       });
 
       return () => {
@@ -421,31 +416,39 @@ const ChatScreen: React.FC = () => {
         socket.disconnect();
       };
     }
-  }, [isFocused]);
+  }, [isFocused, messages]);
 
+  const [userId, setUserId] = React.useState<string | null>(null);
+
+  // Get userId from AsyncStorage or context
+  React.useEffect(() => {
+    const fetchUserId = async () => {
+      const userId = user?.id || await AsyncStorage.getItem('userId') || senderId;
+      setUserId(userId);
+    };
+    fetchUserId();
+  }, [user?.id, senderId]);
+
+  // Render individual chat message
   const renderItem = ({ item, index }: { item: IMessage; index: number }) => {
+    // Skip rendering system messages (those with isSystem: true)
+    if (item.isSystem) {
+      return null;
+    }
+
     const currentDate = new Date(item.createdAt).toDateString();
     const nextItem = messages[index + 1];
     const nextDate = nextItem ? new Date(nextItem.createdAt).toDateString() : null;
-    
-    // Check if the item is a system message (date header)
-    if (item.isSystem) {
-      return (
-        <View style={styles.dateContainer}>
-          <Text style={styles.dateText}>{item.text}</Text>
-        </View>
-      );
-    }
-  
-    const isSentByUser = String(item?.user?._id) === String(user?.id);
-  
+
+    const isSentByUser = String(item?.user?._id) === String(userId);
+
     return (
       <>
-        {currentDate !== nextDate && (
+        {/* {currentDate !== nextDate && (
           <View style={styles.dateContainer}>
             <Text style={styles.dateText}>{currentDate}</Text>
           </View>
-        )}
+        )} */}
         <View
           style={[
             styles.messageContainer,
@@ -490,7 +493,6 @@ const ChatScreen: React.FC = () => {
       </>
     );
   };
-  
 
   return (
     <>
@@ -499,37 +501,35 @@ const ChatScreen: React.FC = () => {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
-          <View style={styles.container}>
-            <StatusBar barStyle="light-content" backgroundColor="#000000" />
+        <View style={styles.container}>
+          <StatusBar barStyle="light-content" backgroundColor="#000000" />
 
-            <FlatList
-              data={messages}
-              renderItem={renderItem}
-              keyExtractor={(item) => item._id.toString()}
-              inverted
-              contentContainerStyle={styles.messagesContainer}
+          <FlatList
+            data={messages}
+            renderItem={renderItem}
+            keyExtractor={(item) => item._id.toString()}
+            inverted
+            contentContainerStyle={styles.messagesContainer}
+          />
+
+          <View style={styles.inputToolbar}>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Type a message..."
+              value={messageInput}
+              onChangeText={setMessageInput}
+              onSubmitEditing={() => {
+                if (messageInput.trim()) {
+                  onSend(messageInput);
+                }
+              }}
+              returnKeyType="send"
             />
-
-            <View style={styles.inputToolbar}>
-              <TextInput
-                style={styles.textInput}
-                placeholder="Type a message..."
-                value={messageInput}
-                onChangeText={setMessageInput}
-                onSubmitEditing={() => {
-                  if (messageInput.trim()) {
-                    onSend(messageInput);
-                  }
-                }}
-                returnKeyType="send"
-              />
-              <TouchableOpacity onPress={() => onSend(messageInput)} style={styles.sendButton}>
-                <MaterialCommunityIcons name="send-circle" size={32} color="#25D366" />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity onPress={() => onSend(messageInput)} style={styles.sendButton}>
+              <MaterialCommunityIcons name="send-circle" size={32} color="#25D366" />
+            </TouchableOpacity>
           </View>
-        {/* </TouchableWithoutFeedback> */}
+        </View>
       </KeyboardAvoidingView>
     </>
   );

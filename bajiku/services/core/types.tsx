@@ -234,6 +234,58 @@ export interface Post {
   userId: string;
 }
 export interface TrendingSearch {
-  _id: string;   // The search query (term)
-  count: number; // The number of times the query was searched
+  _id: string;   
+  count: number; 
+}
+
+export interface Comments {
+  _id: string;
+  comment: string;
+  username: string;
+  createdAt: string;
+  likedBy: string[];
+  replies?: Comments[];
+  authorProfilePicSrc: string;
+  likes?: number;
+  commentId?: string;
+  authorId?:string;
+}
+
+export  interface PostDetailScreenRouteParams {
+  id: string;
+  privacy: string;
+  mediaSrc: string;
+  caption: string;
+  authorProfilePicSrc: string;
+  likes: number;
+}
+
+export  interface ContentType {
+  id?: number;
+  _id?: string;
+  mediaSrc: string;
+  authorName: string;
+  caption: string;
+  authorProfilePicSrc: string;
+  privacy: string;
+  likes: number;
+  comments?: Comments[];
+  likedBy: string[];
+  subscribers: string[];
+  createdAt: string;
+  
+};
+
+export interface Notification {
+  IsRead: boolean;
+  createdAt: string;
+  message: string;
+  profileImageUrl: string;
+  userId: string;
+  _id: string;
+  whoInitiatedId:string;
+  username:string;
+  commentId:string;
+  contentId:string;
+  replyId:string;
 }
