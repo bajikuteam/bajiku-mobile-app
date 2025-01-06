@@ -7,6 +7,8 @@ const ChatLayout = () => {
        <Stack.Screen name="NewChat" options={{ headerShown: false }} />
        <Stack.Screen name="message" options={{ headerShown: false }} />
        <Stack.Screen name="groupChat" options={{ headerShown: false }} />
+       <Stack.Screen name="CreateGroup" options={{ headerShown: false }} />   
+       <Stack.Screen name="AddPersonGroupChatMember" options={{ headerShown: false }} />
     </Stack>
   );
 };

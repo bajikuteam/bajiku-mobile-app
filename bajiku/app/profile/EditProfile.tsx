@@ -14,7 +14,7 @@ import {
     ScrollView,
     SafeAreaView,
     Alert,
-    TouchableOpacity,
+
 } from 'react-native';
 import ImageUpload from '@/components/ImageUpload';
 import { checkUsernameAvailability} from '@/services/api/request';
@@ -114,7 +114,7 @@ const EditProfile = () => {
      
       
         // API endpoint URL
-        const apiUrl = `https://backend-server-quhu.onrender.com/api/auth/profile/edit/${userId}`;
+        const apiUrl = `https://my-social-media-bd.onrender.com/api/auth/profile/edit/${userId}`;
       
         // Send the request
         try {

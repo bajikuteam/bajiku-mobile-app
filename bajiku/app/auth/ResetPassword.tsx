@@ -16,6 +16,7 @@ import {
     Platform,
     ScrollView,
     SafeAreaView,
+    Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 
 import { Input } from 'react-native-elements';
@@ -89,6 +90,7 @@ const handleSubmit = async () => {
             return; 
         }
        await resetPassword(userId, password, confirmPassword); 
+       Alert.alert('Password reset successfully!', 'Signin with your new password to get started.');
         router.push('/auth/Login');
     } catch (err) {
         setFormError('Failed to set password. Please try again.');
@@ -103,7 +105,7 @@ const handleSubmit = async () => {
         { text: 'At least one digit', isMet: /[0-9]/.test(password) },
     ];
 
-const labelColor = '#FBBC05'
+const labelColor = '#fff'
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

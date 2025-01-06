@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert,Image,  ActivityIndicator } from 'react-native';
 
-import { acceptDisclaimerAPI } from '@/services/api/request'; // Your API call function
+import { acceptDisclaimerAPI } from '@/services/api/request';
 import { useTheme } from '@/utils/useContext/ThemeContext';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -41,7 +41,7 @@ React.useEffect(() => {
         router.push('/auth/EmailVerification'); 
       }
     } catch (error) {
-        console.error('Error accepting disclaimer: ', error);
+        // console.error('Error accepting disclaimer: ', error);
       Alert.alert('Error', 'An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -128,20 +128,20 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   checkboxChecked: {
-    backgroundColor: '#FBBC05',
-    borderColor: '#FBBC05',
+    backgroundColor: '#25D366',
+    borderColor: '#25D366',
   },
   checkMark: {
     width: 12,
     height: 12,
-    backgroundColor: '#fff',
+    backgroundColor: '#25D366',
     borderRadius: 2,
   },
   checkboxLabel: {
     fontSize: 16,
   },
   submitButton: {
-    backgroundColor: '#075985',
+    backgroundColor: '#fff',
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 5,
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
   },
   submitButtonText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 18,
     fontWeight: 'bold',
   },

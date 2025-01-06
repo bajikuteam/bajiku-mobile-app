@@ -31,7 +31,6 @@ const LoginScreen = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const { handleLogin } = useUser();
   const [showPassword, setShowPassword] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
 
   const navigation = useNavigation();
 
@@ -52,7 +51,6 @@ const LoginScreen = () => {
   
       if (response.ok && responseData.user) {
         const { id, token } = responseData.user;
-  
         await AsyncStorage.setItem('id', id);  
         await AsyncStorage.setItem('token', token);
         router.push('/(tabs)');
@@ -75,7 +73,30 @@ const LoginScreen = () => {
     }
   };
 
-  const labelColor = '#FBBC05';
+
+  const logStoredData = async () => {
+    try {
+      // Retrieve the item from AsyncStorage
+      const storedData = await AsyncStorage.getItem('userProfile');
+      
+      if (storedData !== null) {
+        // Parse the stored string data into a JavaScript object
+        const parsedData = JSON.parse(storedData);
+        
+        // Log the retrieved and parsed data to the console
+        console.log('Stored Data from AsyncStorage:', parsedData);
+      } else {
+        console.log('No data found in AsyncStorage');
+      }
+    } catch (error) {
+      console.error('Error retrieving data from AsyncStorage', error);
+    }
+  };
+  
+  // Call the function to log the stored data
+  logStoredData();
+
+  const labelColor = '#fff';
 
   return (
     <KeyboardAvoidingView
@@ -147,7 +168,7 @@ const LoginScreen = () => {
                 disabled={loading}
               />
 
-<View style={{marginTop:5}}>
+            <View style={{marginTop:5}}>
               <Link href={"/auth/ForgetPassword"}>
                
                   <Text style={{textAlign: 'center', fontSize: 15, color:'red'}}>Forgot Password?</Text>
@@ -230,7 +251,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
     marginTop: 30,
-    color: '#FBBC05'
+    color: '#fff'
   },
   input: {
     borderWidth: 1,

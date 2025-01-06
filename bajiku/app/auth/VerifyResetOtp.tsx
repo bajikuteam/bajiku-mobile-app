@@ -30,7 +30,7 @@ const VeirfyResetOtp: React.FC = () => {
       }
   
       const otpString = otp.join(''); 
-      const response = await fetch('https://backend-server-quhu.onrender.com/api/auth/verify-reset-otp', {
+      const response = await fetch('https://my-social-media-bd.onrender.com/api/auth/verify-reset-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

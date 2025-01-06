@@ -291,7 +291,7 @@ const Notifications = () => {
         setLoading(true);
         const userId = user?.id || await AsyncStorage.getItem('userId');
         try {
-            const response = await axios.get(`https://backend-server-quhu.onrender.com/notifications/${userId}`);
+            const response = await axios.get(`https://my-social-media-bd.onrender.com/notifications/${userId}`);
             const allNotifications: Notification[] = response.data;
             const unreadCount = allNotifications.filter((notification: Notification) => !notification.IsRead).length;
             setNotifications(allNotifications);
@@ -306,7 +306,7 @@ const Notifications = () => {
     const markAllAsRead = async () => {
         const userId = user?.id || await AsyncStorage.getItem('userId');
         try {
-            await axios.patch(`https://backend-server-quhu.onrender.com/notifications/${userId}/mark-all-read`);
+            await axios.patch(`https://my-social-media-bd.onrender.com/notifications/${userId}/mark-all-read`);
             fetchNotifications();
         } catch (error) {
             console.error('Error marking all notifications as read:', error);
@@ -324,7 +324,7 @@ const Notifications = () => {
         replyId?: string
     ) => {
         // Mark the notification as read
-        await axios.patch(`https://backend-server-quhu.onrender.com/notifications/${notificationId}/mark-read`);
+        await axios.patch(`https://my-social-media-bd.onrender.com/notifications/${notificationId}/mark-read`);
 
         const normalizedMessage = message.toLowerCase();
     

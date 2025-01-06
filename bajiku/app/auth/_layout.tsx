@@ -12,6 +12,8 @@ const AuthLayout = () => {
           <Stack.Screen name="VerifyResetOtp" options={{ headerShown: false }} />
           <Stack.Screen name="ResetPassword" options={{ headerShown: false }} />
           <Stack.Screen name="DisclaimerAccept" options={{ headerShown: false }} />
+          <Stack.Screen name="PasswordChange" options={{ headerShown: false }} />
+          
     </Stack>
   );
 };

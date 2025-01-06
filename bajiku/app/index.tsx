@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { router, usePathname, useRouter } from 'expo-router';
+import { router, usePathname} from 'expo-router';
 import { useUser } from '@/utils/useContext/UserContext';
 import Loading from '@/components/Loading';
 import * as NavigationBar from 'expo-navigation-bar';
@@ -82,7 +82,7 @@ const Index = () => {
     return <Loading />;
   }
 
-  return null; // Return nothing as the app will navigate based on the conditions above
+  return null;
 };
 
 export default Index;

@@ -3,7 +3,6 @@ import { StyleSheet, View, StatusBar, SafeAreaView } from "react-native";
 import PostWithCaption from "@/components/MediaPlayer";
 import * as NavigationBar from 'expo-navigation-bar';
 import { useIsFocused } from "@react-navigation/native";
-import DraggableModal from "@/components/DraggableModal";
 
 export default function HomeScreen() {
  
@@ -25,8 +24,6 @@ export default function HomeScreen() {
       <SafeAreaView style={{ flex: 1, backgroundColor:"#000000" }}>
         <View style={{marginBottom:50}}>
         <PostWithCaption />
-
-        {/* <DraggableModal/> */}
         </View>
       </SafeAreaView>
 

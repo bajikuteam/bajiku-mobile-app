@@ -46,7 +46,7 @@ const SearchScreen = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `https://backend-server-quhu.onrender.com/search/users?query=${query}`
+        `https://my-social-media-bd.onrender.com/search/users?query=${query}`
       );
       setResults(response.data); 
 

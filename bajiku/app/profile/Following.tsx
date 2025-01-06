@@ -39,7 +39,7 @@ const FollowingScreen = () => {
             const userId = user?.id || await AsyncStorage.getItem('userId');;
             setLoading(true);
             
-            const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${userId}/following`, {
+            const response = await axios.get(`https://my-social-media-bd.onrender.com/users/${userId}/following`, {
 
             });
             setFollowers(response.data.following);
@@ -60,7 +60,7 @@ const FollowingScreen = () => {
     const handleUnfollow = async (followerId: string) => {
         const userId = user?.id  || await AsyncStorage.getItem('userId'); 
         try {
-            const response = await fetch(`https://backend-server-quhu.onrender.com/users/${userId}/unfollow`, {
+            const response = await fetch(`https://my-social-media-bd.onrender.com/users/${userId}/unfollow`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -43,12 +43,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   image: {
-    width: 300,
-    height: 150,
+    width: 200,
+    height: 140,
     marginBottom: 16,
   },
   subHead: {
-    color: '#FBBC05', 
+    color: '#fff', 
     fontSize: 18,
     fontWeight: 'bold'
   },

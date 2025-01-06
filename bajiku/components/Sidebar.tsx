@@ -93,7 +93,7 @@ const Sidebar: React.FC = () => {
   const fetchPersonalDetail = async () => {
     try {
       const response = await axios.get(
-        `https://backend-server-quhu.onrender.com/users/${user?.id}`
+        `https://my-social-media-bd.onrender.com/users/${user?.id}`
       );
       setPersonalDetails(response.data.following || []); 
       setPersonalDetailsFollowers(response.data.followers || []); 

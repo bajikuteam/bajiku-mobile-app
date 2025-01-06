@@ -4,9 +4,6 @@ import { useUser } from '@/utils/useContext/UserContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Button from '@/components/Button';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import {RootStackParamListComponent } from '@/services/core/types';
-import SearchComponent from '@/components/Search';
 import { router, useLocalSearchParams } from 'expo-router';
 import CustomHeader from '@/components/CustomHeader';
 
@@ -22,8 +19,6 @@ const AddPersonGroupChatMemberScreen: React.FC = () => {
   const [selectedFollowers, setSelectedFollowers] = useState<string[]>([]);
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
-  type AddPersonGroupChatMemberRouteParams = RouteProp<RootStackParamListComponent, 'AddPersonGroupChatMember'>;
-  const route = useRoute<AddPersonGroupChatMemberRouteParams>();
   const params = useLocalSearchParams();
   const { senderId, senderName, groupImgUrl, room, name, description, roomId } = params;
 
@@ -31,7 +26,7 @@ const AddPersonGroupChatMemberScreen: React.FC = () => {
   const fetchFollowers = async () => {
     try {
       const userId = user?.id || (await AsyncStorage.getItem('userId'));
-      const response = await fetch(`https://backend-server-quhu.onrender.com/users/${userId}/followers`);
+      const response = await fetch(`https://my-social-media-bd.onrender.com/users/${userId}/followers`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -68,7 +63,7 @@ const AddPersonGroupChatMemberScreen: React.FC = () => {
     setLoading(true);
     try {
       const userId = user?.id || (await AsyncStorage.getItem('userId'));
-        const response = await axios.post(`https://backend-server-quhu.onrender.com/personal-group-chat/${roomId}/add-followers/${userId}`, {
+        const response = await axios.post(`https://my-social-media-bd.onrender.com/personal-group-chat/${roomId}/add-followers/${userId}`, {
         members: selectedFollowers,
       });
   

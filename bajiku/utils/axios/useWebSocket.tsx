@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
-// const SOCKET_URL = 'http://192.168.1.107:5000'; 
-const SOCKET_URL = 'https://backend-server-quhu.onrender.com';  
+const SOCKET_URL = 'https://my-social-media-bd.onrender.com';  
 
 
 

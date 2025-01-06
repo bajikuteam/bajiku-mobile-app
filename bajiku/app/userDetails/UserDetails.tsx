@@ -278,7 +278,7 @@ const [userImage, setUserImage] = useState('')
 
   const UserDetails = async () => {
     try {
-      const url = `https://backend-server-quhu.onrender.com/users/userDetails/${searchUserId}`;
+      const url = `https://my-social-media-bd.onrender.com/users/userDetails/${searchUserId}`;
   
       const response = await axios.get(url);
     
@@ -323,7 +323,7 @@ const [userImage, setUserImage] = useState('')
   const toggleFollow = async () => {
     const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     try {
-      const url = `https://backend-server-quhu.onrender.com/users/${userId}/${isFollowing ? 'unfollow' : 'follow'}`;
+      const url = `https://my-social-media-bd.onrender.com/users/${userId}/${isFollowing ? 'unfollow' : 'follow'}`;
       const body = isFollowing ? { userIdToUnfollow: searchUserId } : { userIdToFollow: searchUserId };
   
       const response = await axios.post(url, body);
@@ -343,7 +343,7 @@ const [userImage, setUserImage] = useState('')
     const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     setLoading(true);
     try {
-      const response = await axios.get(`https://backend-server-quhu.onrender.com/content/${searchUserId}/${userId}`);
+      const response = await axios.get(`https://my-social-media-bd.onrender.com/content/${searchUserId}/${userId}`);
       const data = response.data;
       if (data && Array.isArray(data)) {
         setPosts(data);
@@ -487,7 +487,7 @@ const [userImage, setUserImage] = useState('')
     const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     try {
       const response = await axios.get(
-        `https://backend-server-quhu.onrender.com/users/${userId}/following`
+        `https://my-social-media-bd.onrender.com/users/${userId}/following`
       );
       // Define the type for the array of followed users
       const followingList: Follower[] = response.data.following || [];
@@ -540,7 +540,7 @@ useFocusEffect(
       amount: 20000,
     };  
     try {
-      const response = await axios.post('https://backend-server-quhu.onrender.com/payment/track', paymentData);
+      const response = await axios.post('https://my-social-media-bd.onrender.com/payment/track', paymentData);
       await UserDetails();
       await fetchPosts()
 

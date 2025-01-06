@@ -45,6 +45,7 @@ const EmailVerification: React.FC = () => {
   
       const response = await verifyEmail(token, otpString);
       AsyncStorage.setItem('userId', response.userId);
+      
       router.push('/auth/SetPassword');
     } catch (err) {
       setError('Invalid OTP. Please try again.');
@@ -62,7 +63,7 @@ const EmailVerification: React.FC = () => {
       inputsRef.current[0]?.focus();
   
       const email = await AsyncStorage.getItem('email');
-      const response = await fetch('https://backend-server-quhu.onrender.com/api/auth/resend-otp', {
+      const response = await fetch('https://my-social-media-bd.onrender.com/api/auth/resend-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -128,6 +129,7 @@ const EmailVerification: React.FC = () => {
       <View style={styles.otpContainer}>
         {otp.map((digit, index) => (
           <Input
+          type='number'
             key={index}
             style={[
               styles.input,
@@ -136,7 +138,10 @@ const EmailVerification: React.FC = () => {
             ]}
             value={digit}
             onChangeText={(value) => handleInputChange(value, index)}
-            keyboardType="numeric"
+            autoCorrect={false}
+            autoCapitalize='none'
+            keyboardType='number-pad'
+          
             maxLength={1}
             ref={(el) => (inputsRef.current[index] = el)}
             name={'otp'}

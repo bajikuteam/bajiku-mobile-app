@@ -48,7 +48,7 @@ const GroupScreen = () => {
     useEffect(() => {
         const fetchGroups = async () => {
             try {
-                const response = await fetch('https://backend-server-quhu.onrender.com/chat/rooms');
+                const response = await fetch('https://my-social-media-bd.onrender.com/chat/rooms');
                 const data: Group[] = await response.json();
                 setGroups(data);
                 setLoading(false);

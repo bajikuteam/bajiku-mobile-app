@@ -26,8 +26,6 @@ const CreateGroupComponent: React.FC = () => {
   const [resetImageKey, setResetImageKey] = useState<number>(0);
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
-  const navigation = useNavigation()
-
 
 
   const goBack = () => {
@@ -37,7 +35,7 @@ const CreateGroupComponent: React.FC = () => {
   const fetchFollowers = async () => {
     try {
       const userId = user?.id || (await AsyncStorage.getItem('userId'));
-      const response = await fetch(`https://backend-server-quhu.onrender.com/users/${userId}/followers`);
+      const response = await fetch(`https://my-social-media-bd.onrender.com/users/${userId}/followers`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

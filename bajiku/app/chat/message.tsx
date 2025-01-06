@@ -13,7 +13,7 @@
 // import * as NavigationBar from 'expo-navigation-bar';
 
 // // Adjust the socket URL according to your setup
-// const socket = io('https://backend-server-quhu.onrender.com');
+// const socket = io('https://my-social-media-bd.onrender.com');
 
 
 // interface ChatScreenRouteParams {
@@ -61,7 +61,7 @@
   // useEffect(() => {
   //   const fetchMessages = async () => {
   //     try {
-  //       const response = await axios.get(`https://backend-server-quhu.onrender.com/chat/messages/${senderId}/${receiverId}`);
+  //       const response = await axios.get(`https://my-social-media-bd.onrender.com/chat/messages/${senderId}/${receiverId}`);
       
   //       const fetchedMessages = response.data.map((message: Record<string, any>) => ({
   //         _id: message._id || `${message.senderId}-${Date.now()}`,
@@ -315,7 +315,7 @@ const ChatScreen: React.FC = () => {
     const userId = await AsyncStorage.getItem('userId') || user?.id;
     try {
       const response = await axios.get(
-        `https://backend-server-quhu.onrender.com/chat/messages/${userId}/${receiverId}`
+        `https://my-social-media-bd.onrender.com/chat/messages/${userId}/${receiverId}`
       );
       const fetchedMessages = response.data.map((message: Record<string, any>) => ({
         _id: message._id || `${message.senderId}-${Date.now()}`,
@@ -389,7 +389,7 @@ const ChatScreen: React.FC = () => {
   // Initialize socket connection
   useEffect(() => {
     if (isFocused) {
-      socket = io('https://backend-server-quhu.onrender.com', {
+      socket = io('https://my-social-media-bd.onrender.com', {
         transports: ['websocket'],
         reconnection: true,
         reconnectionAttempts: 5,

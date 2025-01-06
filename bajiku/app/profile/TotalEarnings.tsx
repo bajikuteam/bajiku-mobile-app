@@ -197,7 +197,7 @@ const TotalEarnings = () => {
     setLoading(true);
     const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     try {
-      const response = await axios.get(`https://backend-server-quhu.onrender.com/withdrawal/withdrawals/${userId}`);
+      const response = await axios.get(`https://my-social-media-bd.onrender.com/withdrawal/withdrawals/${userId}`);
       const data = response?.data;
       setWithdrawals(data?.withdrawals);
       setTotalEarnings(data?.totalEarnings)
@@ -390,7 +390,7 @@ const handleModalConfirm = async () => {
   setLoading(true);
   const userId = user?.id  || await AsyncStorage.getItem('userId'); 
   try {
-    const response = await fetch(`https://backend-server-quhu.onrender.com/withdrawal/withdraw/${userId}`, {
+    const response = await fetch(`https://my-social-media-bd.onrender.com/withdrawal/withdraw/${userId}`, {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',
@@ -450,7 +450,7 @@ const handleModalCancel = () => {
 useEffect(() => {
   if (whoInitiatedId) {
     // Replace with your actual API call or data fetch logic
-    fetch(`https://backend-server-quhu.onrender.com/withdrawal/withdrawal/${whoInitiatedId}`)
+    fetch(`https://my-social-media-bd.onrender.com/withdrawal/withdrawal/${whoInitiatedId}`)
       .then(response => response.json())
       .then(data => setSelectedWithdrawal(data))
       .catch();

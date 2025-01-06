@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, StatusBar, KeyboardAvoidingView, Platform, Keyboard, Modal } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, StatusBar, KeyboardAvoidingView, Platform, Modal} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import io from 'socket.io-client';
 import { useUser } from '@/utils/useContext/UserContext';
 import CustomHeader from '@/components/CustomHeader';
@@ -10,7 +10,8 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { formatTime } from '@/services/core/globals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const socket = io('https://backend-server-quhu.onrender.com');
+const socket = io('https://my-social-media-bd.onrender.com');
+
 
 interface Message {
   _id: string;
@@ -24,26 +25,12 @@ interface Message {
   };
 }
 
-interface ChatScreenRouteParams {
-  _id: string;
-  groupName: string;
-  groupImgUrl: string;
-  room: string;
-  profileImageUrl: string;
-  senderId: string;
-  senderName: string;
-  name: string;
-  username: string;
-  description: string;
-}
-
-const GroupChat: React.FC = () => {
+  const GroupChat: React.FC = () => {
   const params = useLocalSearchParams();
-  const { senderId, senderName, groupImgUrl, room, name,   description } = params;
+  const { senderId, senderName, groupImgUrl, room, name, description } = params;
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState('');
   const [userColors, setUserColors] = useState<{ [key: string]: string }>({});
-  const navigation = useNavigation();
   const { user } = useUser();
   const flatListRef = useRef<FlatList>(null);
 
@@ -79,7 +66,7 @@ const GroupChat: React.FC = () => {
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const response = await fetch(`https://backend-server-quhu.onrender.com/chat/history/${name}`);
+        const response = await fetch(`https://my-social-media-bd.onrender.com/chat/history/${name}`);
         const data = await response.json();
 
         const formattedMessages = data.map((msg: any) => ({
@@ -104,8 +91,6 @@ const GroupChat: React.FC = () => {
 
     fetchChatHistory();
   }, [room]);
-
-
 
 
 // i add 's' to the event to prevent connecting

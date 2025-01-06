@@ -22,7 +22,7 @@ const { user } = useUser();
   const [loading, setLoading] = useState<boolean>(true);
   const [data, setData] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const socket = io('https://backend-server-quhu.onrender.com');
+  const socket = io('https://my-social-media-bd.onrender.com');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -31,7 +31,7 @@ const { user } = useUser();
   const fetchChatContacts = async () => {
     try {
       const userId = user?.id || await AsyncStorage.getItem('userId');
-      const response = await fetch(`https://backend-server-quhu.onrender.com/chat/message/contacts/${userId}`);
+      const response = await fetch(`https://my-social-media-bd.onrender.com/chat/message/contacts/${userId}`);
       const data = await response.json();
       return Array.isArray(data) ? data : []; 
     } catch (error) {
@@ -43,7 +43,7 @@ const { user } = useUser();
   const fetchUserGroups = async () => {
     try {
       const userId = user?.id || await AsyncStorage.getItem('userId');
-      const response = await fetch(`https://backend-server-quhu.onrender.com/personal-group-chat/user/${userId}/rooms`);
+      const response = await fetch(`https://my-social-media-bd.onrender.com/personal-group-chat/user/${userId}/rooms`);
       const data = await response.json();
       // console.log('Fetched user groups:', data); 
       return Array.isArray(data) ? data : []; 
@@ -223,10 +223,7 @@ const { user } = useUser();
   });
   
   
-  const toggleViewMode = (mode: 'contacts' | 'groups' | 'all') => {
-    setViewMode(mode);
-  };
-  
+
   const renderToggleButtons = () => (
     <View style={styles.toggleContainer}>
     <Button text='All'  style={styles.toggleContainerBtn}   onClick={() => setViewMode('all')} variant='third'/>

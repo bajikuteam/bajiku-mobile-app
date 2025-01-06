@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import {  router } from 'expo-router';
 import CustomHeader from '@/components/CustomHeader';
 import { useUser } from '@/utils/useContext/UserContext';
+import ChangePassword from '@/components/changePasswords';
 
 
 const Menu = () => {
@@ -24,7 +25,7 @@ const Menu = () => {
                       label="Home" />
               </TouchableOpacity>
 
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push('/Appsettings/settinglist')}>
 
                   <SidebarItem
                       icon={<Feather name="settings" size={28} />}
