@@ -95,7 +95,6 @@ const SignUpScreen = () => {
         await AsyncStorage.setItem('token', response.token);
         await AsyncStorage.setItem('userId', response.user?._id); 
         await AsyncStorage.setItem('email', email); 
-        console.log('res...!',response)
         // Clear the form fields after successful registration
         setEmail('');
         setDob('');
@@ -192,18 +191,15 @@ React.useEffect(() => {
 const handleDisclaimerAccept = async () => {
   if (userId) {
     try {
-      const response = await axios.post(`https://backend-server-quhu.onrender.com/api/auth/${userId}/accept-disclaimer`, {
+      const response = await axios.post(`https://my-social-media-bd.onrender.com/api/auth/${userId}/accept-disclaimer`, {
         disclaimerAccepted: true,
       });
-
-      console.log('res....!!',response);
-      console.log('res....!!',response.data);
       setDisclaimerModalVisible(false);
       router.push('/auth/EmailVerification');
       return response.data; 
        
     } catch (error) {
-      console.error("Failed to accept disclaimer:", error);
+      // console.error("Failed to accept disclaimer:", error);
       throw error;
     }
   } else {
@@ -226,11 +222,11 @@ const handleDisclaimerDecline = () => {
             <View style={[styles.loginModal, theme === 'dark' ? styles.darkModal : styles.lightModal]}>
          
 
-              <Text style={styles.modalTitle} className='text-[#FBBC05]'>
+              <Text style={styles.modalTitle} >
                 Sign up to get started
               </Text>
 
-              <View className='flex-1 items-center'>
+              <View>
              
               <Input
                               label="Email"
@@ -246,7 +242,8 @@ const handleDisclaimerDecline = () => {
                               placeholderTextColor={placeholderColor } 
                               name={''}           
                                />
-                                {emailError && <Text className="text-red-500   text-[12px]">{emailError}</Text>}
+                           {emailError && <Text style={{color:'red', fontSize:12}}>{emailError}</Text>}
+
 
               {showDatePicker && (
               <DateTimePicker
@@ -307,7 +304,6 @@ const handleDisclaimerDecline = () => {
               text={loading ? 'Submitting...' : 'Submit'}
               variant="primary"
               onClick={handleRegister}
-              className="w-[293px]"
               disabled={loading}
             />
 
@@ -354,7 +350,8 @@ const handleDisclaimerDecline = () => {
                 <Text style={styles.signupText}>
                     Sign in
                   </Text>
-                </Text></Link>
+                </Text>
+                </Link>
               </View>
               </View>
             </View>
@@ -422,7 +419,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
     marginTop: 30,
-    color: '#FBBC05'
+    color: '#fff'
   },
 
   checkboxContainer: {

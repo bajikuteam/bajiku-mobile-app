@@ -15,7 +15,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Button from './Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '@/styles/MediaPlayer';
-const socket = io('https://backend-server-quhu.onrender.com'); 
+const socket = io('https://my-social-media-bd.onrender.com'); 
 
 
 interface LikedState {
@@ -76,7 +76,6 @@ export default function PostWithCaption() {
   const [loading, setLoading] = useState(true);  
   const scrollY = useRef(new Animated.Value(0)).current;
   const pulseAnimation = useRef(new Animated.Value(1)).current;
-  const [expandedComments, setExpandedComments] = useState<{ [key: string]: boolean }>({});
 
 
   useEffect(() => {
@@ -118,7 +117,7 @@ export default function PostWithCaption() {
     const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     setLoading(true); 
     try {
-      const response = await fetch(`https://backend-server-quhu.onrender.com/content/${userId}`);
+      const response = await fetch(`https://my-social-media-bd.onrender.com/content/${userId}`);
       const data = await response.json();
     
       // Filter the videos based on the privacy setting
@@ -282,7 +281,7 @@ const openCommentsModal = async (videoItem: VideoItem) => {
   setLoadingComments(true);  
 
   try {
-    const response = await fetch(`https://backend-server-quhu.onrender.com/content/single/${videoItem._id}`)
+    const response = await fetch(`https://my-social-media-bd.onrender.com/content/single/${videoItem._id}`)
  
     if (!response.ok) {
       throw new Error('Failed to fetch content');
@@ -328,7 +327,7 @@ const openCommentsModal = async (videoItem: VideoItem) => {
         authorId: user?.id,
         authorProfilePicSrc: user?.profileImageUrl
       };
-        const response = await fetch(`https://backend-server-quhu.onrender.com/content/${mediaId}/comments/${userId}`, {
+        const response = await fetch(`https://my-social-media-bd.onrender.com/content/${mediaId}/comments/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -357,7 +356,7 @@ const openCommentsModal = async (videoItem: VideoItem) => {
         commentId, 
         mediaId
       };  
-        const response = await fetch(`https://backend-server-quhu.onrender.com/content/${mediaId}/comments/${commentId}/reply/${userId}`, {
+        const response = await fetch(`https://my-social-media-bd.onrender.com/content/${mediaId}/comments/${commentId}/reply/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -416,7 +415,7 @@ const openCommentsModal = async (videoItem: VideoItem) => {
     const userId = user?.id  || await AsyncStorage.getItem('userId'); 
   
     try {
-      const response = await fetch(`https://backend-server-quhu.onrender.com/content/${mediaId}/like/${userId}`, {
+      const response = await fetch(`https://my-social-media-bd.onrender.com/content/${mediaId}/like/${userId}`, {
         method: 'POST',
       });
   
@@ -476,7 +475,7 @@ const likeComment = async (commentId: string, mediaId:string) => {
   const userId = user?.id  || await AsyncStorage.getItem('userId'); 
 
   try {
-    const response = await fetch(`https://backend-server-quhu.onrender.com/content/comments/${mediaId}/${commentId}/like/${userId}`, {
+    const response = await fetch(`https://my-social-media-bd.onrender.com/content/comments/${mediaId}/${commentId}/like/${userId}`, {
       
       method: 'POST',
     });
@@ -763,18 +762,36 @@ const showReplies= (comment: Comment) => {
 };
 
 
-
 const toggleButton = (
 
-<View style={styles.toggleContainer}>
-  <TouchableOpacity onPress={() => setShowPrivateContent(false)}>
-    <Text style={styles.toggleButtonText}>Public Content</Text>
-  </TouchableOpacity>
-  <TouchableOpacity onPress={() => setShowPrivateContent(true)}>
-    <Text style={styles.toggleButtonText}>Private Content</Text>
-  </TouchableOpacity>
-</View>
-
+  <View style={styles.toggleContainer}>
+      <TouchableOpacity
+        onPress={() => setShowPrivateContent(false)}
+        style={[
+          styles.toggleButton,
+          !showPrivateContent && styles.activeTab,
+        ]}
+      >
+        <Text style={[styles.toggleButtonText, !showPrivateContent && styles.activeTabText]}>
+          Public Content
+        </Text>
+      </TouchableOpacity>
+      <View>
+      <TouchableOpacity
+        onPress={() => setShowPrivateContent(true)}
+        style={[
+          styles.toggleButton,
+          showPrivateContent && styles.activeTab, 
+        ]}
+      >
+        <Text style={[styles.toggleButtonText, showPrivateContent && styles.activeTabText]}>
+          Private Content
+        </Text>
+      </TouchableOpacity> 
+      </View>
+ 
+      
+    </View>
 
 
 );

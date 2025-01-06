@@ -9,20 +9,26 @@ import { UserProvider } from '@/utils/useContext/UserContext';
 import { ChatProvider } from '@/utils/useContext/ChatContext';
 import { FollowersProvider } from '@/utils/useContext/FollowingContext';
 import {usePreventScreenCapture} from 'expo-screen-capture'
-import { VideoProvider } from '@/utils/useContext/VideoContext';
+import Loading from '@/components/Loading';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '@/services/core/i18n';
+
+
 SplashScreen.preventAutoHideAsync();  
 export default function App() {
  
   return (
       <ThemeProvider>
         <UserProvider>
+       
           <ChatProvider>
             <FollowersProvider>
-            <VideoProvider>
+          
               <RootLayout />
-              </VideoProvider>
+            
             </FollowersProvider>
           </ChatProvider>
+  
         </UserProvider>
       </ThemeProvider>
   );
@@ -46,13 +52,15 @@ function RootLayout() {
 
   // If fonts are not loaded yet, display loading text
   if (!fontsLoaded) {
-    return <Text>Loading...</Text>;
+    return <Loading/>;
   }
 
   return (
+
     <NavigationThemeProvider value={theme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
+       
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="auth" options={{ headerShown: false }} />
         <Stack.Screen name="userDetails" options={{ headerShown: false }} />
@@ -60,6 +68,7 @@ function RootLayout() {
         <Stack.Screen name="content" options={{ headerShown: false }} />
         <Stack.Screen name="chat" options={{ headerShown: false }} />
         <Stack.Screen name="profile" options={{ headerShown: false }} />
+        <Stack.Screen name="Appsettings" options={{ headerShown: false }} />
       </Stack>
     </NavigationThemeProvider>
   );

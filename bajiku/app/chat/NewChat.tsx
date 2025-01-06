@@ -35,7 +35,7 @@ const NewChatScreen = () => {
             const userId = user?.id || await AsyncStorage.getItem('userId');
             setLoading(true);
             
-            const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${userId}/followers`);
+            const response = await axios.get(`https://my-social-media-bd.onrender.com/users/${userId}/followers`);
             setFollowers(response.data.followers);
         } catch (error) {
             // console.error('Error fetching followers:', error);

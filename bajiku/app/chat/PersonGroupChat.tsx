@@ -12,7 +12,7 @@
 // import { router, useLocalSearchParams } from 'expo-router';
 // import * as NavigationBar from 'expo-navigation-bar';
 // import CustomHeader from '@/components/CustomHeader';
-// const socket = io('https://backend-server-quhu.onrender.com');
+// const socket = io('https://my-social-media-bd.onrender.com');
 
 
 // interface ChatScreenRouteParams {
@@ -64,7 +64,7 @@
 //     const fetchChatHistory = async () => {
 //       try {
 //         const userId = user?.id || await AsyncStorage.getItem('userId');
-//         const response = await fetch(`https://backend-server-quhu.onrender.com/personal-group-chat/all/${name}`);
+//         const response = await fetch(`https://my-social-media-bd.onrender.com/personal-group-chat/all/${name}`);
 //         const data = await response.json();
 
 //         const formattedMessages = data.map((msg: any) => ({
@@ -367,7 +367,7 @@ import { formatCount, formatTime } from '@/services/core/globals';
 import Button from '@/components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const socket = io('https://backend-server-quhu.onrender.com');
+const socket = io('https://my-social-media-bd.onrender.com');
 
 interface Message {
   _id: string;
@@ -441,7 +441,7 @@ const PersonGroupChatScreen: React.FC = () => {
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const response = await fetch(`https://backend-server-quhu.onrender.com/personal-group-chat/all/${name}`);
+        const response = await fetch(`https://my-social-media-bd.onrender.com/personal-group-chat/all/${name}`);
         const data = await response.json();
 
         const formattedMessages = data.map((msg: any) => ({
@@ -574,7 +574,7 @@ const PersonGroupChatScreen: React.FC = () => {
   const handleDeleteGroup = async () => {
     try {
       // Replace with your delete endpoint
-      const response = await fetch(`https://backend-server-quhu.onrender.com/personal-group-chat/${roomId}/delete/${user?.id}`, {
+      const response = await fetch(`https://my-social-media-bd.onrender.com/personal-group-chat/${roomId}/delete/${user?.id}`, {
         method: 'DELETE',
       });
 
@@ -598,7 +598,7 @@ const PersonGroupChatScreen: React.FC = () => {
   };
   const handleLeaveGroup = async () => {
     try {
-      const response = await fetch(`https://backend-server-quhu.onrender.com/personal-group-chat/${roomId}/exit/${user?.id}`, {
+      const response = await fetch(`https://my-social-media-bd.onrender.com/personal-group-chat/${roomId}/exit/${user?.id}`, {
         method: 'POST',
       });
 
@@ -628,7 +628,7 @@ const PersonGroupChatScreen: React.FC = () => {
       setLoadingMembers(true);
   
       const response = await fetch(
-        `https://backend-server-quhu.onrender.com/personal-group-chat/${roomId}/members`
+        `https://my-social-media-bd.onrender.com/personal-group-chat/${roomId}/members`
       );
       const data = await response.json();
       if (response.ok) {

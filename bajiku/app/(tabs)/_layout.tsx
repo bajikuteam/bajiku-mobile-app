@@ -3,12 +3,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Feather, FontAwesome } from '@expo/vector-icons';
-import { TouchableOpacity, Text, View, Modal, FlatList,  StyleSheet, Image, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, Text, View, StyleSheet, Image, } from 'react-native';
 import axios from 'axios';
 import { useUser } from '@/utils/useContext/UserContext';
-import { useTheme } from '@/utils/useContext/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { Audio } from 'expo-av'; 
 
 interface Notification {
   IsRead: boolean;
@@ -244,17 +244,20 @@ export default function TabLayout() {
   const [loading, setLoading] = useState(false); 
 const {user} = useUser()
 const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
-
+const [sound, setSound] = useState<Audio.Sound | null>(null); // State for sound playback
 
 useFocusEffect(
   useCallback(() => {
-    setLoading(true);
-    fetchNotifications ();
-    const timeout = setTimeout(() => {
+    const interval = setInterval(() => {
+      setLoading(true);
+      fetchNotifications();
+    }, 2000); 
+
+    return () => {
+      clearInterval(interval);
       setLoading(false); 
-    }, 2000);
-    return () => clearTimeout(timeout);
-  }, [ user?.id])
+    };
+  }, [user?.id])
 );
 
 
@@ -264,7 +267,9 @@ useFocusEffect(
     setLoading(true);
     const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     try {
-      const response = await axios.get(`https://backend-server-quhu.onrender.com/notifications/${userId}`);
+      
+         const response = await axios.get(`https://my-social-media-bd.onrender.com/notifications/${userId}`);
+      // const response = await axios.get(`https://backend-server-quhu.onrender.com/notifications/${userId}`);
       const allNotifications: Notification[] = response.data;
       const unreadCount = allNotifications.filter((notification: Notification) => !notification.IsRead).length;
       setNotifications(allNotifications);
@@ -280,7 +285,6 @@ useFocusEffect(
       fetchNotifications();
     }
   }, [user]);
-
 
 
   const handleProfilePress = () => {

@@ -41,6 +41,9 @@ const Input = forwardRef<TextInput, InputProps>(
       style = {},
       name,
       icon: Icon,
+      keyboardType, 
+      autoCorrect = false,
+      autoCapitalize = 'none',
     },
     ref,
   ) => {
@@ -59,23 +62,26 @@ const Input = forwardRef<TextInput, InputProps>(
     return (
       <View style={{ marginBottom: 16 }}>
         {label && (
-          <Text style={{ fontSize: 14, fontWeight: '500', color: '#FBBC05' }}>
+          <Text style={{ fontSize: 14, fontWeight: '500', color: '#fff' }}>
             {label}
           </Text>
         )}
         <View style={{ position: 'relative' }}>
         <TextInput
-  placeholder={placeholder}
-  placeholderTextColor="#A0A0A0"
-  value={value}
-  onChangeText={onChangeText}
-  onBlur={onBlur}
-  editable={!disabled}
-  style={[finalStyle, { fontSize: 12 }]}  
-  ref={ref}
-  testID={name}
-  className={finalClassNames}
-/>
+          placeholder={placeholder}
+          placeholderTextColor="#A0A0A0"
+          value={value}
+          onChangeText={onChangeText}
+          onBlur={onBlur}
+          editable={!disabled}
+          style={[finalStyle, { fontSize: 12 }]}  
+          ref={ref}
+          testID={name}
+          className={finalClassNames}
+          keyboardType={keyboardType} 
+          autoCorrect={autoCorrect} 
+          autoCapitalize={autoCapitalize}
+          />
 
           {Icon && (
             <View style={{ position: 'absolute', right: 16, top: 8 }}>

@@ -13,12 +13,12 @@ const styles = StyleSheet.create({
     toggleButtonText: {
       color: '#fff',
       fontSize: 16,
-      padding: 10,
+      // padding: 10,
       textAlign: 'center',
       fontWeight: 'bold',
       borderRadius: 25,
-      marginBottom: 10,
-      marginTop: 10,
+      // marginBottom: 10,
+      // marginTop: 10,
     },
     privateContent: {
       position: 'relative',
@@ -239,8 +239,24 @@ const styles = StyleSheet.create({
       // backgroundColor: 'rgba(0, 0, 0, 0.1)', 
       borderRadius: 5, 
     },
-   
-  
+    activeTab: {
+      // backgroundColor: '#488fee',  
+      // borderColor: '#488fee', 
+           // Optionally change border color
+    },
+
+    activeTabText: {
+      color: 'red', 
+      textDecorationLine: 'underline',
+      textDecorationColor: '#fff', 
+    },
+    toggleButton: {
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 10,
+      // borderWidth: 1,
+      borderColor: '#ccc',
+    },
   });
 
 

@@ -19,7 +19,7 @@ import Button from "@/components/Button";
 import styles from "@/styles/contentDetails";
 import { Comments, ContentType, PostDetailScreenRouteParams } from "@/services/core/types";
 import { SafeAreaView } from "react-native-safe-area-context";
-const socket = io("https://backend-server-quhu.onrender.com");
+const socket = io("https://my-social-media-bd.onrender.com");
 import * as NavigationBar from 'expo-navigation-bar';
 import { useIsFocused } from "@react-navigation/native";
 
@@ -102,7 +102,7 @@ const ContentDetails = () => {
         const getContent = async () => {
           try {
             const response = await fetch(
-              `https://backend-server-quhu.onrender.com/content/single/${id}`
+              `https://my-social-media-bd.onrender.com/content/single/${id}`
             );
     
             if (!response.ok) {
@@ -202,7 +202,7 @@ const [userId, setUserId] = useState<string | null>(null);
         authorProfilePicSrc: user?.profileImageUrl,
       };
       const response = await fetch(
-        `https://backend-server-quhu.onrender.com/content/${mediaId}/comments/${userId}`,
+        `https://my-social-media-bd.onrender.com/content/${mediaId}/comments/${userId}`,
         {
           method: "POST",
           headers: {
@@ -260,7 +260,7 @@ const [userId, setUserId] = useState<string | null>(null);
 
     try {
       const response = await fetch(
-        `https://backend-server-quhu.onrender.com/content/${mediaId}/like/${userId}`,
+        `https://my-social-media-bd.onrender.com/content/${mediaId}/like/${userId}`,
         {
           method: "POST",
         }
@@ -323,7 +323,7 @@ const [userId, setUserId] = useState<string | null>(null);
   
     try {
       const response = await fetch(
-        `https://backend-server-quhu.onrender.com/content/single/${id}`
+        `https://my-social-media-bd.onrender.com/content/single/${id}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch content");
@@ -440,7 +440,7 @@ const [userId, setUserId] = useState<string | null>(null);
         mediaId,
       };
       const response = await fetch(
-        `https://backend-server-quhu.onrender.com/content/${mediaId}/comments/${commentId}/reply/${userId}`,
+        `https://my-social-media-bd.onrender.com/content/${mediaId}/comments/${commentId}/reply/${userId}`,
         {
           method: "POST",
           headers: {
@@ -508,7 +508,7 @@ const [userId, setUserId] = useState<string | null>(null);
 
     try {
       const response = await fetch(
-        `https://backend-server-quhu.onrender.com/content/comments/${mediaId}/${commentId}/like/${userId}`,
+        `https://my-social-media-bd.onrender.com/content/comments/${mediaId}/${commentId}/like/${userId}`,
         {
           method: "POST",
         }
@@ -584,7 +584,7 @@ const [userId, setUserId] = useState<string | null>(null);
     };
   
     try {
-      await axios.post('https://backend-server-quhu.onrender.com/payment/track', paymentData);
+      await axios.post('https://my-social-media-bd.onrender.com/payment/track', paymentData);
       // Refresh content
       await getContent();
     } catch (error) {
@@ -635,7 +635,7 @@ const [userId, setUserId] = useState<string | null>(null);
   const handleDeleteContent = async () => {
     try {
       // Replace with your delete endpoint
-      const response = await fetch(`https://backend-server-quhu.onrender.com/content/delete/${id}/${userId}`, {
+      const response = await fetch(`https://my-social-media-bd.onrender.com/content/delete/${id}/${userId}`, {
         method: 'DELETE',
       });
 

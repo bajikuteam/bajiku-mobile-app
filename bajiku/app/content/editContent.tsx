@@ -67,7 +67,7 @@ const EditContent = () => {
         try {
             // Make the API call to update the content
             const response = await axios.patch(
-                `https://backend-server-quhu.onrender.com/content/edit/${mediaId}/${user?.id}`, 
+                `https://my-social-media-bd.onrender.com/content/edit/${mediaId}/${user?.id}`, 
                 {
                     caption: captionText, 
                     privacy: isPublic ? 'public' : 'private',

@@ -23,7 +23,7 @@ export default function ChatScreen() {
   useFocusEffect(
     useCallback(() => {
       // Initialize the socket connection when the screen is focused
-      socket = io('https://backend-server-quhu.onrender.com', {
+      socket = io('https://my-social-media-bd.onrender.com', {
         transports: ['websocket'], // Force WebSocket transport
         reconnection: true, // Enable automatic reconnection
         reconnectionAttempts: 5, // Retry up to 5 times

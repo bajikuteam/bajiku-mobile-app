@@ -16,7 +16,7 @@ interface CustomHeaderProps {
   subtitle?: string;
   onBackPress?: () => void;
   image?: ImageSourcePropType | string;  
-  onMorePress?: () => void; // Add a prop for handling the three-dot icon press
+  onMorePress?: () => void; 
 }
 
 const CustomHeader: React.FC<CustomHeaderProps> = ({ title, subtitle, onBackPress, image, onMorePress }) => {
@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 20,
     fontWeight: 'bold',
+    textTransform:'lowercase'
   },
   subtitle: {
     color: '#444',

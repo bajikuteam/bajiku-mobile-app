@@ -13,9 +13,8 @@ import {
   Platform,
   ScrollView,
   SafeAreaView,
+  Image
 } from 'react-native';
-
-const { height } = Dimensions.get('window');
 
 const ForgetPassword = () => {
   const { theme } = useTheme();
@@ -30,8 +29,7 @@ const ForgetPassword = () => {
     setEmailError(null);
   
     try {
-      console.log('Email to submit:', email);
-      const response = await fetch('https://backend-server-quhu.onrender.com/api/auth/forgot-password', {
+      const response = await fetch('https://my-social-media-bd.onrender.com/api/auth/forgot-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -89,11 +87,12 @@ const ForgetPassword = () => {
   
 
             <View style={styles.imageTextContainer}>
+          <Image source={{uri :'https://res.cloudinary.com/dyz7znlj0/image/upload/v1726867781/unnamed_1_1_immicl.png' }}   style={{width: 300, height:150,
+            marginBottom:5
+          }}/>
               <ImageTextContainer
-                imageSrc="https://res.cloudinary.com/dyz7znlj0/image/upload/v1726867781/unnamed_1_1_immicl.png"
                 text="Enter your email to receive recovery instructions."
                 subHead="Lost your password?"
-                
               />
             </View>
 

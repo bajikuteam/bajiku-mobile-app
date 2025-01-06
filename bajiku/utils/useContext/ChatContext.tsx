@@ -26,7 +26,7 @@ const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const socket = useRef(io('https://backend-server-quhu.onrender.com')); 
+  const socket = useRef(io('https://my-social-media-bd.onrender.com')); 
 
 
   // Effect to handle incoming messages
@@ -50,7 +50,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const sendNotificationToServer = async (notificationData: any) => {
     try {
-      await axios.post('https://backend-server-quhu.onrender.com/notifications/send', {
+      await axios.post('https://my-social-media-bd.onrender.com/notifications/send', {
         ...notificationData,
         priority: 'high', // Add priority
         sound: 'default', // Ensure there's a sound for the notification

@@ -30,7 +30,7 @@ const RandomDataDisplay = () => {
 
   const fetchPost = async () => {
     try {
-      const response = await axios.get('https://backend-server-quhu.onrender.com/content');
+      const response = await axios.get('https://my-social-media-bd.onrender.com/content');
       
       // Shuffle the array and get 5 random posts
       const shuffledPosts = shuffleArray(response.data);

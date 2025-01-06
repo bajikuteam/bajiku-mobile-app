@@ -34,7 +34,7 @@ const UsersFollowersScreen = () => {
         try {
             setLoading(true);
             
-            const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${ExternalUersId}/followers`);
+            const response = await axios.get(`https://my-social-media-bd.onrender.com/users/${ExternalUersId}/followers`);
             setFollowers(response.data.followers);
             setFilteredFollowers(response.data.followers);
         } catch (error) {
@@ -47,7 +47,7 @@ const UsersFollowersScreen = () => {
 
     const fetchFollowing = async () => {
         try {
-            const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${ExternalUersId}/following`);
+            const response = await axios.get(`https://my-social-media-bd.onrender.com/users/${ExternalUersId}/following`);
             setFollowing(response.data.following || []); 
         } catch (error) {
             // console.error('Error fetching following:', error);
@@ -68,7 +68,7 @@ const UsersFollowersScreen = () => {
     const toggleFollow = async (followerId: string) => {
         try {
             const isFollowing = following.some(f => f?._id === followerId); 
-            const url = `https://backend-server-quhu.onrender.com/users/${user?.id}/${isFollowing ? 'unfollow' : 'follow'}/${followerId}`;
+            const url = `https://my-social-media-bd.onrender.com/users/${user?.id}/${isFollowing ? 'unfollow' : 'follow'}/${followerId}`;
             await axios.post(url);
             
             if (isFollowing) {
@@ -102,7 +102,7 @@ const UsersFollowersScreen = () => {
         if (loggedInUserId === userId) {
           // Navigate to the logged-in user's profile
           router.push({
-            pathname: '/Profile',
+            pathname: '/profile/Profile',
             params: {
               userId: loggedInUserId,
               username,

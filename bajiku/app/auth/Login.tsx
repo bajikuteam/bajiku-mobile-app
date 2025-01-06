@@ -40,7 +40,6 @@ const LoginScreen = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const { handleLogin } = useUser();
   const [showPassword, setShowPassword] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
 
   const navigation = useNavigation();
 

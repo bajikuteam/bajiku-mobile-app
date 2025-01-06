@@ -5,9 +5,9 @@ import { ApiConfig } from '@/services/core/types';
 
 
 // const baseUrl: string = (BASE_URL);
-const baseUrl: string = 'https://backend-server-quhu.onrender.com'
-// const baseUrl: string = 'http://192.168.109.55:5000'
+// const baseUrl: string = 'https://backend-server-quhu.onrender.com'
 
+const baseUrl: string = 'https://my-social-media-bd.onrender.com'
 
 
 const getToken = async (): Promise<string> => {

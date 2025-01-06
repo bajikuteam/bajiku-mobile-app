@@ -12,19 +12,6 @@ export const registerUser = async (email: string, dateOfBirth: string) => {
 };
 
 
-// export const acceptDisclaimer = async (userId: string) => {
-//   try {
-//     const response = await axios.post(`/api/auth/${userId}/accept-disclaimer`, {
-//       disclaimerAccepted: true,
-//     });
-//     return response.data;  
-//   } catch (error) {
-//     console.error("Failed to accept disclaimer:", error);
-//     throw error;
-//   }
-// };
-
-
 export const acceptDisclaimerAPI = async (userId: string, disclaimerAccepted: boolean) => {
   try {
     const response = await apiPost(`/api/auth/${userId}/accept-disclaimer`, {
@@ -38,8 +25,9 @@ export const acceptDisclaimerAPI = async (userId: string, disclaimerAccepted: bo
 
 
 export const loginUser = async (email: string, password: string) => {
-
-  const response = await fetch(`https://backend-server-quhu.onrender.com/api/auth/signin`, {
+ 
+       const response = await fetch(`https://my-social-media-bd.onrender.com/api/auth/signin`, {
+    // const response = await fetch(`https://backend-server-quhu.onrender.com/api/auth/signin`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -145,7 +133,9 @@ export const setNewPassword = async ( password:string, confirmPassword:string,  
     formData.append('firstName', firstName);
     formData.append('lastName', lastName);
     formData.append('userName', userName);
-    const apiUrl = `https://backend-server-quhu.onrender.com/api/auth/profile/edit/${userId}`;
+    
+    const apiUrl = `https://my-social-media-bd.onrender.com/api/auth/profile/edit/${userId}`;
+    // const apiUrl = `https://backend-server-quhu.onrender.com/api/auth/profile/edit/${userId}`;
     const response = await axios.put(apiUrl, formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
@@ -196,7 +186,8 @@ export const createGroup = async (
         formData.append('members', member);
     });
     
-    const apiUrl = `https://backend-server-quhu.onrender.com/personal-group-chat/create/${createdBy}`;
+    const apiUrl = `https://my-social-media-bd.onrender.com/personal-group-chat/create/${createdBy}`;
+    // const apiUrl = `https://backend-server-quhu.onrender.com/personal-group-chat/create/${createdBy}`;
      const response = await axios.post(apiUrl, formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
@@ -246,7 +237,10 @@ export const uploadContent = async (
   formData.append('authorProfilePicSrc', authorProfilePicSrc);
   formData.append('privacy', isPublic ? 'public' : 'private'); 
 
-  const apiUrl = `https://backend-server-quhu.onrender.com/content/create/${createdBy}`;
+  
+
+  const apiUrl = `https://my-social-media-bd.onrender.com/content/create/${createdBy}`;
+  // const apiUrl = `https://backend-server-quhu.onrender.com/content/create/${createdBy}`;
   const response = await axios.post(apiUrl, formData, {
     headers: {
         'Content-Type': 'multipart/form-data',

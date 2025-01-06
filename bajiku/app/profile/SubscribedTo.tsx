@@ -33,7 +33,7 @@ const SubToScreen = () => {
             const userId = user?.id || await AsyncStorage.getItem('userId');
             setLoading(true);
             
-            const response = await axios.get(`https://backend-server-quhu.onrender.com/users/${userId}/subscribedTo`);
+            const response = await axios.get(`https://my-social-media-bd.onrender.com/users/${userId}/subscribedTo`);
            
             setFollowers(response.data.subscribedTo);
             setFilteredFollowers(response.data.subscribedTo);

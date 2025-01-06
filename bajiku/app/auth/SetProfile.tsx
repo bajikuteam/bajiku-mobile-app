@@ -174,7 +174,7 @@ const SetProfile = () => {
                                 name={''}
                             />
                             {usernameAvailability && (
-                            <Text className='text-xs -mt-4 mb-4' style={{ color: usernameAvailability.available ? 'green' : 'red' }}>
+                            <Text style={{ color: usernameAvailability.available ? 'green' : 'red' }}>
                                 {usernameAvailability.message}
                             </Text>
                         )}
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 20,
         marginTop: 30,
-        color: '#FBBC05'
+        color: '#fff'
       },
       nameInputsContainer: {
         flexDirection: 'row', 

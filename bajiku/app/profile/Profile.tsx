@@ -214,7 +214,7 @@ const Profile = () => {
     const userId = user?.id  || await AsyncStorage.getItem('userId'); 
     try {
       const response = await axios.get(
-        `https://backend-server-quhu.onrender.com/users/userDetails/${userId}`
+        `https://my-social-media-bd.onrender.com/users/userDetails/${userId}`
       );
 
       setPersonalDetails(response.data.following || []); 
@@ -251,7 +251,7 @@ const Profile = () => {
     setLoading(true);
     const userId = user?.id || await AsyncStorage.getItem('userId');
     try {
-      const response = await axios.get(`https://backend-server-quhu.onrender.com/content/subscribed-by/${userId}`);
+      const response = await axios.get(`https://my-social-media-bd.onrender.com/content/subscribed-by/${userId}`);
       const data = response.data;  
       if (data && Array.isArray(data)) {
         setSubscribedPosts(data); 
@@ -280,7 +280,7 @@ const Profile = () => {
     setLoading(true);
     const userId = user?.id || await AsyncStorage.getItem('userId');;
     try {
-      const response = await axios.get(`https://backend-server-quhu.onrender.com/content/user/${userId}`);
+      const response = await axios.get(`https://my-social-media-bd.onrender.com/content/user/${userId}`);
       const data = response.data;
 
       if (data && Array.isArray(data)) {

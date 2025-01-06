@@ -8,6 +8,7 @@ const ProfileLayout = () => {
         <Stack.Screen name="SubscribedTo" options={{ headerShown: false }} />
         <Stack.Screen name="Following" options={{ headerShown: false }} />
         <Stack.Screen name="TotalEarnings" options={{ headerShown: false }} />  
+       
         <Stack.Screen name="Profile" 
         options={{ headerShown: false ,    
      headerTitleAlign: 'center',  

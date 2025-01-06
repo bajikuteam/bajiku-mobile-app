@@ -25,7 +25,7 @@ const PostWithCaption: React.FC<PostWithCaptionProps> = ({
       const handlePlay = () => {
         videoElement.muted = false;
         videoElement.play().catch((error) => {
-          console.log('Error playing video:', error);
+          // console.log('Error playing video:', error);
         });
       };
 
